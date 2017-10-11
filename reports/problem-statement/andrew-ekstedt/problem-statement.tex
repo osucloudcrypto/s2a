@@ -1,0 +1,196 @@
+\nonstopmode % halt on errors
+\documentclass[onecolumn, draftclsnofoot,10pt, compsoc]{IEEEtran}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{setspace}
+
+\usepackage{geometry}
+\geometry{textheight=9.5in, textwidth=7in}
+
+% 1. Fill in these details
+\def \CapstoneTeamName{		The Cleverly Named Team}
+\def \CapstoneTeamNumber{		38}
+\def \GroupMemberOne{			Andrew Ekstedt}
+\def \GroupMemberTwo{			Scott Merrill}
+\def \GroupMemberThree{			Scott Russell}
+\def \CapstoneProjectName{		Privacy Preserving Cloud, Email, and Password Systems}
+\def \CapstoneSponsorCompany{	OSU}
+\def \CapstoneSponsorPerson{		Attila Yavuz}
+
+% 2. Uncomment the appropriate line below so that the document type works
+\def \DocType{		Problem Statement }
+
+\newcommand{\NameSigPair}[1]{\par
+\makebox[2.75in][r]{#1} \hfil 	\makebox[3.25in]{\makebox[2.25in]{\hrulefill} \hfill		\makebox[.75in]{\hrulefill}}
+\par\vspace{-12pt} \textit{\tiny\noindent
+\makebox[2.75in]{} \hfil		\makebox[3.25in]{\makebox[2.25in][r]{Signature} \hfill	\makebox[.75in][r]{Date}}}}
+% 3. If the document is not to be signed, uncomment the RENEWcommand below
+\renewcommand{\NameSigPair}[1]{#1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\begin{titlepage}
+    \pagenumbering{gobble}
+    \begin{singlespace}
+        %\includegraphics[height=4cm]{coe_v_spot1}
+        \hfill
+        % 4. If you have a logo, use this includegraphics command to put it on the coversheet.
+        %\includegraphics[height=4cm]{CompanyLogo}
+        \par\vspace{.2in}
+        \centering
+        \scshape{
+            \huge CS Capstone \DocType \par
+            {\large\today}\par
+            \vspace{.5in}
+            \textbf{\Huge\CapstoneProjectName}\par
+            \vfill
+            {\large Prepared for}\par
+            \Huge \CapstoneSponsorCompany\par
+            \vspace{5pt}
+            {\Large\NameSigPair{\CapstoneSponsorPerson}\par}
+            {\large Prepared by }\par
+            Group\CapstoneTeamNumber\par
+            % 5. comment out the line below this one if you do not wish to name your team
+            % team name TBD
+            %\CapstoneTeamName\par
+            \vspace{5pt}
+            {\Large
+                \NameSigPair{\GroupMemberOne}\par
+                \NameSigPair{\GroupMemberTwo}\par
+                \NameSigPair{\GroupMemberThree}\par
+            }
+            \vspace{20pt}
+        }
+        \begin{abstract}
+        % 6. Fill in your abstract
+            % TODO: fill this out later
+    %Project abstract summarizing the entire document in 100-150 words. We will be discussing how to write an abstract during our next class
+            We want to be able to store private data on the cloud in such a way that the provider cannot decrypt it, yet we can still perform keyword searches efficiently.
+            Our project will be to implement and build on algorithms developed by Attila Yavuz and David Cash which could potentially solve this problem.
+            We will demonstrate practical searchable encryption of documents, email, and possibly passwords.
+
+        \end{abstract}
+    \end{singlespace}
+\end{titlepage}
+\newpage
+\pagenumbering{arabic}
+\tableofcontents
+% 7. uncomment this (if applicable). Consider adding a page break.
+%\listoffigures
+%\listoftables
+\clearpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% Definition and description of the problem you are trying to solve; be sure to
+% write this problem definition for a general but educated audience
+\section{Motivation}
+
+    % Want to build tools that help protect privacy and fight mass surveillance
+Privacy issues and mass surveillance are a growing concern for the public.
+More and more companies are building products with strong encryption built in.
+A few examples:
+Web browsers makers like Chrome and Mozilla are pushing for a secure-by-default world where every website has an SSL certificate and those without are marked as untrusted;
+Apple is positioning themselves as a privacy-conscious company by building strong encryption features into recent iPhone models;
+Open Whisper Systems built Signal --- a next-generation asynchronous messaging app whose novel underlying protocol has since been adopted by WhatsApp, Google Allo, and Facebook Messenger, to name a few.
+
+Despite these advances, there are many areas where security is lacking.
+Encrypted email, for example, is still a mostly unsolved problem.
+You can use something like GPG to encrypt messages, but if you do that you lose
+the ability to easily search your messages.
+This problem can be "solved" by giving your email provider a copy of your decryption keys,
+but now they have the ability to read all your email, defeating the purpose of encryption.
+A similar problem exists for cloud storage systems:
+Google Drive offers some flavor of "encryption", but Google necessarily hangs onto a copy of the encryption keys, which means that Google has the ability to decrypt your files any time they want.
+
+    % No open-source implementation of searchable encryption
+
+There has been some research into searchable encryption, but there are no open-source implementations of the algorithms that have been developed.
+
+
+    % There's one that Cash did(?) but it's tied up in IP rights at IBM(?) and isn't available
+
+
+\section{Goals}
+% Proposed solution
+
+% Primary goal is to demonstrate a practical implementation of searchable encryption
+
+Our primary goal is to demonstrate a practical, open-source implementation of searchable encryption on a cloud provider.
+
+    %Primary purpose is as a research project (proof of concept) rather than a polished product
+    %Command-line interface is fine; we don't need a flashy ui, although that's a good stretch goal.
+    %Also nice to have: mobile app
+
+    %Attila and Thang have done published a research paper and done a preliminary implementation of a particular searchable encryption algorithm
+
+    %Connect it to a cloud service like Amazon
+
+Attila's research group has developed an implementation of an algorithm for searchable encryption \cite{yavuz17},
+but it only runs locally, not over the network.
+To convincingly demonstrate that searchable encryption is practical, it needs to work over a network.
+We will build a pair of client-server programs that can do searchable encryption.
+Ideally, we will be able to hook it up to something like Amazon S3 so that all the data is stored in the cloud.
+
+    %Need to figure out optimal data structure for actually using it? Says there are 10s of options publshed – need to get familiar with those
+    %Will lean heavily on research by David Cash
+
+Part of the project will be to research more efficient data structures for searchable encryption.
+The implementation that Attila's group did uses a fairly na\"ive data structure;
+it performs very well dispite that, but there is a possibility that a more complicated data structure could provide further performance boosts.
+We will build on research by David Cash for this step.
+\cite{cryptoeprint:2014:853}
+%Part of the project will be to create a more efficient data structure, building on work by David Cash.
+%One of the problems with the current solution is that the size of the index it stores is $\mathcal{O}(kf)$, where $k$ is the number of keywords, and $f$ is the number of documents.
+%Which is huge.
+%Since search indices are usually sparse, this wastes a ton of space.
+
+
+    % Once that's working, want to hook it up to a database of emails
+
+The second project is searchable encrypted email.
+Once we have built a basic working implementation of searchable encryption,
+we would like to hook it up to email somehow.
+This will probably involve writing a daemon which downloads messages from an email provider like gmail
+and adds them to an encrypted database.
+Presumably we would want to throw some email-specific UI and search functionality on top.
+This part of the project is TBD and we expect to learn more about what is possible after we complete the first part of the project, and as we start working on this part.
+
+    % Attila doesn't think this will be very difficult to set up once the first \^ project is done. I'm skeptical. Need to find out more details about what he has in mind.
+
+
+% ORAM password manager
+% (maybe)
+
+A third, noncritical, project is to implement a password manager using ORAM (oblivious RAM) algorithms.
+This is very much a "stretch goal" which we would only work on after completing the first two projects.
+It's fine if we don't get to it at all.
+
+
+\section{Metrics}
+%Performance metrics: Tell how you will know when you have completed the project. Metrics help you and your client agree on what successful completion (e.g., faster, cheaper, easier to use, "a working prototype," a complete white paper with research results) of the project looks like.
+
+There are two metrics, equally important: correctness and performance.
+
+    % Correctness
+
+The first metric is correctess.
+The software should return the correct set of documents when searching for a keyword.
+It should be able to dynamically add and delete files from the search index and return correct search results using the modified index.
+
+    % Reasonable performance
+
+The second metric is performance.
+For the secure cloud, we want to aim for under a hundred milliseconds to search for a file. % more? less?
+Attila has measured the previous implementation to be able to perform a search in around 10 milliseconds or less, even with an index containing millions of files, so this should be doable.
+% other operations?
+Performance for the email database is TBD.
+% discussed with attila; he doesn't have specific requirements in mind,
+% but expects to get a better idea after we've implemented some stuff
+% and know what is possible
+The password manager (if we get to it) will be less performant due to the overheads of ORAM, but we want to aim for 100 milliseconds.
+
+\bibliographystyle{IEEEtran}
+\bibliography{problem-statement.bib}{}
+
+\end{document}
