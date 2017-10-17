@@ -1,0 +1,8 @@
+# latex crud
+*.aux
+*.bbl
+*.blg
+*.dvi
+*.log
+*.ps
+*.toc
