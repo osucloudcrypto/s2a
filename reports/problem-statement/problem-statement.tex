@@ -87,26 +87,24 @@
 \section{Motivation}
 
     % Want to build tools that help protect privacy and fight mass surveillance
-Privacy issues and mass surveillance are a growing concern for the public.
-More and more companies are building products with strong encryption built in.
-A few examples:
-Web browsers makers like Chrome and Mozilla are pushing for a secure-by-default world where every website has an SSL certificate and those without are marked as untrusted;
-Apple is positioning themselves as a privacy-conscious company by building strong encryption features into recent iPhone models;
-Open Whisper Systems built Signal --- a next-generation asynchronous messaging app whose novel underlying protocol has since been adopted by WhatsApp, Google Allo, and Facebook Messenger, to name a few.
+
+In today's technological world privacy is of key importance.
+Faced with the growing public panic over mass surveillance,
+companies have caught onto the significance of security and are creating products with strong encryption built in.
+Web browser makers like Chrome and Mozilla are pushing for a secure-by-default world where every website has an SSL certificate, marking those without as untrusted.
+Apple is positioning themselves as a privacy-conscious company by building strong encryption features into recent iPhone models.
+Billions of users are flocking to secure chat apps like Signal and WhatsApp.
 
 Despite these advances, there are many areas where security is lacking.
-Encrypted email, for example, is still a mostly unsolved problem.
-You can use something like GPG to encrypt messages, but if you do that you lose
-the ability to easily search your messages.
-This problem can be "solved" by giving your email provider a copy of your decryption keys,
-but now they have the ability to read all your email, defeating the purpose of encryption.
-A similar problem exists for cloud storage systems:
-Google Drive offers some flavor of "encryption", but Google necessarily hangs onto a copy of the encryption keys, which means that Google has the ability to decrypt your files any time they want.
+Encrypted email is still an unsolved problem.
+You can use GPG to encrypt messages, but then you lose the ability to quickly search your messages.
+This problem can be addressed by giving your email provider a copy of your decryption keys, but now they have the ability to read all your email, defeating the purpose of encryption.
+A similar problem exists for cloud storage systems: Google Drive will transparently encrypt your files for you, but Google necessarily hangs onto a copy of the encryption keys, which means that Google has the ability to decrypt your files any time they want.
 
     % No open-source implementation of searchable encryption
 
-There has been some research into searchable encryption, but there are no open-source implementations of the algorithms that have been developed.
-
+There has been some research into searchable encryption, but no open-source implementations of the algorithms that have been developed.
+The need for a fast and efficient open-source implementation of dynamic searchable encryption is the basis for our research.
 
     % There's one that Cash did(?) but it's tied up in IP rights at IBM(?) and isn't available
 
@@ -150,7 +148,7 @@ We will build on research by David Cash for this step.
 
 The second project is searchable encrypted email.
 Once we have built a basic working implementation of searchable encryption,
-we would like to hook it up to email somehow.
+we would like to hook it up to email.
 This will probably involve writing a daemon which downloads messages from an email provider like gmail
 and adds them to an encrypted database.
 Presumably we would want to throw some email-specific UI and search functionality on top.
