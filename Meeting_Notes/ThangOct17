@@ -1,0 +1,27 @@
+Meeting with Thang 10/17
+
+Discussion Topics:
+	• Structure of project
+	• David Cash discussion
+	
+Email from Attila
+	• Went over changes about email
+	• Modify working to be implementing David cash
+	• Emphasize open source 
+	• May need to discuss adjusting the project to fit a 2 term project
+	• Email Attila about meeting on Thursday
+
+David Cash discussion
+	• Pointer are smaller than id's?
+	• Search and Addition be the first focus of implementation.
+	• Hash table provided in resource from Thang
+	• Tokenization and client/server are the useful parts to use from Thang's implementation
+
+Action Items
+	• Email Attila for meeting on Thursday … 2pm
+	• Fix the project statement
+	• Begin to design our plan for David Cash implementation
+	• 4th follow up email with Kevin McGrath
+	• Show that you can run the example code by next week 
+		○ CodeliteIDE 
+	
