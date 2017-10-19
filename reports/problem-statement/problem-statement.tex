@@ -96,7 +96,7 @@ Apple is positioning themselves as a privacy-conscious company by building stron
 Billions of users are flocking to secure chat apps like Signal and WhatsApp.
 
 Despite these advances, there are many areas where security is lacking.
-Encrypted email is still an unsolved problem.
+There is currently limited research into encrypted emails.
 You can use GPG to encrypt messages, but then you lose the ability to quickly search your messages.
 This problem can be addressed by giving your email provider a copy of your decryption keys, but now they have the ability to read all your email, defeating the purpose of encryption.
 A similar problem exists for cloud storage systems: Google Drive will transparently encrypt your files for you, but Google necessarily hangs onto a copy of the encryption keys, which means that Google has the ability to decrypt your files any time they want.
@@ -159,7 +159,9 @@ A third project is to implement a password manager using ORAM (oblivious RAM),
 which is a random-access data structure that hides memory access patterns from observers.
 Current searchable encryption schemes leak some access patterns whenever you search,
 so a password manager service implemented with such a scheme could learn for example that you always access a site at a certain time of day.
-By obscuring the access patterns with ORAM, we can prevent the server from learning this information.
+By obscuring the access patterns with ORAM, we can prevent the server from learning this information. This is a streach goal
+of the project and will be persued if we have time after tackling the first two goals of this project. As it is not directly
+related to David Cash's scheme.
 
 
 \section{Metrics}
