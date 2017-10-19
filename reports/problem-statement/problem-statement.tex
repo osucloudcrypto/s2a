@@ -124,20 +124,17 @@ Our primary goal is to demonstrate a practical, open-source implementation of se
 
     %Connect it to a cloud service like Amazon
 
-Attila's research group has developed an implementation of an algorithm for searchable encryption \cite{yavuz17},
-but it only runs locally, not over the network.
-To convincingly demonstrate that searchable encryption is practical, it needs to work over a network.
-We will build a pair of client-server programs that can do searchable encryption.
-Ideally, we will be able to hook it up to something like Amazon S3 so that all the data is stored in the cloud.
+%To convincingly demonstrate that searchable encryption is practical, it needs to work over a network.
+Attila's research group has previously developed and implemented an algorithm for searchable encryption \cite{yavuz17},
+however there is another scheme which was developed by David Cash which is asymtotically more efficient \cite{cryptoeprint:2014:853}
+in some areas; for example, the size of the encrypted index is smaller.
+The source code for David Cash's implementation is not publicly available, so
+our first project will be to build an open-source implementation of David Cash's scheme,
+and to demonstrate that it works by building a client-server system that runs on Amazon EC2.
 
     %Need to figure out optimal data structure for actually using it? Says there are 10s of options publshed – need to get familiar with those
     %Will lean heavily on research by David Cash
 
-Part of the project will be to research more efficient data structures for searchable encryption.
-The implementation that Attila's group did uses a fairly na\"ive data structure;
-it performs very well despite that, but there is a possibility that a more complicated data structure could provide further performance boosts.
-We will build on research by David Cash for this step.
-\cite{cryptoeprint:2014:853}
 %Part of the project will be to create a more efficient data structure, building on work by David Cash.
 %One of the problems with the current solution is that the size of the index it stores is $\mathcal{O}(kf)$, where $k$ is the number of keywords, and $f$ is the number of documents.
 %Which is huge.
@@ -146,9 +143,7 @@ We will build on research by David Cash for this step.
 
     % Once that's working, want to hook it up to a database of emails
 
-The second project is searchable encrypted email.
-Once we have built a basic working implementation of searchable encryption,
-we would like to hook it up to email.
+The second project is to apply our searchable encryption program to the problem of encrypted email.
 This will probably involve writing a daemon which downloads messages from an email provider like gmail
 and adds them to an encrypted database.
 Presumably we would want to throw some email-specific UI and search functionality on top.
@@ -160,9 +155,11 @@ This part of the project is TBD and we expect to learn more about what is possib
 % ORAM password manager
 % (maybe)
 
-A third, noncritical, project is to implement a password manager using ORAM (oblivious RAM), which is a random-access data structure that hides memory access patterns from observers.
-This is very much a "stretch goal" which we would only work on after completing the first two projects.
-It's fine if we don't get to it at all.
+A third project is to implement a password manager using ORAM (oblivious RAM),
+which is a random-access data structure that hides memory access patterns from observers.
+Current searchable encryption schemes leak some access patterns whenever you search,
+so a password manager service implemented with such a scheme could learn for example that you always access a site at a certain time of day.
+By obscuring the access patterns with ORAM, we can prevent the server from learning this information.
 
 
 \section{Metrics}
