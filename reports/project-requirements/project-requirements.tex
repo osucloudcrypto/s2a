@@ -89,7 +89,7 @@
 % IEEE Std 830-1998, section 4.1:
 % The basic issues that the SRS writer(s) shall address are the following:
 %  a)Functionality. What is the software supposed to do?
-%  b)External interfaces. How does the software interact with people, the systemâ€™s hardware, other hard-ware, and other software?
+%  b)External interfaces. How does the software interact with people, the system’s hardware, other hard-ware, and other software?
 %  c)Performance. What is the speed, availability, response time, recovery time of various software functions, etc.?
 %  d)Attributes. What are the portability, correctness, maintainability, security, etc. considerations?
 %  e) Design constraints imposed on an implementation. Are there any required standards in effect, implementation language, policies for database integrity, resource limits, operating environment(s) etc.?
@@ -112,7 +112,7 @@ This implementation will be executed through command line prompts and hosted on 
     Searchable Symmetric Encryption (SSE) & Allows a client to encrypt its data in such a way that this data can still be searched.  \\ \hline 
     Client & A computer application, such as a web browser, that runs on a user's local computer or workstation and connects to a server as 		necessary \\ \hline 
     Server &  A software program, such as a web server, that runs on a remote server, reachable from a user's local computer or workstation. \\ \hline 
-    insert term & insert definition \\ \hline 
+    SFTP & Secure File Transfer Protocol \\ \hline 
     insert term & insert definition \\ \hline 
     insert term & insert definition \\ \hline 
     insert term & insert definition \\ \hline 
@@ -172,36 +172,21 @@ Completing the cloud storage and email modules will depend on having a basic SSE
 
 \subsubsection{ User interfaces }
 
-The primary user interface to the SSE system will be a pair of client-server programs. A user will be able to launch the server from the command line, and to query the server with a command line client program. This initially will be done in an offline self contained client on a single computer but will be adapted to a Client Server system and finally an email system. These are the main user functionalities of the SSE: Keyword Search, Add Files, Delete Files, Build Data Structure, and Save and Exit. The Keyword Search asks for a specific keyword input and than searches the entire data base for any files that contain the said keyword. The Delete Files call will delete a filename from the system if it exists. Add file will add a file to the database, if it already exists it will prompt for an overwrite on the said file.
+The primary user interface to the SSE system will be a pair of client-server programs. A user will be able to launch the server from the command line, and to query the server with a command line client program. This initially will be done in an offline self contained client on a single computer but will be adapted to a Client Server system and finally an email system. These are the main user functionalities of the SSE: Keyword Search, Add Files, Delete Files, Build Data Structure, and Save and Exit. The Keyword Search asks for a specific keyword input and than searches the entire data base for any files that contain the said keyword. The Delete Files call will delete a filename from the system if it exists. Add file will add a file to the database, if it already exists it will prompt for an overwrite on the said file. Successful implementation of these functionalities is a goal of this project.
 
-The Gmail user interface will have the same functionality requirements as the Online Client-Server. However, now we are working with cloud storage data. The data is not stored on a local computer but now on Gmail's cloud system. As a user you will have the ability to manually force an email download as well as automatically updating the system every 2 minutes while the connection is open.
+The Gmail user interface will have the same functionality requirements as the Online Client-Server. However, now we are working with cloud storage data. The data is not stored on a local computer but now on Gmail's cloud system. As a user you will have the ability to manually force an email download as well as automatically updating the system every 2 minutes while the connection is open through a Gmail Daemon. The Client will still be able to Search, Update, and Delete data on the cloud just as the offline client does.
 
 \subsubsection{ Software interfaces }
 
-The implementation of SSE will be take the form of a C++ API which can be used by the rest of the system. Software of previous work from Atilla's implementation of the bit matrix provided by Thang will be used as a main software example and can be used as a template for many of the server/client connection calls. However since the algorithm itself is completely different it will mostly be used to allow the team to focus more coding on the process of research and implementation of David Cash's algorithm. 
+The implementation of SSE will be take the form of a C++ API which can be used by the rest of the system. Software of previous work from Atilla's implementation of the bit matrix provided by Thang will be used as a main software example and can be used as a template for many of the server/client connection calls. However since the algorithm itself is completely different it will mostly be used to allow the team to focus more coding on the process of research and implementation of David Cash's algorithm. Asymptotically David Cash's algorithm has a faster Big O complexity speed. This will be tested by running 50 calls to Search, Update, and Delete on both Atilla's Bit Matrix and our David Cash implementation. Parallelism should also be possible with David Cash's algorithm and optimization of the performance will be worked on if time permits.
 
-Once we have a basic software package with the ability to run a David Cash SSE we will than move from a Client Server connection to communication with a cloud database. The cloud storage module will communicate with a cloud service like Dropbox or Google Drive in order to download files and add them to the search index.
+Once we have a basic software package with the ability to run a David Cash SSE we will than move from a Client Server connection to communication with a cloud database. The cloud storage module will communicate with a cloud service using Dropbox or Google Drive in order to download files and add them to the search index. This will be a research area before implementation.
 
-Next will we focus on Email Client Server integration. We will reserach the ability to connect our system with the Gmail interface. This is of key importance to the project as it provides a real life uses for David Cash's SSE. The email module will communicate with remote email servers via POP3 or IMAP in order to download email messages.
+Next will we focus on Email Client Server integration. We will research the ability to connect our system with the Gmail interface. This is of key importance to the project as it provides a real life uses for David Cash's SSE. The email module will communicate with remote email servers via POP3 or IMAP in order to download email messages. This will focus on researching Secure File Transfer Protocols (SFTP) as well as general knowledge of Email-Client servers. An automatically updating background process will run while the Client-Gmail connection is open every 2 minutes to update new incoming emails.
+
+In conclusion the three main software products that we will be delivering through this project are: an implementation of David Cash's search algorithm, a cloud based Client-Server where data can be updated and stored and finally a Email Client Server integration. 
 
 
-
-
-    Email 
-
-        Topic: how to integrate with email system 
-
-        Research: how to connect to gmail 
-
-        Research: how to connect with dropbox 
-
-            SFTP library 
-
-        Gmail daemon  
-
-        Secure communication 
-
-        User is able to download email 
 
 % \section{ Appendices }
 % \section{ Index }
