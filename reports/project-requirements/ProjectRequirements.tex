@@ -1,0 +1,301 @@
+\nonstopmode % halt on errors
+\documentclass[onecolumn, draftclsnofoot,10pt, compsoc]{IEEEtran}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{setspace}
+\usepackage{enumitem}
+\usepackage[english]{babel}
+\usepackage{pgfgantt}
+\usepackage{etoolbox}
+
+\usepackage{geometry}
+\geometry{textheight=9.5in, textwidth=7in}
+
+% 1. Fill in these details
+\def \CapstoneTeamName{		The Secret Bunny Team}
+\def \CapstoneTeamNumber{		38}
+\def \GroupMemberOne{			Andrew Ekstedt}
+\def \GroupMemberTwo{			Scott Merrill}
+\def \GroupMemberThree{			Scott Russell}
+\def \CapstoneProjectName{		Privacy Preserving Cloud, Email, and Password Systems}
+\def \CapstoneSponsorCompany{	OSU}
+\def \CapstoneSponsorPerson{		Attila Yavuz}
+
+% 2. Uncomment the appropriate line below so that the document type works
+\def \DocType{	%	Problem Statement
+				Requirements Document
+				%Technology Review
+				%Design Document
+				%Progress Report
+				}
+			
+\newcommand{\NameSigPair}[1]{\par
+\makebox[2.75in][r]{#1} \hfil 	\makebox[3.25in]{\makebox[2.25in]{\hrulefill} \hfill		\makebox[.75in]{\hrulefill}}
+\par\vspace{-12pt} \textit{\tiny\noindent
+\makebox[2.75in]{} \hfil		\makebox[3.25in]{\makebox[2.25in][r]{Signature} \hfill	\makebox[.75in][r]{Date}}}}
+% 3. If the document is not to be signed, uncomment the RENEWcommand below
+\renewcommand{\NameSigPair}[1]{#1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\begin{titlepage}
+    \pagenumbering{gobble}
+    \begin{singlespace}
+        %\includegraphics[height=4cm]{coe_v_spot1}
+        \hfill 
+        % 4. If you have a logo, use this includegraphics command to put it on the coversheet.
+        %\includegraphics[height=4cm]{CompanyLogo}   
+        \par\vspace{.2in}
+        \centering
+        \scshape{
+            \huge CS Capstone \DocType \par
+            {\large\today}\par
+            \vspace{.5in}
+            \textbf{\Huge\CapstoneProjectName}\par
+            \vfill
+            {\large Prepared for}\par
+            \Huge \CapstoneSponsorCompany\par
+            \vspace{5pt}
+            {\Large\NameSigPair{\CapstoneSponsorPerson}\par}
+            {\large Prepared by }\par
+            Group\CapstoneTeamNumber\par
+            % 5. comment out the line below this one if you do not wish to name your team
+            \CapstoneTeamName\par 
+            \vspace{5pt}
+            {\Large
+                \NameSigPair{\GroupMemberOne}\par
+                \NameSigPair{\GroupMemberTwo}\par
+                \NameSigPair{\GroupMemberThree}\par
+            }
+            \vspace{20pt}
+        }
+        \begin{abstract}
+        % 6. Fill in your abstract    
+        	
+            This document describes the requirements for the Privacy Preserving Cloud, Email, and Password Systems Senior Capstone project.  This will be accomplished by explaining in detail the benchmarks for how our group will implement David Cash's DSSE algorithm and integrate that onto an email and cloud system.
+            
+            
+        \end{abstract}     
+    \end{singlespace}
+\end{titlepage}
+\newpage
+\pagenumbering{arabic}
+\tableofcontents
+% 7. uncomment this (if applicable). Consider adding a page break.
+%\listoffigures
+%\listoftables
+\clearpage
+
+
+% Feedback from winters:
+% - add Gantt chart
+% - add abstract
+% - reduce the amount of prose, tighten
+        
+% IEEE Std 830-1998, section 4.1:
+% The basic issues that the SRS writer(s) shall address are the following:
+%  a)Functionality. What is the software supposed to do?
+%  b)External interfaces. How does the software interact with people, the system’s hardware, other hard-ware, and other software?
+%  c)Performance. What is the speed, availability, response time, recovery time of various software functions, etc.?
+%  d)Attributes. What are the portability, correctness, maintainability, security, etc. considerations?
+%  e) Design constraints imposed on an implementation. Are there any required standards in effect, implementation language, policies for database integrity, resource limits, operating environment(s) etc.?
+      
+% Section headings from IEEE Std 830-1998, figure 1
+
+\section{ Introduction }
+\subsection{ Purpose }
+The purpose of this document is to outline the project requirements for the "Privacy Preserving Cloud, Email and Password Manager" Capstone project. It will illustrate the purpose and complete declaration for the development of system. It will also explain system constraints, interface and interactions with other external applications. This document is primarily intended to be presented at OSU's Spring 2018 Engineering Expo as a proof of concept and a reference for developing the first version of this specific DSSE scheme.
+\subsection{ Scope }
+The "Privacy Preserving Cloud, Email and Password Manager" Capstone project is a research-oriented project that aims to find a way to implement the DSSE scheme proposed in the paper "Dynamic Searchable Encryption in Very-Large Databases" \cite{cash}.\\
+This implementation will be executed through command line prompts and hosted on OSU's engineering servers. A user can use this system with a client-server model to perform actions, such as search or update, on a "cloud-based" database. User interface is not considered a priority as this project is not intended to be used in any commercial capacity. 
+
+\subsection{ Definitions, acronyms, and abbreviations }
+	%Creates a table used for definitions
+    \begin{tabular}{| p{3.5cm} | p{12.5cm} |}
+    \hline
+	\textbf{Term} & \textbf{Definition} \\ \hline
+    User & Someone who interacts with the system \\ \hline 
+    Encryption & The process of encoding a message or information in such a way that only authorized parties can access it. \\ \hline
+    SSE (Searchable Symmetric Encryption) & Allows a client to encrypt its data in such a way that this data can still be searched.  \\ \hline 
+    DSSE (Dynamic Searchable Symmetric Encryption) & A SSE scheme where documents and keywords can be incrementally added and deleted after the fact, without completely rebuilding the encrypted search index  \\ \hline
+    Cash-DSSE & A DSSE scheme described by Cash et al. in \cite{cash} \\ \hline
+    Client & A computer application, such as a web browser, that runs on a user's local computer or workstation and connects to a server as 		necessary \\ \hline
+    Server &  A software program, such as a web server, that runs on a remote server, reachable from a user's local computer or workstation. \\ \hline 
+    SFTP & Secure File Transfer Protocol \\ \hline      
+    \end{tabular}
+    
+     
+    % This terrible hack modifies the thebibliography environment to use \subsection instead of \section* for the references heading
+    % https://tex.stackexchange.com/questions/22645/hiding-the-title-of-the-bibliography#22654
+    
+    \patchcmd{\thebibliography}{\section*}{\subsection}{}{}
+    \patchcmd{\thebibliography}{\addcontentsline{toc}{section}{\refname}}{}{}{}
+    
+    \begin{thebibliography}{10} 		
+    \bibitem{capstone}
+    	Attila Yavuz.
+    	"Privacy-Preserving Cloud, Email and Password Systems."
+        \textit{CS Senior Capstone}
+        http://eecs.oregonstate.edu/capstone/cs/capstone.cgi?project=334
+        
+    \bibitem{yavuz}
+    	Attila Yavuz and Jorge Guajardo.
+        "Dynamic Searchable Symmetric Encryption with Minimal Leakage and Efficient Updates on
+Commodity Hardware"
+		\textit{ACM SAC 2015}
+        http://web.engr.oregonstate.edu/~yavuza/Yavuz\_DSSE\_SAC2015.pdf
+        
+    \bibitem{cash}
+    	David Cash et al.
+        "Dynamic Searchable Encryption in Very-Large Databases: Data Structures and Implementation"
+        \textit{Cryptology ePrint Archive, Report 2014/853}
+        https://eprint.iacr.org/2014/853
+    \end{thebibliography}
+    
+    
+\subsection{ Overview }
+The rest of the document will include two more section. Section 2 will be overview of the project system, giving a product perspective, defining the functions of the system, listing user characteristics,  describing system constraints, explaining what assumptions and dependencies we are making in regards to the implementation of this system. \\
+Section 3 will include the requirements for the project. This will be the most detailed section describing the specific objectives and required functionality of the system. 
+\section{ Overall description }
+\subsection{ Product perspective }
+
+The main purpose of the project is to investigate ways to integrate SSE with common internet applications.
+Specifically, we will investigate ways to apply SSE to cloud storage and email.
+
+The system will have three main components: basic SSE implementation, cloud storage integration, and email integration. The basic SSE implementation will be split into client and server programs. The server will provide access to the encrypted search index, and the client will allow the user to perform searches on the server. Cloud and email integration will take the form of additional client programs which download documents or emails from a remote server and upload them to the SSE server.
+
+\subsection{ Product functions }
+
+The central SSE module will be an implementation of \cite{cash}. It will provide functions to create an encrypted search index, perform search queries, add documents, and delete documents.
+
+An intended research topic is to attempt to speed up the SSE by parallelizing certain operations. 
+%TODO: what operations?
+Another intended research topic is to find ways to reduce the storage space used by the encrypted index.
+We intend ultimately to compare the performance with \cite{yavuz}.
+% Hypothesis: ours will be faster because it has better asymptotics
+
+The cloud storage module will download files from a cloud storage provider like Dropbox and add them to the encrypted search index.
+
+The email module will download emails from a mail provider like Google Mail and add them to the encrypted search index. We will first implement a batch mode program and then investigate building a daemon which downloads emails in the background.
+
+
+\subsection{ User characteristics }
+
+The primary audience for this software system is technical users who are interested in a proof-of-concept implementation of SSE. It is not a goal of this project to target non-technical users.
+
+\subsection{ Constraints }
+
+Our client has requested that we implement the software in C++, which limits the choice of libraries we can use.
+
+\subsection{ Assumptions and dependencies }
+
+We assume that we can find a cloud provider which offers a sufficiently open API for accessing documents, and that there is a good C++ library available. 
+
+Completing the cloud storage and email modules will depend on having a basic SSE module in place first. Once the basic SSE functionality is built, we can work on optimizing it in parallel with the work on cloud integration and email integration.
+
+See \ref{fig:1} for a Gantt chart showing the dependencies.
+
+\begin{figure}[t]
+\begin{center}
+\begin{ganttchart}{1}{15}
+%tasks
+\ganttbar[name=dsse]{Cash-DSSE}{1}{4} \\
+\ganttbar[name=par]{Parallelization}{8}{15} \\
+\ganttbar[name=size]{Size optimization}{8}{15} \\
+\ganttbar[name=cloud]{Cloud Integration}{8}{15} \\
+\ganttbar[name=email]{Email Integration}{8}{15}
+%relations 
+\ganttlink{dsse}{cloud} 
+\ganttlink{dsse}{email} 
+\ganttlink{dsse}{par} 
+\ganttlink{dsse}{size} 
+\end{ganttchart}
+\caption{Gantt chart of the project dependencies}
+\label{fig:1}
+\end{center}
+\end{figure}
+
+
+\section{ Specific requirements } % (See 5.3.1 through 5.3.8 for explanations of possible specific requirements. See also Annex A for several different ways of organizing this section of the SRS.)
+
+\subsection{ External interfaces }
+
+\subsubsection{ User interfaces }
+
+The primary user interface to the SSE system will be a pair of client-server programs.
+\begin{itemize}
+\item A user will be able to launch the server from the command line.
+\item The user will be able to query the server using the client from the command line. 
+%\item This initially will be done in an offline self contained client on a single computer. It will then be adapted to a Client Server system and finally an email system. 
+\end{itemize}
+
+From the basic client program, a user will be able to:
+
+\begin{itemize}
+\item search the document store by a single keyword, and receive a list of a all documents containing that keyword. 
+\item add a file to the search database.
+\item delete a document from the search database.
+\end{itemize}
+
+This is the main functionality of an SSE system.
+
+The cloud user interface will have the same functionality requirements as the basic client. Additionally, the user will be able to:
+
+\begin{itemize}
+\item tell the client to download documents from a previously-configured cloud service, to be added to the search database.
+\end{itemize}
+
+The email user interface will have the same functionality requirements as basic implementation. Additionally, a user will be able to:
+
+\begin{itemize}
+\item tell the client to check for new emails, which will be downloaded and added to the search database.
+\item launch a daemon which automatically downloads emails every 2 minutes.
+\end{itemize}
+
+%\item The Client will still be able to Search, Update, and Delete data on the cloud just as the offline client does.
+
+\subsubsection{ Software interfaces }
+
+The implementation of SSE will be take the form of a C++ API which can be used by the rest of the system. 
+Our client has provided a software implementation of \cite{yavuz}, which we will use as a base for our work.
+
+\begin{itemize}
+\item Atilla's implementation will be used as a template for many of the server/client connection calls. 
+
+\item Since the algorithm itself is completely different it will allow the team to focus more coding on the process of research and implementation of David Cash's algorithm.
+
+\item Asymptotically David Cash's algorithm has a faster runtime complexity. This will be tested by running 50 calls to Search, Update, and Delete on both Atilla's Bit Matrix and our David Cash implementation.
+
+\item Parallelism should also be possible with David Cash's algorithm. This along with optimization of the performance will be worked on if time permits.
+\end{itemize}
+
+Once we have a basic software package with the ability to run a Cash-DSSE we will than move from a Client Server connection to communication with a cloud database. 
+\begin{itemize}
+\item Cloud storage module will communicate with a cloud service using a service such as Dropbox or Google Drive in order to download files and add them to the search index.
+
+\item We will be using a Secure File Transfer Protocol (SFTP) for this cloud integration.
+
+\end{itemize}
+Next will we focus on Email Client Server integration. We will research the ability to connect our system with the Gmail interface. This is of key importance to the project as it provides a real life uses for David Cash's SSE. 
+\begin{itemize}
+\item The email module will communicate with remote email servers via POP3 or IMAP in order to download email messages. 
+
+\item An automatically updating background process will run while the connection to Gmail is open every 2 minutes to update new incoming emails.
+\end{itemize}
+
+Below are listed the three main goals of this project. In addition to these we will also optimization and parallelism of Cash-DSSE with time allowing.
+\begin{enumerate}
+\item An implementation of Cash-DSSE
+\item A cloud based Client-Server where data can be updated and stored.
+\item An email Client Server integration. 
+\end{enumerate}
+
+
+
+
+
+
+% \section{ Appendices }
+% \section{ Index }
+
+\end{document}
