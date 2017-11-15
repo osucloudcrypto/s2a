@@ -1,0 +1,262 @@
+\nonstopmode % halt on errors
+\documentclass[onecolumn, draftclsnofoot,10pt, compsoc]{IEEEtran}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{setspace}
+\usepackage{enumitem}
+\usepackage[english]{babel}
+\usepackage{pgfgantt}
+\usepackage{etoolbox}
+
+\usepackage{geometry}
+\geometry{textheight=9.5in, textwidth=7in}
+
+% 1. Fill in these details
+\def \CapstoneTeamName{		The Secret Bunny Team}
+\def \CapstoneTeamNumber{		38}
+\def \GroupMemberOne{			Andrew Ekstedt}
+\def \GroupMemberTwo{			Scott Merrill}
+\def \GroupMemberThree{			Scott Russell}
+\def \CapstoneProjectName{		Privacy Preserving Cloud, Email, and Password Systems}
+\def \CapstoneSponsorCompany{	OSU}
+\def \CapstoneSponsorPerson{		Attila Yavuz}
+
+% 2. Uncomment the appropriate line below so that the document type works
+\def \DocType{	%	Problem Statement
+				%Requirements Document
+				Technology Review
+				%Design Document
+				%Progress Report
+				}
+			
+\newcommand{\NameSigPair}[1]{\par
+\makebox[2.75in][r]{#1} \hfil 	\makebox[3.25in]{\makebox[2.25in]{\hrulefill} \hfill		\makebox[.75in]{\hrulefill}}
+\par\vspace{-12pt} \textit{\tiny\noindent
+\makebox[2.75in]{} \hfil		\makebox[3.25in]{\makebox[2.25in][r]{Signature} \hfill	\makebox[.75in][r]{Date}}}}
+% 3. If the document is not to be signed, uncomment the RENEWcommand below
+\renewcommand{\NameSigPair}[1]{#1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\begin{titlepage}
+    \pagenumbering{gobble}
+    \begin{singlespace}
+        %\includegraphics[height=4cm]{coe_v_spot1}
+        \hfill 
+        % 4. If you have a logo, use this includegraphics command to put it on the coversheet.
+        %\includegraphics[height=4cm]{CompanyLogo}   
+        \par\vspace{.2in}
+        \centering
+        \scshape{
+            \huge CS Capstone \DocType \par
+            {\large\today}\par
+            \vspace{.5in}
+            \textbf{\Huge\CapstoneProjectName}\par
+            \vfill
+            {\large Prepared for}\par
+            \Huge \CapstoneSponsorCompany\par
+            \vspace{5pt}
+            {\Large\NameSigPair{\CapstoneSponsorPerson}\par}
+            {\large Prepared by }\par
+            Group\CapstoneTeamNumber\par
+            % 5. comment out the line below this one if you do not wish to name your team
+            \CapstoneTeamName\par 
+            \vspace{5pt}
+            {\Large
+                \NameSigPair{\GroupMemberOne}\par
+                %\NameSigPair{\GroupMemberTwo}\par
+                %\NameSigPair{\GroupMemberThree}\par
+            }
+            \vspace{20pt}
+        }
+        \begin{abstract}
+        % 6. Fill in your abstract    
+        	
+            This document is a technology review of searchable encryption, encryption schemes, and cloud providers.
+            
+        \end{abstract}     
+    \end{singlespace}
+\end{titlepage}
+\newpage
+\pagenumbering{arabic}
+\tableofcontents
+% 7. uncomment this (if applicable). Consider adding a page break.
+%\listoffigures
+%\listoftables
+\clearpage
+
+
+\section{ Introduction }
+
+The purpose of this document is to outline the technical choices for our project, Privacy Preserving Cloud Encryption. The goal of the project is to implement a certain searchable encryption algorithm and investigate how it can be integrated with common internet applications.
+
+
+\section{ Searchable Encryption }
+
+\subsection{ Overview }
+\subsection{ Criteria }
+%(cost, capacity, speed, familiarity, client desires) 
+\subsection{ Potential choices }
+\subsubsection{ IM-DSSE }
+\subsubsection{ Cash-DSSE }
+\subsubsection{ ??? }
+https://eprint.iacr.org/2006/210
+the original SSE paper?
+
+\subsection{ Discussion }
+\subsection{ Conclusion }
+% We choose choice X because...
+% (can be a table) 
+
+
+
+\section{ Encryption scheme }
+
+\subsection{ Overview }
+
+Cash-DSSE requires an encryption scheme which has \textit{pseudorandom ciphertexts under chosen plaintext attacks} (RCPA-secure ).
+This is a slightly weaker property than the standard notion of being secure against \textit{chosen plaintext attacks} (CPA-secure),
+% XXX or is it stronger?
+so any CPA-secure cipher should suffice.
+
+\subsection{ Criteria }
+%(cost, capacity, speed, familiarity, client desires) 
+
+\begin{itemize}
+  \item Speed
+
+  The encryption scheme should have performance on par with widely available schemes. Specifically, it should be able to encrypt on the order of 10MB/s or greater.
+
+  \item Availability in crypto libraries
+
+  The encryption scheme should be available in commonly available crypto libraries such as OpenSSL, Crypto++, or tomcrypt.
+
+  \item Security
+
+  The encryption scheme should be secure; that is, there should be no known practical attacks against it which are faster than brute force.
+
+\end{itemize}
+
+\subsection{ Potential choices }
+\subsubsection{ AES-CBC }
+
+AES (Advanced Encryption Standard) is an NIST standard block cipher. AES is believed to be secure; the best published attack against AES breaks AES-128 in about $2^{126}$ steps, which is just barely faster than the brute force time complexity of $2^{128}$. 
+%\cite{wikipediaAES}
+
+CBC (Cipher Block Chaining) mode is a standard cipher mode which allows a block cipher to encrypt messages of arbitrary length. CBC mode is secure if the underlying block cipher is secure.
+
+AES-CBC is the standard choice.
+
+OpenSSL supports AES-CBC.
+
+\subsubsection{ ChaCha20 }
+
+ChaCha20 \cite{chacha} is a stream cipher. It was designed by Daniel Bernstein as an extension of his earlier cipher Salsa20, which was the winner of the eSTREAM stream cipher contest.
+ChaCha20 (and Salsa20) were designed to be very fast in software, and be simple to implement.
+
+ChaCha20 is not as widely known as other ciphers, but has been seeing increasing use, especially in mobile devices, as an alternative to AES. In 2016, ChaCha20-Poly1305 (ChaCha20 encryption plus Poly1305 authentication) was added to TLS as an official cipher suite. \cite{rfc7905}
+
+
+ChaCha20 is believed to be secure. The best known attack breaks only 7 out of 20 rounds of the cipher. % cite?
+
+ChaCha20 is a somewhat newer cipher, so it may not be as well supported by crypto libraries. It was added to OpenSSL in version 1.1.0 (August 2016), which is recent enough that many linux distros may not have picked it up yet.
+
+\subsubsection{ 3DES }
+
+DES (Data Encryption Standard) was the standard block cipher before AES. It is the oldest of the three ciphers we have considered, and as such is likely has the widest support. On the other hand, it is also considered to be thoroughly broken because its small key size makes it vulnerable to practical brute force attacks. DES only survives in the present day in the from of Triple DES (3DES), which encrypts data thrice with three separate keys, effectively doubling the key size. The downside is that 3DES is very slow.
+
+\subsection{ Conclusion }
+% We choose choice X because...
+% (can be a table) 
+
+We choose AES-CBC because it offers the best balance between security, speed, and availability.
+
+We reject ChaCha20 because it does not have as much library support as AES.
+
+We reject Triple DES because it is much slower and less secure than AES.
+
+\section{ Cloud provider }
+
+
+\subsection{ Overview }
+
+Part of our project will be to integrate cloud storage with our SSE algorithm.
+
+\subsection{ Criteria }
+
+\begin{itemize}
+  \item Should be low cost
+
+  For ease of testing, we would like to use a service which we already have access to, or which we can gain access to for free or for a low cost.
+
+  \item Should be popular
+
+  The aim of this project is to show how SSE can be integrated with services that people actually use. To that end, the service we choose should be popular and widely used.
+
+  \item Client libraries / API
+
+  We need a service which is easy to pull data from and which provides some API for accessing the data, or for which libraries exist for accessing the data.
+
+\end{itemize}
+
+\subsection{ Potential choices }
+\subsubsection{ Google Drive }
+
+- Advantage: OSU provides free Google drive accounts with unlimited storage space
+- has API
+- no C++ libraries
+	- Python, Java, JavaScript, .NET, Obj-C, or PHP
+
+actually, there is a c++ library, but it is eol?
+
+https://github.com/google/google-api-cpp-client
+
+\subsubsection{ Dropbox }
+
+- price: dropbox offers a free tier which provides 2GB of storage capacity
+
+https://www.dropbox.com/plans/individual?trigger=homepagefoot
+
+- has API
+
+https://www.dropbox.com/developers/documentation
+
+
+- no C++ library
+
+    Swift
+    Objective-C
+    Python
+    .NET	
+    Java
+    JavaScript
+    HTTP
+
+https://www.dropbox.com/developers/documentation
+
+could write our own integration with HTTP endpoint
+
+/files/list\_folder allows listing files
+/files/download allows downloading files
+
+
+
+- workaround:
+install dropbox cli on a remote server, use SFTP to transfer from that server
+
+\subsubsection{ S3 }
+% maybe consider an open source platform?
+% owncloud?
+
+\subsection{ Discussion }
+
+\subsection{ Conclusion }
+% We choose choice X because...
+% (can be a table) 
+
+\newpage
+\bibliography{main}{}
+\bibliographystyle{ieeetr}
+
+
+\end{document}
