@@ -5,8 +5,6 @@
 \usepackage{setspace}
 \usepackage{enumitem}
 \usepackage[english]{babel}
-\usepackage{pgfgantt}
-\usepackage{etoolbox}
 
 \usepackage{geometry}
 \geometry{textheight=9.5in, textwidth=7in}
@@ -22,7 +20,7 @@
 \def \CapstoneSponsorPerson{		Attila Yavuz}
 
 % 2. Uncomment the appropriate line below so that the document type works
-\def \DocType{	%	Problem Statement
+\def \DocType{	%Problem Statement
 				%Requirements Document
 				Technology Review
 				%Design Document
@@ -72,7 +70,7 @@
         \begin{abstract}
         % 6. Fill in your abstract    
         	
-            This document is a technology review of searchable encryption, encryption schemes, and cloud providers.
+            We review research into searchable encryption algorithms, choices for encryption schemes, and choices for cloud storage providers.
             
         \end{abstract}     
     \end{singlespace}
@@ -94,27 +92,22 @@ The purpose of this document is to outline the technical choices for our project
 \section{ Searchable Encryption }
 
 \subsection{ Overview }
-\subsection{ Criteria }
-%(cost, capacity, speed, familiarity, client desires) 
-\subsection{ Potential choices }
-\subsubsection{ IM-DSSE }
-\subsubsection{ Cash-DSSE }
-\subsubsection{ ??? }
-https://eprint.iacr.org/2006/210
-the original SSE paper?
 
-\subsection{ Discussion }
-\subsection{ Conclusion }
-% We choose choice X because...
-% (can be a table) 
+At the heart of our project is the Symmetric Searchable Encryption algorithm (SSE).
+Our goal is to implement the scheme described by David Cash et al. in \cite{cash14}.
 
+As part of this tech review I have made an annotated bibliography of some papers about searchable encryption:
+\cite{yavuz}
+\cite{cash14}
 
+%https://eprint.iacr.org/2006/210
+%the original SSE paper?
 
 \section{ Encryption scheme }
 
 \subsection{ Overview }
 
-Cash-DSSE requires an encryption scheme which has \textit{pseudorandom ciphertexts under chosen plaintext attacks} (RCPA-secure ).
+Cash-DSSE requires an encryption scheme which has \textit{pseudorandom ciphertexts under chosen plaintext attacks} (RCPA-secure).
 This is a slightly weaker property than the standard notion of being secure against \textit{chosen plaintext attacks} (CPA-secure),
 % XXX or is it stronger?
 so any CPA-secure cipher should suffice.
@@ -138,16 +131,22 @@ so any CPA-secure cipher should suffice.
 \end{itemize}
 
 \subsection{ Potential choices }
-\subsubsection{ AES-CBC }
+\subsubsection{ AES-CTR }
 
 AES (Advanced Encryption Standard) is an NIST standard block cipher. AES is believed to be secure; the best published attack against AES breaks AES-128 in about $2^{126}$ steps, which is just barely faster than the brute force time complexity of $2^{128}$. 
 %\cite{wikipediaAES}
 
-CBC (Cipher Block Chaining) mode is a standard cipher mode which allows a block cipher to encrypt messages of arbitrary length. CBC mode is secure if the underlying block cipher is secure.
+CTR (Counter) mode is a standard cipher mode which allows a block cipher to encrypt messages of arbitrary length. CTR mode is secure if the underlying block cipher is secure.
 
-AES-CBC is the standard choice.
+% AES-CBC is the standard choice.
 
-OpenSSL supports AES-CBC.
+Speed: AES can be implemented efficiently in software (if you're willing to accept cache-based timing attacks). Recent Intel CPUs have hardware instructions for AES.
+%\cite{intel-aes}
+
+Availability: OpenSSL, Crypto++, and tomcrypt all support AES-CTR.
+%\cite{tomcrypt}
+
+Client preference: our client has suggested that we use AES-CTR.
 
 \subsubsection{ ChaCha20 }
 
@@ -156,10 +155,11 @@ ChaCha20 (and Salsa20) were designed to be very fast in software, and be simple 
 
 ChaCha20 is not as widely known as other ciphers, but has been seeing increasing use, especially in mobile devices, as an alternative to AES. In 2016, ChaCha20-Poly1305 (ChaCha20 encryption plus Poly1305 authentication) was added to TLS as an official cipher suite. \cite{rfc7905}
 
+Speed: ChaCha20 is one of the faster ciphers around, even outpacing AES on systems without hardware support. \cite{eBACS}
 
-ChaCha20 is believed to be secure. The best known attack breaks only 7 out of 20 rounds of the cipher. % cite?
+Security: ChaCha20 is believed to be secure. The best known attack breaks only 7 out of 20 rounds of the cipher. % cite?
 
-ChaCha20 is a somewhat newer cipher, so it may not be as well supported by crypto libraries. It was added to OpenSSL in version 1.1.0 (August 2016), which is recent enough that many linux distros may not have picked it up yet.
+Availability: ChaCha20 is a somewhat newer cipher, so it may not be as well supported by crypto libraries. It was added to OpenSSL in version 1.1.0 (August 2016), which is recent enough that many linux distros may not have picked it up yet.
 
 \subsubsection{ 3DES }
 
@@ -169,18 +169,18 @@ DES (Data Encryption Standard) was the standard block cipher before AES. It is t
 % We choose choice X because...
 % (can be a table) 
 
-We choose AES-CBC because it offers the best balance between security, speed, and availability.
+We choose AES-CTR because it offers the best balance between security, speed, and availability.
 
 We reject ChaCha20 because it does not have as much library support as AES.
 
 We reject Triple DES because it is much slower and less secure than AES.
 
-\section{ Cloud provider }
-
+\section{ Cloud storage }
 
 \subsection{ Overview }
 
-Part of our project will be to integrate cloud storage with our SSE algorithm.
+While our initial SSE implementation will use a client-server model, we are interested in whether it is possible to do SSE with a "dumb server" that is only capable of providing storage, not computation.
+We will need to select a cloud storage provider to integrate with.
 
 \subsection{ Criteria }
 
@@ -192,71 +192,81 @@ Part of our project will be to integrate cloud storage with our SSE algorithm.
   \item Should be popular
 
   The aim of this project is to show how SSE can be integrated with services that people actually use. To that end, the service we choose should be popular and widely used.
+  % TODO: remove?
 
   \item Client libraries / API
 
-  We need a service which is easy to pull data from and which provides some API for accessing the data, or for which libraries exist for accessing the data.
+  We need a service which is easy to pull data from and which provides some API for accessing the data, or for which libraries exist for accessing the data. In particular, we would like a C++ library because that is going to be the primary language of our project.
 
 \end{itemize}
 
 \subsection{ Potential choices }
 \subsubsection{ Google Drive }
 
-- Advantage: OSU provides free Google drive accounts with unlimited storage space
-- has API
-- no C++ libraries
-	- Python, Java, JavaScript, .NET, Obj-C, or PHP
+Google Drive is Google's cloud storage solution. Aside from being able to store arbitrary files, it also integrates with Google's suite of office applications like Google Docs and Google Slides, which we have no particular need for.
 
-actually, there is a c++ library, but it is eol?
+Availability: OSU provides students free Google Drive accounts with unlimited storage space.
 
-https://github.com/google/google-api-cpp-client
+Popularity: yes?
+% TODO
+
+API: There is an HTTP API.
+And, although not advertised in the primary documentation, there is a C++ library. \cite{drivecpp}
+Other languages with official library support include:  Python, Java, JavaScript, .NET, Obj-C, and PHP.
+\cite{driveapi}
 
 \subsubsection{ Dropbox }
 
-- price: dropbox offers a free tier which provides 2GB of storage capacity
+Dropbox \cite{dropbox} is one of the oldest cloud storage services still in existence. They are primarily known for the ability to sync a folder between all your computers.
 
-https://www.dropbox.com/plans/individual?trigger=homepagefoot
+Availability: Dropbox offers a free tier which provides 2GB of storage capacity.
+\cite{dropboxplans}
 
-- has API
+API: has an HTTP API,
+\cite{dropboxapi}
+but no C++ client library.
+Available client libraries include:
+Swift, Objective-C, Python, .NET, Java, and JavaScript.
 
-https://www.dropbox.com/developers/documentation
+%could write our own integration with HTTP endpoint
 
+%/files/list\_folder allows listing files
+%/files/download allows downloading files
 
-- no C++ library
+%- workaround:
+%install dropbox cli on a remote server, use SFTP to transfer from that server
 
-    Swift
-    Objective-C
-    Python
-    .NET	
-    Java
-    JavaScript
-    HTTP
+\subsubsection{ Amazon S3 }
 
-https://www.dropbox.com/developers/documentation
+Amazon S3 \cite{s3} is a data storage service offered by Amazon. It is aimed at developers, not consumers.
 
-could write our own integration with HTTP endpoint
+It integrates well with EC2?
 
-/files/list\_folder allows listing files
-/files/download allows downloading files
+Availability: Amazon offers 5GB of storage and 15GB/month of data transfer for free with AWS Free Tier. \cite{s3-pricing} Additionally, transfer of data between S3 and EC2 is free, which might be nice if we use EC2 for our server hosting.
 
+API: There is an HTTP API. There is a C++ API \cite{aws-sdk}
+Other supported languages include: Python, Java, .NET, Node.js, PHP, Ruby, and Go.
 
+Client preference: our client has requested that we use S3.
 
-- workaround:
-install dropbox cli on a remote server, use SFTP to transfer from that server
-
-\subsubsection{ S3 }
-% maybe consider an open source platform?
-% owncloud?
-
-\subsection{ Discussion }
+%\subsection{ Discussion }
 
 \subsection{ Conclusion }
 % We choose choice X because...
 % (can be a table) 
 
+Any one of the three choices would be adequate.
+
+We choose S3 because it provides what we need for free, it has a C++ library available, and our client has requested it. Google Drive would also be a good choice.
+
+We reject Dropbox because it gives us the least amount of storage of the 3 options, and because they do not offer a C++ API.
+
 \newpage
+
+\bibliographystyle{IEEEannot}
 \bibliography{main}{}
-\bibliographystyle{ieeetr}
+
+\nocite{*}
 
 
 \end{document}
