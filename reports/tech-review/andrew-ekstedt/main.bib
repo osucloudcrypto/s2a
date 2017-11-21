@@ -1,3 +1,33 @@
+@Comment{  Searchable Encryption   }
+
+@MISC{Song00,
+    author = {Dawn Xiaodong Song and David Wagner and Song David and Adrian Perrig},
+    title = {Practical Techniques for Searches on Encrypted Data},
+    year = {2000},
+    annote = {
+	The original searchable encryption paper.
+        The authors introduce the concept of searchable encryption and define the essential properties of a searchable encryption scheme:
+        that the server should not be able to learn anything about the plaintext;
+        that the server should not be able to learn which keywords the user is searching for;
+        and that the server cannot perform a search without the user's permission.
+
+        They do not rigorously define what operations a searchable encryption scheme supports. They mention dynamic schemes only in passing.
+
+        They also present a basic scheme and prove its security. Remarkably, the scheme they present does not use a search index(!); rather, it performs a linear scan over the encrypted documents.
+        They briefly discuss a scheme which uses an index at the end, but do not go into detail.
+
+        Basically, the scheme works by encrypting the list of tokens and xoring each encrypted token with a pair of values (L,R) such that L and R are related, but in a way that can only be detected if the server knows the keyword.
+
+       To search, the client provides the server with the encrypted keyword and the server performs a linear search over the encrypted document, xoring each block with the encrypted keyword and checking if the property holds.
+
+       Notably, this search method is probabilistic(!) because it can have false positives.
+
+        The scheme leaks information about where tokens appear in files.
+
+        Search runs in $\mathcal{O}(n)$ time, where $n$ is the \textit{size of all the documents to be searched}. The paper claims that this is efficient.
+    },
+}
+
 @misc{cash14,
     author = {David Cash and Joseph Jaeger and Stanislaw Jarecki and Charanjit Jutla and Hugo Krawczyk and Marcel-Cătălin Roşu and Michael Steiner},
     title = {Dynamic Searchable Encryption in Very-Large Databases: Data Structures and Implementation},
@@ -5,9 +35,29 @@
     year = {2014},
     url = {https://eprint.iacr.org/2014/853},
     annote = {
-	Summary: Cash lays out a scheme in which the encrypted index is stored as a hash table.
+	The authors describe a dynamic symmetric searchable encryption scheme in which the encrypted index is stored as a hash table. The keys derived from the search token, and the values are the encrypted file index.
+        Collisions are avoided by running a per-token counter through a MAC
+        --- in essence, using an open addressing hash table.
+        The main search index is actually static --- updates are performed by storing added keywords in a separate hash table of added keywords, and deleted keywords in a separate set of deleted keywords. The search index should be periodically reconstructed to take these modifications into account.
+        They also describe several variants of the basic scheme which have better methods for reducing the size of the state.
+        Search time is $\mathcal{O}(r)$ (which is optimal), update time is not given, and index size is $\mathcal{O}(N)$, where r is the number of files which match a given query and N is the number of keyword-file pairs in the index.
+        The algorithm is parallelizable.
+    },
+}
 
-        Test.
+@misc{yavuz15,
+    author = {Attila A. Yavuz and Jorge Guajardo},
+    title = {Dynamic Searchable Symmetric Encryption with Minimal Leakage and Efficient Updates on Commodity Hardware},
+    howpublished = {Selected Areas in Cryptography (SAC) 2015, Sackville, New Brunswick, Canada},
+    year = {2015},
+    month = {August},
+    note = {\url{http://web.engr.oregonstate.edu/~yavuza/Yavuz_DSSE_SAC2015.pdf}},
+
+    annote = {
+	The authors describe a dynamic searchable encryption scheme in which the search index is stored as an adjacency matrix where the rows correspond to keywords. Each row is encrypted with a stream cipher using a per-row key.
+        Updates are performed by replacing the relevant column.
+        They claim better security than all previous schemes and competitive performance.
+        Search is $\mathcal{O}(m)$, update is $\mathcal{O}(m)$, server state size is $\mathcal{O}(mn)$, and client state size is $\mathcal{O}(n+m)$ where $m$ is the number of keywords and $n$ is the number of files. The algorithm is parallelizable.
     },
 }
 
@@ -66,6 +116,13 @@
 
 @Comment{ Dropbox }
 
+@misc{dropbox,
+	title = {{Dropbox}},
+    author = "Dropbox",
+    year = 2017,
+    url = {https://www.dropbox.com/},
+}
+
 @misc{dropboxplans,
 	title = {{Choose the right Dropbox for you and your business}},
     author = "Dropbox",
@@ -103,4 +160,14 @@ https://www.dropbox.com/plans},
 @misc{aws-sdk,
 	title = {{AWS SDK for C++}},
 	url={https://github.com/aws/aws-sdk-cpp},
+}
+
+
+
+
+@misc{fortune,
+	author="Erin Griffith",
+    publisher="Fortune",
+	title="Who's winning the consumer cloud storage wars?",
+	url={http://fortune.com/2014/11/06/dropbox-google-drive-microsoft-onedrive/},
 }

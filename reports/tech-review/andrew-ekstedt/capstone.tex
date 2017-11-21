@@ -70,7 +70,7 @@
         \begin{abstract}
         % 6. Fill in your abstract    
         	
-            We review research into searchable encryption algorithms, choices for encryption schemes, and choices for cloud storage providers.
+            We review technical choices for the Privacy Cloud project, including research into searchable encryption algorithms, choices for encryption schemes, and choices for cloud storage providers.
             
         \end{abstract}     
     \end{singlespace}
@@ -93,54 +93,55 @@ The purpose of this document is to outline the technical choices for our project
 
 \subsection{ Overview }
 
-At the heart of our project is the Symmetric Searchable Encryption algorithm (SSE).
-Our goal is to implement the scheme described by David Cash et al. in \cite{cash14}.
-
-As part of this tech review I have made an annotated bibliography of some papers about searchable encryption:
-\cite{yavuz}
+At the heart of our project is the searchable symmetric encryption algorithm (SSE).
+Our goal is to implement the scheme described by David Cash et al. in \cite{cash14}. As part of this tech review we have made an annotated bibliography of some papers about searchable encryption:
+\cite{yavuz15}
 \cite{cash14}
+\cite{song00}
 
-%https://eprint.iacr.org/2006/210
+%https://eprint.iacr.org/2006/210 ?
 %the original SSE paper?
 
 \section{ Encryption scheme }
 
 \subsection{ Overview }
 
-Cash-DSSE requires an encryption scheme which has \textit{pseudorandom ciphertexts under chosen plaintext attacks} (RCPA-secure).
-This is a slightly weaker property than the standard notion of being secure against \textit{chosen plaintext attacks} (CPA-secure),
+The SSE we will implement requires an encryption scheme which has \textit{pseudorandom ciphertexts under chosen plaintext attacks} (RCPA-secure).
+This is a slightly weaker(?) property than the standard notion of CPA security,
 % XXX or is it stronger?
-so any CPA-secure cipher should suffice.
+so any CPA-secure cipher should suffice. All modern ciphers are CPA-secure.
+
+% This is a slightly stronger property than CPA security,
+% but nevertheless most standard ciphers seem to exhibit this property in practice.
 
 \subsection{ Criteria }
 %(cost, capacity, speed, familiarity, client desires) 
 
-\begin{itemize}
-  \item Speed
+\begin{enumerate}
+  \item \textbf{Security}.
+  The encryption scheme should be secure; that is, there should be no known practical attacks against it which are significantly faster than brute force.
 
-  The encryption scheme should have performance on par with widely available schemes. Specifically, it should be able to encrypt on the order of 10MB/s or greater.
+  \item \textbf{Speed}.
+  The encryption scheme should have performance on par with modern schemes. The faster the better, since we expect encryption operations may be a bottleneck in the algorithm.
+  %Specifically, it should be able to encrypt on the order of 10MB/s or greater.
 
-  \item Availability in crypto libraries
-
+  \item \textbf{Availability}.
   The encryption scheme should be available in commonly available crypto libraries such as OpenSSL, Crypto++, or tomcrypt.
 
-  \item Security
-
-  The encryption scheme should be secure; that is, there should be no known practical attacks against it which are faster than brute force.
-
-\end{itemize}
+\end{enumerate}
 
 \subsection{ Potential choices }
 \subsubsection{ AES-CTR }
 
-AES (Advanced Encryption Standard) is an NIST standard block cipher. AES is believed to be secure; the best published attack against AES breaks AES-128 in about $2^{126}$ steps, which is just barely faster than the brute force time complexity of $2^{128}$. 
-%\cite{wikipediaAES}
-
-CTR (Counter) mode is a standard cipher mode which allows a block cipher to encrypt messages of arbitrary length. CTR mode is secure if the underlying block cipher is secure.
+AES (Advanced Encryption Standard) is an NIST standard block cipher, standardized in 2001. CTR (Counter) mode is a standard cipher mode which allows a block cipher to encrypt messages of arbitrary length. CTR mode is secure if the underlying block cipher is secure.
 
 % AES-CBC is the standard choice.
 
-Speed: AES can be implemented efficiently in software (if you're willing to accept cache-based timing attacks). Recent Intel CPUs have hardware instructions for AES.
+Security: Considered secure. The best published attack against AES-128 takes about $2^{126}$ steps, which is just barely faster than the brute force time complexity of $2^{128}$. %\cite{wikipedia}
+This theoretical attack does not represent a meaningful threat in practice.
+
+Speed: AES can be implemented efficiently in software. %(if you're willing to accept cache-based timing attacks).
+Recent Intel CPUs have hardware instructions for AES that are even faster.
 %\cite{intel-aes}
 
 Availability: OpenSSL, Crypto++, and tomcrypt all support AES-CTR.
@@ -152,18 +153,27 @@ Client preference: our client has suggested that we use AES-CTR.
 
 ChaCha20 \cite{chacha} is a stream cipher. It was designed by Daniel Bernstein as an extension of his earlier cipher Salsa20, which was the winner of the eSTREAM stream cipher contest.
 ChaCha20 (and Salsa20) were designed to be very fast in software, and be simple to implement.
+ChaCha20 is not as widely known as other ciphers, so it may not have as good library support, and it has not been as closely scrutinized as AES, but has been seeing increasing use as an alternative to AES, especially in mobile devices. In 2016, ChaCha20-Poly1305 (ChaCha20 encryption plus Poly1305 authentication) was added to TLS as an official cipher suite. \cite{rfc7905}
 
-ChaCha20 is not as widely known as other ciphers, but has been seeing increasing use, especially in mobile devices, as an alternative to AES. In 2016, ChaCha20-Poly1305 (ChaCha20 encryption plus Poly1305 authentication) was added to TLS as an official cipher suite. \cite{rfc7905}
+Speed: ChaCha20 is one of the faster ciphers around, even outpacing AES on systems without hardware AES support. \cite{eBACS}
 
-Speed: ChaCha20 is one of the faster ciphers around, even outpacing AES on systems without hardware support. \cite{eBACS}
+Security: ChaCha20 is believed to be secure. The best known attack breaks only 7 out of 20 rounds of the cipher. There are no known attacks on the full 20-round cipher better than brute force.
+% cite?
 
-Security: ChaCha20 is believed to be secure. The best known attack breaks only 7 out of 20 rounds of the cipher. % cite?
-
-Availability: ChaCha20 is a somewhat newer cipher, so it may not be as well supported by crypto libraries. It was added to OpenSSL in version 1.1.0 (August 2016), which is recent enough that many linux distros may not have picked it up yet.
+Availability: tomcrypt and Crypto++ have support for ChaCha20. OpenSSL added ChaCha20 in version 1.1.0 (August 2016), which is recent enough that many linux distros may not have picked it up yet.
+% https://www.cryptopp.com/wiki/ChaCha20
+% http://www.libtom.net/LibTomCrypt/
+% https://www.openssl.org/news/openssl-1.1.0-notes.html
 
 \subsubsection{ 3DES }
 
 DES (Data Encryption Standard) was the standard block cipher before AES. It is the oldest of the three ciphers we have considered, and as such is likely has the widest support. On the other hand, it is also considered to be thoroughly broken because its small key size makes it vulnerable to practical brute force attacks. DES only survives in the present day in the from of Triple DES (3DES), which encrypts data thrice with three separate keys, effectively doubling the key size. The downside is that 3DES is very slow.
+
+Security: Broken.
+
+Speed: Slow.
+
+Availability: Widely supported.
 
 \subsection{ Conclusion }
 % We choose choice X because...
@@ -171,7 +181,7 @@ DES (Data Encryption Standard) was the standard block cipher before AES. It is t
 
 We choose AES-CTR because it offers the best balance between security, speed, and availability.
 
-We reject ChaCha20 because it does not have as much library support as AES.
+We reject ChaCha20 because it does not offer any major advantages over AES and has slightly worse library support.
 
 We reject Triple DES because it is much slower and less secure than AES.
 
@@ -179,50 +189,45 @@ We reject Triple DES because it is much slower and less secure than AES.
 
 \subsection{ Overview }
 
-While our initial SSE implementation will use a client-server model, we are interested in whether it is possible to do SSE with a "dumb server" that is only capable of providing storage, not computation.
-We will need to select a cloud storage provider to integrate with.
+While our initial SSE implementation will use a client-server model in which both the client and the server perform steps of the SSE algorithm, we are interested in whether it is possible to do SSE with a "dumb server" that is only capable of providing storage, not computation.
 
 \subsection{ Criteria }
 
-\begin{itemize}
-  \item Should be low cost
+\begin{enumerate}
+  \item \textbf{Cost}.
+  For ease of testing, we would like to be able to use the service for free or for a low cost.
 
-  For ease of testing, we would like to use a service which we already have access to, or which we can gain access to for free or for a low cost.
+  \item \textbf{API / Client libraries}.
+  The service must provide some sort of API which we can use to access and upload data. An HTTP API would suffice, but it would be nice if they also provide client libraries for a wide variety of common languages. In particular, we would like a C++ library because C++ will likely be the primary language of our project.
 
-  \item Should be popular
-
-  The aim of this project is to show how SSE can be integrated with services that people actually use. To that end, the service we choose should be popular and widely used.
-  % TODO: remove?
-
-  \item Client libraries / API
-
-  We need a service which is easy to pull data from and which provides some API for accessing the data, or for which libraries exist for accessing the data. In particular, we would like a C++ library because that is going to be the primary language of our project.
-
-\end{itemize}
+  \item \textbf{Popularity}.
+  The aim of this project is to show how SSE can be integrated with services that people actually use.
+  Accordingly, it would be better to use a popular service than an obscure one.
+\end{enumerate}
 
 \subsection{ Potential choices }
 \subsubsection{ Google Drive }
 
 Google Drive is Google's cloud storage solution. Aside from being able to store arbitrary files, it also integrates with Google's suite of office applications like Google Docs and Google Slides, which we have no particular need for.
 
-Availability: OSU provides students free Google Drive accounts with unlimited storage space.
-
-Popularity: yes?
-% TODO
+Cost: OSU provides students free Google Drive accounts with unlimited storage space.
 
 API: There is an HTTP API.
 And, although not advertised in the primary documentation, there is a C++ library. \cite{drivecpp}
 Other languages with official library support include:  Python, Java, JavaScript, .NET, Obj-C, and PHP.
 \cite{driveapi}
 
+Popular: Yes. 240 million users as of 2014. \cite{fortune}
+% TODO
+
 \subsubsection{ Dropbox }
 
 Dropbox \cite{dropbox} is one of the oldest cloud storage services still in existence. They are primarily known for the ability to sync a folder between all your computers.
 
-Availability: Dropbox offers a free tier which provides 2GB of storage capacity.
+Cost: Dropbox offers a free tier which provides 2GB of storage capacity.
 \cite{dropboxplans}
 
-API: has an HTTP API,
+API: Dropbox has an HTTP API,
 \cite{dropboxapi}
 but no C++ client library.
 Available client libraries include:
@@ -236,16 +241,19 @@ Swift, Objective-C, Python, .NET, Java, and JavaScript.
 %- workaround:
 %install dropbox cli on a remote server, use SFTP to transfer from that server
 
+Popular: Yes. 300 million users as of 2014. \cite{fortune}
+
 \subsubsection{ Amazon S3 }
 
-Amazon S3 \cite{s3} is a data storage service offered by Amazon. It is aimed at developers, not consumers.
+Amazon S3 \cite{s3} is a data storage service offered by Amazon. Unlike the previous two options, it is aimed at developers, not consumers.
+It integrates well with Amazon EC2, which we are considering using for the server side of our project.
 
-It integrates well with EC2?
+Cost: Amazon offers 5GB of storage and 15GB/month of data transfer for free with AWS Free Tier. \cite{s3-pricing} Additionally, transfer of data between S3 and EC2 is free, which might be nice if we use EC2 for our server hosting.
 
-Availability: Amazon offers 5GB of storage and 15GB/month of data transfer for free with AWS Free Tier. \cite{s3-pricing} Additionally, transfer of data between S3 and EC2 is free, which might be nice if we use EC2 for our server hosting.
-
-API: There is an HTTP API. There is a C++ API \cite{aws-sdk}
+API: There is an HTTP API, and an official C++ library. \cite{aws-sdk}
 Other supported languages include: Python, Java, .NET, Node.js, PHP, Ruby, and Go.
+
+Popular: Yes.
 
 Client preference: our client has requested that we use S3.
 
@@ -259,7 +267,7 @@ Any one of the three choices would be adequate.
 
 We choose S3 because it provides what we need for free, it has a C++ library available, and our client has requested it. Google Drive would also be a good choice.
 
-We reject Dropbox because it gives us the least amount of storage of the 3 options, and because they do not offer a C++ API.
+We reject Dropbox because they offer the least amount of free storage of the 3 options, and because they do not offer a C++ library.
 
 \newpage
 
