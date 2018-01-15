@@ -1,9 +1,11 @@
 CFLAGS?=-O2 -ggdb -Wall
+DSSE_objs=DSSE.o
 
 all: server client
 
-server: server.cpp
-	g++ $(CFLAGS) $(LDFLAGS) -o server server.cpp
+server: server.o $(DSSE_objs) Makefile
+	g++ $(CFLAGS) $(LDFLAGS) -o server $< $(DSSE_objs)
 
-client: client.cpp
-	g++ $(CFLAGS) $(LDFLAGS) -o client client.cpp
+client: client.o $(DSSE_objs) Makefile
+	g++ $(CFLAGS) $(LDFLAGS) -o client $< $(DSSE_objs)
+

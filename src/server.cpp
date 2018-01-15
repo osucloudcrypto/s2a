@@ -1,7 +1,8 @@
 /* main entry point for the server binary */
 
-//#include <DSSE.h>
 #include <iostream>
+
+#include "DSSE.h"
 
 int main() {
 	std::cout << "Hello, world!\n";
