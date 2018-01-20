@@ -24,7 +24,7 @@ class DSSE {
 	void SearchClient(std::string w);
 
 	// SearchServer performs the server side of searching the index for a given keyword.
-	void SearchServer(char* K1, char* K2, char* K1plus, char* K2plus, char* K1minus);
+	std::vector<uint64_t> SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1plus[], uint8_t K2plus[], uint8_t K1minus[]);
 
 	// TODO: maybe split Update into separate add/edit/delete actions
 
@@ -39,6 +39,9 @@ private:
 	// Data
 	uint8_t* key; // The master key. Only used by the client
 
+	// Server state;
+	std::map<std::string, std::string> D; // mac'd token id -> encrypted file id
+	std::map<std::string, std::string> Dplus; // mac'd token id -> encrypted file id
 };
 
 /**
