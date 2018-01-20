@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <map> // TODO: sparsehash?
@@ -11,6 +12,9 @@
  */
 class DSSE {
 	void Init();
+	// TODO: need methods to:
+	//     * create a new DSSE from scratch
+	//     * create a DSSE based on some stored state
 
 	// Setup creates an initial index from a list of tokens and a map of
 	// file id => token list
@@ -33,7 +37,7 @@ class DSSE {
 
 private:
 	// Data
-	char* key; // The master key
+	uint8_t* key; // The master key. Only used by the client
 
 };
 
