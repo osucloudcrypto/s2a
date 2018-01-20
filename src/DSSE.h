@@ -11,6 +11,7 @@
  * It impements both the client side and server side of each operation.
  */
 class DSSE {
+public:
 	void Init();
 	// TODO: need methods to:
 	//     * create a new DSSE from scratch
