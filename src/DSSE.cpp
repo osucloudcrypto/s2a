@@ -2,6 +2,7 @@
 #include <cstring> // memset
 
 #include "DSSE.h"
+#include "tomcrypt.h"
 
 const int KEYLEN = 256/8;
 const int DIGESTLEN = 256/8;
@@ -18,14 +19,41 @@ void random_key(uint8_t key[]) {
 }
 
 /**
+ * If err is not CRYPT_OK, prints the error and calls exit(1).
+ */
+void crypt_or_die(int err) {
+    if (err != CRYPT_OK) {
+        fprintf(stderr, "error: %s\n", error_to_string(err));
+        exit(1);
+    }
+}
+
+/**
  * mac_key uses HMAC to derive a per-token key from a string token
  */
-void mac_key(uint8_t key[], char keynum, const char* token, uint8_t out[]) {}
+void mac_key(uint8_t key[], char keynum, const char* token, uint8_t out[]) {
+    hmac_state hmac;
+    int hash = find_hash("sha256");
+    crypt_or_die(hmac_init(&hmac, hash, key, KEYLEN));
+    unsigned char keynumbuf[1] = {(unsigned char)keynum};
+    crypt_or_die(hmac_process(&hmac, keynumbuf, 1));
+    crypt_or_die(hmac_process(&hmac, (const unsigned char*)token, strlen(token)));
+    unsigned long outlen = DIGESTLEN;
+    crypt_or_die(hmac_done(&hmac, out, &outlen));
+}
 
 /**
  * mac_counter uses a per-token key to derive a hashed id value
  */
-void mac_counter(uint8_t key[], uint8_t message[], size_t msglen, uint8_t out[]) {}
+void mac_counter(uint8_t key[], uint8_t message[], size_t msglen, uint8_t out[]) {
+    hmac_state hmac;
+    int hash = find_hash("sha256");
+    crypt_or_die(hmac_init(&hmac, hash, key, KEYLEN));
+    crypt_or_die(hmac_process(&hmac, message, msglen));
+    unsigned long outlen = DIGESTLEN;
+    crypt_or_die(hmac_done(&hmac, out, &outlen));
+    // TODO check outlen
+}
 
 
 struct token_pair {
