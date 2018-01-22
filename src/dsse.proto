@@ -1,6 +1,6 @@
 syntax = "proto2";
 
-package DSSE;
+package DSSE.msg;
 
 message Setup {
     message TokenPair {
