@@ -46,18 +46,32 @@ public:
 
 	// TODO: maybe split Update into separate add/edit/delete actions
 
-	// UpdateClient performs the client side of an update action.
+	// Add adds keywords to a file.
+	// AddClient performs the client side of the add action.
+	void AddClient(
+		// Input
+		std::string id, std::vector<std::string> words,
+		// Output
+		std::vector<std::string> L
+	);
+
+	// UpdateServer performs the server side of an add action.
+	void AddServer(std::vector<std::string> L);
+
+	// Delete removes keywords from a file.
+	// DeletClient performs the client side of a delete action.
 	// Action should be add, del, edit-, or edit+.
-	void UpdateClient(std::string action, std::string id, std::vector<std::string> words);
+	void DeleteServer(std::string action, std::string id, std::vector<std::string> words);
 
-	// UpdateServer performs the server side of an update action.
+	// Delete removes keywords from a file.
+	// DeleteServer performs the server side of a delete action.
 	void UpdateServer(std::string action, std::vector<std::string> L);
-
 private:
-	// Data
+	// Client state
 	uint8_t* key; // The master key. Only used by the client
 	uint8_t* kplus; // The master key for additions. Only used by the client
 	uint8_t* kminus; // The master key for deletions. Only used by the client
+	std::map<std::string, uint64_t> Dcount;
 
 	// Server state;
 	std::map<std::string, std::string> D; // mac'd token id -> encrypted file id

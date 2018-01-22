@@ -105,6 +105,10 @@ void encrypt_bytes(uint8_t key[], uint8_t msg[], size_t msglen, uint8_t out[]){
     crypt_or_die(ctr_done(&ctr));
 }
 
+void encrypt_long(uint8_t key[], uint64_t value, uint8_t out[]) {
+    // TODO
+}
+
 void decrypt_bytes(uint8_t key[], const uint8_t ctext[], size_t ctextlen, uint8_t out[]) {
     symmetric_CTR ctr;
     int num_rounds = 0;
@@ -292,6 +296,40 @@ std::vector<uint64_t> Core::SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1p
         ids.push_back(id);
     }
     return ids;
+}
+
+
+void Core::AddClient(
+    // Input
+    std::string id, std::vector<std::string> words,
+    // Output
+    std::vector<std::string> L
+) {
+    L.clear();
+    //W_in_order_of_Lrev = [] // p20
+    for (auto &w : words) {
+        key_t K1plus, K2plus;
+        key_t K1minus;
+
+        mac_key(this->kplus, '1', w.c_str(), K1plus);
+        mac_key(this->kplus, '2', w.c_str(), K2plus);
+        mac_key(this->kminus, '1', w.c_str(), K1minus); // p20
+
+        token_pair p;
+        uint64_t c = this->Dcount[w];
+        mac_long(K1plus, c, p.l);
+        encrypt_long(K2plus, c, p.d);
+        this->Dcount[w]++;
+        //L.push_back(p); // XXX
+
+        /*
+        # page 20
+        revid = self._mac(K1minus, id)
+        L.append((l, d, revid))
+        W_in_order_of_Lrev.append(w)
+        */
+    }
+
 }
 
 }
