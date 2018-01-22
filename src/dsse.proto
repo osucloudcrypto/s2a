@@ -1,0 +1,27 @@
+syntax = "proto2";
+
+package DSSE;
+
+message Setup {
+    message TokenPair {
+        optional bytes Counter = 2; // hashed counter
+        optional bytes FileID = 3; // encrypted fileid
+    }
+    repeated TokenPair L = 1;
+}
+
+message SetupResult {
+}
+
+message Search {
+    optional bytes K1 = 1;
+    optional bytes K2 = 2;
+    optional bytes K1plus = 3;
+    optional bytes K2plus = 4;
+    optional bytes K1minus = 5;
+}
+
+message SearchResult {
+    repeated int64 fileid = 1;
+}
+

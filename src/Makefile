@@ -13,3 +13,5 @@ server: server.o $(DSSE_objs) Makefile
 client: client.o $(DSSE_objs) Makefile
 	g++ $(CXXFLAGS) $(LDFLAGS) -o client $< $(DSSE_objs) $(LIBS)
 
+%.pb.cc: %.proto
+	protoc --cpp_out=. $<
