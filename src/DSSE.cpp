@@ -264,6 +264,7 @@ std::vector<uint64_t> DSSE::SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1p
         if revid not in self.Srev: # p20
             ids.append(id)
         */
+        ids.push_back(id);
     }
 
     // page 18
@@ -284,6 +285,7 @@ std::vector<uint64_t> DSSE::SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1p
         if revid not in self.Srev: # p20
             ids.append(id)
         */
+        ids.push_back(id);
     }
     return ids;
 }
