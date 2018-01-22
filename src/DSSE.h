@@ -24,7 +24,15 @@ public:
 	void Setup(std::vector<std::string> &tokens, std::map<std::string, std::vector<fileid_t> > &fileids);
 
 	// SearchClient performs the client side of searching the index for a given keyword.
-	void SearchClient(std::string w);
+	// It returns a bunch of keys to send to the server.
+	void SearchClient(
+		// Input
+		std::string w,
+		// Output
+		uint8_t *K1, uint8_t *K2,
+		uint8_t *K1plus, uint8_t *K2plus,
+		uint8_t *K1minus
+	);
 
 	// SearchServer performs the server side of searching the index for a given keyword.
 	std::vector<fileid_t> SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1plus[], uint8_t K2plus[], uint8_t K1minus[]);
@@ -44,6 +52,8 @@ public:
 private:
 	// Data
 	uint8_t* key; // The master key. Only used by the client
+	uint8_t* kplus; // The master key for additions. Only used by the client
+	uint8_t* kminus; // The master key for deletions. Only used by the client
 
 	// Server state;
 	std::map<std::string, std::string> D; // mac'd token id -> encrypted file id

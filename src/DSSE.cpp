@@ -13,8 +13,12 @@ const int DIGESTLEN = 256/8;
 // size of encrypted file id
 const int ENCRYPTLEN = sizeof(fileid_t) + 16; //???
 
+typedef uint8_t dsse_key_t[KEYLEN];
+
 void DSSE::Init() {
     this->key = new uint8_t[KEYLEN];
+    this->kplus = new uint8_t[KEYLEN];
+    this->kminus = new uint8_t[KEYLEN];
 }
 
 
@@ -150,10 +154,12 @@ bool compare_token_pair(const token_pair& a, const token_pair& b) {
 // Setup creates an initial index from a list of tokens and a map of
 // file id => token list
 void DSSE::Setup(std::vector<std::string> &tokens, std::map<std::string, std::vector<fileid_t> > &fileids) {
+    // initialize client state
+    random_key(this->key); // Figure 5 (page 8)
+    random_key(this->kplus); // page 17
+    random_key(this->kminus); // page 19
 
     // Figure 5 (page 8)
-    random_key(this->key);
-
     auto L = std::vector<token_pair>();
 
     for (auto& w : tokens) {
@@ -195,6 +201,7 @@ void DSSE::Setup(std::vector<std::string> &tokens, std::map<std::string, std::ve
 
     // send L to server
     // and do this on the server side:
+    this->D.clear();
     for (token_pair& p: L) {
         std::pair<std::string,std::string> v(
             std::string((char*)p.l, sizeof p.l),
@@ -202,42 +209,39 @@ void DSSE::Setup(std::vector<std::string> &tokens, std::map<std::string, std::ve
         );
         this->D.insert(v);
     }
+
+    this->Dplus.clear(); // page 17
+
 }
 
 std::vector<fileid_t> DSSE::SearchTest(std::string w) {
-    typedef uint8_t key_t[KEYLEN];
-
     // page  8
-    key_t K1, K2;
-    mac_key(this->key, '1', w.c_str(), K1);
-    mac_key(this->key, '2', w.c_str(), K2);
+    dsse_key_t K1, K2;
+    dsse_key_t K1plus, K1minus, K2plus;
 
-    key_t K1plus, K1minus, K2plus;
+    this->SearchClient(w,
+        K1, K2, K1plus, K2plus, K1minus);
 
     return this->SearchServer(K1, K2, K1plus, K2plus, K1minus);
 }
 
-
-
-void DSSE::SearchClient(std::string w) {
-    typedef uint8_t key_t[KEYLEN];
+void DSSE::SearchClient(std::string w,
+    dsse_key_t K1, dsse_key_t K2,
+    dsse_key_t K1plus, dsse_key_t K2plus,
+    dsse_key_t K1minus
+) {
 
     // page  8
-    key_t K1, K2;
     mac_key(this->key, '1', w.c_str(), K1);
     mac_key(this->key, '2', w.c_str(), K2);
 
     /* adding and deleting */
-    /*
     // page 18
-    key_t K1plus, K2plus;
     mac_key(this->kplus, '1', w.c_str(), K1plus);
     mac_key(this->kplus, '2', w.c_str(), K2plus);
 
     // page 20
-    key_t K1minus;
-    mac_key(this->kminus, '1', K1minus);
-    */
+    mac_key(this->kminus, '1', w.c_str(), K1minus);
 
     // return some sort of message for the server?
     //return self.search_server(K1, K2, K1plus, K2plus, K1minus)
