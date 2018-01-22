@@ -1,9 +1,13 @@
 CXXFLAGS?=-O2 -ggdb -Wall
 CXXFLAGS+=-std=c++11
-DSSE_objs=DSSE.o DSSEClient.o
+DSSE_objs=DSSE.o DSSEClient.o dsse.pb.o
 
 CXXFLAGS+=-I../third_party/libtomcrypt/src/headers
 LIBS+=../third_party/libtomcrypt/libtomcrypt.a
+
+protobuf_include_dir=$(HOME)/.local/include
+CXXFLAGS+=-I$(protobuf_include_dir)
+LIBS+=$(HOME)/.local/lib/libprotobuf.a
 
 all: server client
 
