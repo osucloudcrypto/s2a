@@ -5,7 +5,7 @@
 #include "DSSE.h"
 #include "tomcrypt.h"
 
-typedef uint64_t fileid_t;
+namespace DSSE {
 
 // XXX we assume that KEYLEN and DIGESTLEN are equal
 const int KEYLEN = 256/8;
@@ -15,7 +15,7 @@ const int ENCRYPTLEN = sizeof(fileid_t) + 16; //???
 
 typedef uint8_t dsse_key_t[KEYLEN];
 
-void DSSE::Init() {
+void Core::Init() {
     this->key = new uint8_t[KEYLEN];
     this->kplus = new uint8_t[KEYLEN];
     this->kminus = new uint8_t[KEYLEN];
@@ -153,7 +153,7 @@ bool compare_token_pair(const token_pair& a, const token_pair& b) {
 
 // Setup creates an initial index from a list of tokens and a map of
 // file id => token list
-void DSSE::Setup(std::vector<std::string> &tokens, std::map<std::string, std::vector<fileid_t> > &fileids) {
+void Core::Setup(std::vector<std::string> &tokens, std::map<std::string, std::vector<fileid_t> > &fileids) {
     // initialize client state
     random_key(this->key); // Figure 5 (page 8)
     random_key(this->kplus); // page 17
@@ -214,7 +214,7 @@ void DSSE::Setup(std::vector<std::string> &tokens, std::map<std::string, std::ve
 
 }
 
-std::vector<fileid_t> DSSE::SearchTest(std::string w) {
+std::vector<fileid_t> Core::SearchTest(std::string w) {
     // page  8
     dsse_key_t K1, K2;
     dsse_key_t K1plus, K1minus, K2plus;
@@ -225,7 +225,7 @@ std::vector<fileid_t> DSSE::SearchTest(std::string w) {
     return this->SearchServer(K1, K2, K1plus, K2plus, K1minus);
 }
 
-void DSSE::SearchClient(std::string w,
+void Core::SearchClient(std::string w,
     dsse_key_t K1, dsse_key_t K2,
     dsse_key_t K1plus, dsse_key_t K2plus,
     dsse_key_t K1minus
@@ -248,7 +248,7 @@ void DSSE::SearchClient(std::string w,
 }
 
 // SearchServer performs the server side of searching the index for a given keyword.
-std::vector<uint64_t> DSSE::SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1plus[], uint8_t K2plus[], uint8_t K1minus[]) {
+std::vector<uint64_t> Core::SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1plus[], uint8_t K2plus[], uint8_t K1minus[]) {
     uint64_t c = 0;
     std::vector<uint64_t> ids;
 
@@ -294,5 +294,6 @@ std::vector<uint64_t> DSSE::SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1p
     return ids;
 }
 
+}
 
 /* vim: set expandtab shiftwidth=4: */

@@ -1,18 +1,22 @@
+#pragma once
 #include <cstdint>
 #include <string>
 #include <vector>
 #include <map> // TODO: sparsehash?
 
 
+namespace DSSE {
+
 // TODO: add types for fileid and token, and encrypted fileids and tokens
 
 typedef uint64_t fileid_t;
 
 /**
- * DSSE is the core searchable encryption class.
- * It impements both the client side and server side of each operation.
+ * DSSE::Core is the core searchable encryption class.
+ * It impements all the cryptography for  both the client side and server side
+ * of each operation.
  */
-class DSSE {
+class Core {
 public:
 	void Init();
 	// TODO: need methods to:
@@ -61,12 +65,13 @@ private:
 };
 
 /**
-* A DSSEClient communicates with a DSSEServer.
- * It implement the network layer on top of DSSE.
+* A DSSE::Client communicates with a DSSE::Server.
+ * It implements the network layer on top of DSSE::Core.
  */
-class DSSEClient {
+class Client {
+public:
 	void Init();
-	std::vector<std::string> Search(std::string w);
+	std::vector<fileid_t> Search(std::string w);
 	bool Add(std::string fileid, std::string word);
 	bool Delete(std::string fileid);
 };
@@ -78,10 +83,13 @@ class Message {
 };
 
 /**
- * DSSEServer serves DSSEClients.
- * It implements the network layer on top of DSSE.
+ * DSSE::Server serves DSSE::Clients.
+ * It implements the network layer on top of DSSE::Core.
  */
-class DSSEServer {
+class Server {
 	void Init();
 	void HandleMessage(Message *msg); // i guess
 };
+
+
+}

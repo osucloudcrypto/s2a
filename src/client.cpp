@@ -13,7 +13,7 @@ int main() {
 	register_cipher(&aes_desc);
 
 	std::string cmd = "search";
-	DSSE dsse;
+	DSSE::Core dsse;
 	dsse.Init();
 
 	std::vector<std::string> tokens = {
@@ -23,14 +23,13 @@ int main() {
 		"test"
 	};
 
-	std::map<std::string,std::vector<fileid_t>> fidmap = {
+	std::map<std::string,std::vector<DSSE::fileid_t>> fidmap = {
 		{"this", {1}},
 		{"is", {1}},
 		{"a", {1}},
 		{"test", {1}}
 	};
 	dsse.Setup(tokens, fidmap);
-	dsse.SearchClient("this");
 
 	auto ids = dsse.SearchTest("this");
 	for (auto &id : ids) {
