@@ -6,6 +6,8 @@
 
 // TODO: add types for fileid and token, and encrypted fileids and tokens
 
+typedef uint64_t fileid_t;
+
 /**
  * DSSE is the core searchable encryption class.
  * It impements both the client side and server side of each operation.
@@ -19,13 +21,16 @@ public:
 
 	// Setup creates an initial index from a list of tokens and a map of
 	// file id => token list
-	void Setup(std::vector<std::string> &tokens, std::map<std::string, std::vector<std::string> > &fileids);
+	void Setup(std::vector<std::string> &tokens, std::map<std::string, std::vector<fileid_t> > &fileids);
 
 	// SearchClient performs the client side of searching the index for a given keyword.
 	void SearchClient(std::string w);
 
 	// SearchServer performs the server side of searching the index for a given keyword.
-	std::vector<uint64_t> SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1plus[], uint8_t K2plus[], uint8_t K1minus[]);
+	std::vector<fileid_t> SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1plus[], uint8_t K2plus[], uint8_t K1minus[]);
+
+	// a method for testing which combines SearchClient and SearchServer
+	std::vector<fileid_t> SearchTest(std::string w);
 
 	// TODO: maybe split Update into separate add/edit/delete actions
 
