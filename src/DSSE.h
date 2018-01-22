@@ -74,6 +74,10 @@ public:
 	std::vector<fileid_t> Search(std::string w);
 	bool Add(std::string fileid, std::string word);
 	bool Delete(std::string fileid);
+
+private:
+	Core dsse;
+	// XXX the client should probably store a fileid => filename mapping somewhere
 };
 
 /// Some sort of message class

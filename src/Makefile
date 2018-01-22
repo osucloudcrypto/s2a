@@ -1,6 +1,6 @@
 CXXFLAGS?=-O2 -ggdb -Wall
 CXXFLAGS+=-std=c++11
-DSSE_objs=DSSE.o
+DSSE_objs=DSSE.o DSSEClient.o
 
 CXXFLAGS+=-I../third_party/libtomcrypt/src/headers
 LIBS+=../third_party/libtomcrypt/libtomcrypt.a
@@ -16,5 +16,5 @@ client: client.o $(DSSE_objs) Makefile
 # add a dependency on the header file
 $(DSSE_objs): DSSE.h
 
-%.pb.cc: %.proto
+%.pb.cc: %.proto Makefile
 	protoc --cpp_out=. $<

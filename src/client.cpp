@@ -32,6 +32,13 @@ int main() {
 	dsse.Setup(tokens, fidmap);
 
 	auto ids = dsse.SearchTest("this");
+	//auto ids = fidmap.at("this");
+	for (auto &id : ids) {
+		std::cout << id << "\n";
+	}
+
+	DSSE::Client client;
+	ids = client.Search("hi");
 	for (auto &id : ids) {
 		std::cout << id << "\n";
 	}
