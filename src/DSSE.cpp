@@ -13,7 +13,7 @@ const int DIGESTLEN = 256/8;
 // size of encrypted file id
 const int ENCRYPTLEN = sizeof(fileid_t) + 16; //???
 
-typedef uint8_t dsse_key_t[KEYLEN];
+typedef uint8_t key_t[KEYLEN];
 
 void Core::Init() {
     this->key = new uint8_t[KEYLEN];
@@ -216,8 +216,8 @@ void Core::Setup(std::vector<std::string> &tokens, std::map<std::string, std::ve
 
 std::vector<fileid_t> Core::SearchTest(std::string w) {
     // page  8
-    dsse_key_t K1, K2;
-    dsse_key_t K1plus, K1minus, K2plus;
+    key_t K1, K2;
+    key_t K1plus, K1minus, K2plus;
 
     this->SearchClient(w,
         K1, K2, K1plus, K2plus, K1minus);
@@ -226,9 +226,9 @@ std::vector<fileid_t> Core::SearchTest(std::string w) {
 }
 
 void Core::SearchClient(std::string w,
-    dsse_key_t K1, dsse_key_t K2,
-    dsse_key_t K1plus, dsse_key_t K2plus,
-    dsse_key_t K1minus
+    key_t K1, key_t K2,
+    key_t K1plus, key_t K2plus,
+    key_t K1minus
 ) {
 
     // page  8
