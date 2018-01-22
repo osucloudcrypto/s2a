@@ -5,7 +5,7 @@
 #include "DSSE.h"
 
 int main() {
-	DSSE dsse;
+	DSSE::Core dsse;
 	std::cout << "Hello, world!\n";
 	return 0;
 }
