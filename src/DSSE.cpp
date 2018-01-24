@@ -155,6 +155,14 @@ bool compare_token_pair(const token_pair& a, const token_pair& b) {
     return false;
 }
 
+void print_bytes(FILE* fp, const char *title, const uint8_t *data, size_t len) {
+    fprintf(fp, "%s: ", title);
+    for (size_t i = 0; i < len; i++) {
+        fprintf(fp, "%02x", data[i]);
+    }
+    fprintf(fp, "\n");
+}
+
 // Setup creates an initial index from a list of tokens and a map of
 // file id => token list
 void Core::Setup(std::vector<std::string> &tokens, std::map<std::string, std::vector<fileid_t> > &fileids) {
@@ -212,6 +220,8 @@ void Core::Setup(std::vector<std::string> &tokens, std::map<std::string, std::ve
             std::string((char*)p.d, sizeof p.d)
         );
         this->D.insert(v);
+        //print_bytes(stdout, "key", p.l, sizeof p.l);
+        //print_bytes(stdout, "value", p.d, sizeof p.d);
     }
 
     this->Dplus.clear(); // page 17
@@ -260,6 +270,7 @@ std::vector<uint64_t> Core::SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1p
         uint8_t l[DIGESTLEN];
         std::string d;
         mac_long(K1, c, l);
+        //print_bytes(stdout, "key", l, sizeof l);
         try {
             d = this->D.at(std::string(reinterpret_cast<char*>(l), sizeof l / 1));
         } catch (std::out_of_range& e) {
