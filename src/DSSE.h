@@ -4,12 +4,17 @@
 #include <vector>
 #include <map> // TODO: sparsehash?
 
-
 namespace DSSE {
 
 // TODO: add types for fileid and token, and encrypted fileids and tokens
 
 typedef uint64_t fileid_t;
+
+// pair of values returned by AddClient
+struct AddPair {
+	std::string Token;
+	std::string FileID;
+};
 
 /**
  * DSSE::Core is the core searchable encryption class.
@@ -52,11 +57,17 @@ public:
 		// Input
 		std::string id, std::vector<std::string> words,
 		// Output
-		std::vector<std::string> L
+		std::vector<AddPair> &L
 	);
 
 	// UpdateServer performs the server side of an add action.
-	void AddServer(std::vector<std::string> L);
+	void AddServer(std::vector<AddPair> L);
+
+	// AddClient2 performs the 2nd client half of Add action
+	void AddClient2(
+		std::vector<std::string> r,
+		std::vector<std::string> W_in_order_of_Lrev
+	);
 
 	// Delete removes keywords from a file.
 	// DeletClient performs the client side of a delete action.

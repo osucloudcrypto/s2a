@@ -314,10 +314,12 @@ void Core::AddClient(
     // Input
     std::string id, std::vector<std::string> words,
     // Output
-    std::vector<std::string> L
+    std::vector<AddPair> &Loutput
 ) {
-    L.clear();
+
+    std::vector<token_pair> L;
     //W_in_order_of_Lrev = [] // p20
+
     for (auto &w : words) {
         key_t K1plus, K2plus;
         key_t K1minus;
@@ -331,7 +333,8 @@ void Core::AddClient(
         mac_long(K1plus, c, p.l);
         encrypt_long(K2plus, c, p.d);
         this->Dcount[w]++;
-        //L.push_back(p); // XXX
+
+        L.push_back(p); // XXX
 
         /*
         # page 20
@@ -341,8 +344,43 @@ void Core::AddClient(
         */
     }
 
+    // copy to output
+    Loutput.clear();
+    for (token_pair &p : L) {
+        AddPair ap;
+        ap.Token = std::string(reinterpret_cast<char*>(p.l), sizeof p.l);
+        ap.FileID = std::string(reinterpret_cast<char*>(p.d), sizeof p.d);
+        Loutput.push_back(ap);
+    }
 }
 
+void Core::AddServer(std::vector<AddPair> L) {
+    for (AddPair &p : L) {
+        if (this->Dplus.count(p.Token) > 0) {
+            fprintf(stderr, "warning: token already in Dplus\n");
+            // XXX abort?
+        }
+        this->Dplus[p.Token] = p.FileID;
+    }
 }
+
+// the second half of AddClient;
+// updates the update count for every non-revoked token
+void Core::AddClient2(
+    std::vector<std::string> r,
+    std::vector<std::string> W_in_order_of_Lrev
+) {
+    /*
+    # page 20
+    for ri, w in zip(r, W_in_order_of_Lrev):
+        if not ri:
+            c = self.Dcount.get(w, 0)
+            c += 1
+            self.Dcount[w] = c
+    */
+}
+
+
+} // namespace DSSE
 
 /* vim: set expandtab shiftwidth=4: */
