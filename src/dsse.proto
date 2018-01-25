@@ -2,6 +2,13 @@ syntax = "proto2";
 
 package DSSE.msg;
 
+message Request {
+    oneof Msg {
+        Setup Setup = 1;
+        Search Search = 2;
+    }
+}
+
 message Setup {
     message TokenPair {
         optional bytes Counter = 2; // hashed counter

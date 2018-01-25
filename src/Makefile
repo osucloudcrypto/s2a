@@ -9,6 +9,7 @@ CXXFLAGS+=-I../third_party/include
 LIBS+=../third_party/lib/libprotobuf.a
 
 all: server client
+protobuf: dsse.pb.cc
 
 server: server.o $(DSSE_objs) Makefile
 	g++ $(CXXFLAGS) $(LDFLAGS) -o server $< $(DSSE_objs) $(LIBS)
@@ -16,8 +17,11 @@ server: server.o $(DSSE_objs) Makefile
 client: client.o $(DSSE_objs) Makefile
 	g++ $(CXXFLAGS) $(LDFLAGS) -o client $< $(DSSE_objs) $(LIBS)
 
-# add a dependency on the header file
-client.o server.o $(DSSE_objs): DSSE.h
+# add a dependency on the header files
+client.o server.o $(DSSE_objs): DSSE.h dsse.pb.h
 
 %.pb.cc: %.proto Makefile
 	../third_party/bin/protoc --cpp_out=. $<
+
+%.pb.h: %.pb.cc
+	@:

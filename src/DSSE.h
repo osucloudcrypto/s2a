@@ -4,6 +4,7 @@
 #include <vector>
 #include <map> // TODO: sparsehash?
 
+
 namespace DSSE {
 
 // TODO: add types for fileid and token, and encrypted fileids and tokens
@@ -90,6 +91,10 @@ private:
 	std::map<std::string, std::string> Dplus; // mac'd token id -> encrypted file id
 };
 
+// forward-declare message type
+namespace msg { class Request; }
+
+
 /**
 * A DSSE::Client communicates with a DSSE::Server.
  * It implements the network layer on top of DSSE::Core.
@@ -105,18 +110,12 @@ private:
 	// XXX the client should probably store a fileid => filename mapping somewhere
 };
 
-/// Some sort of message class
-// TODO: maybe use protobuf?
-class Message {
-
-};
-
 /**
  * DSSE::Server serves DSSE::Clients.
  * It implements the network layer on top of DSSE::Core.
  */
 class Server {
-	void HandleMessage(Message *msg); // i guess
+	void HandleMessage(msg::Request *msg); // i guess
 };
 
 } // namespace DSSE
