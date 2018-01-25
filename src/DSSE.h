@@ -23,7 +23,8 @@ struct AddPair {
  */
 class Core {
 public:
-	void Init();
+	Core();
+
 	// TODO: need methods to:
 	//     * create a new DSSE from scratch
 	//     * create a DSSE based on some stored state
@@ -95,7 +96,6 @@ private:
  */
 class Client {
 public:
-	void Init();
 	std::vector<fileid_t> Search(std::string w);
 	bool Add(std::string fileid, std::string word);
 	bool Delete(std::string fileid);
@@ -116,9 +116,7 @@ class Message {
  * It implements the network layer on top of DSSE::Core.
  */
 class Server {
-	void Init();
 	void HandleMessage(Message *msg); // i guess
 };
 
-
-}
+} // namespace DSSE

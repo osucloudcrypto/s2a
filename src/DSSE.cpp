@@ -15,7 +15,7 @@ const int ENCRYPTLEN = sizeof(fileid_t) + 16; //???
 
 typedef uint8_t key_t[KEYLEN];
 
-void Core::Init() {
+Core::Core() {
     this->key = new uint8_t[KEYLEN];
     this->kplus = new uint8_t[KEYLEN];
     this->kminus = new uint8_t[KEYLEN];

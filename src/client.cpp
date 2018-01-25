@@ -14,7 +14,6 @@ int main() {
 
 	std::string cmd = "search";
 	DSSE::Core dsse;
-	dsse.Init();
 
 	std::vector<std::string> tokens = {
 		"this",
