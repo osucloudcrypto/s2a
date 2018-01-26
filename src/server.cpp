@@ -11,9 +11,7 @@
 
 #include "DSSE.h"
 #include "dsse.pb.h"
-extern "C" {
 #include "netstring.h"
-}
 
 void handle(int fd);
 
@@ -30,7 +28,9 @@ void die(const char* format, ...) {
 
 
 int main() {
-	// TODO: init server here
+	// TODO: init server state here
+
+	// TODO: move all this gunk to the Server class
 
 	int listenfd = socket(AF_INET, SOCK_STREAM, 0);
 	struct sockaddr_in listenaddr = {0};
@@ -100,6 +100,8 @@ int main() {
 	return 0;
 }
 
+template <class T> bool send_message(FILE* sock, T &msg);
+
 void handle(int fd) {
 	// read message
 	FILE* sock = fdopen(fd, "r+b");
@@ -124,4 +126,29 @@ void handle(int fd) {
 	}
 
 	server.HandleMessage(&req);
+
+	DSSE::msg::SearchResult result;
+	result.add_fileid(42);
+	if (!send_message(sock, result)) {
+		fprintf(stderr, "SERVER: error sending result\n");
+		return;
+	}
+
+	if (fflush(sock) < 0) {
+		perror("fflush");
+	}
+}
+
+template <class T> bool send_message(FILE* sock, T &msg) {
+	std::string str;
+	if (!msg.SerializeToString(&str)) {
+		std::cerr << "SERVER: encoding failed\n";
+		return false;
+	}
+	const char* cstr = str.c_str();
+	if (write_netstring(sock, cstr, str.size()) < 0) {
+		std::cerr << "SERVER: error sending message\n";
+		return false;
+	}
+	return true;
 }

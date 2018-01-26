@@ -1,4 +1,5 @@
 #pragma once
+#include <stdio.h>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -101,12 +102,20 @@ namespace msg { class Request; }
  */
 class Client {
 public:
+	/**
+	 * Connect initiates a connection to the DSSE server.
+	 * You must call connect before calling Search, Add, or Delete.
+	 */
+	bool Connect(std::string hostname, int port);
+
 	std::vector<fileid_t> Search(std::string w);
 	bool Add(std::string fileid, std::string word);
 	bool Delete(std::string fileid);
 
 private:
 	Core dsse;
+	FILE* sock;
+
 	// XXX the client should probably store a fileid => filename mapping somewhere
 };
 

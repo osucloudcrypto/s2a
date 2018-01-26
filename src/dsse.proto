@@ -3,9 +3,9 @@ syntax = "proto2";
 package DSSE.msg;
 
 message Request {
-    oneof Msg {
-        Setup Setup = 1;
-        Search Search = 2;
+    oneof msg {
+        Setup setup = 1;
+        Search search = 2;
     }
 }
 

@@ -65,7 +65,7 @@ readerror:
 
 // Write a string to a file as a netstring.
 // The file must be opened in binary mode.
-int write_netstring(FILE* w, char* buf, int len) {
+int write_netstring(FILE* w, const char* buf, int len) {
 	if (fprintf(w, "%d:", len) < 0) {
 		goto error;
 	}

@@ -37,6 +37,11 @@ int main() {
 	}
 
 	DSSE::Client client;
+	if (!client.Connect("localhost", 24992)) {
+		std::cerr << "error connecting\n";
+		return 1;
+	}
+
 	ids = client.Search("hi");
 	for (auto &id : ids) {
 		std::cout << id << "\n";

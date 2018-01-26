@@ -1,3 +1,3 @@
 #include <stdio.h>
-char* read_netstring(FILE* r, int* lenp);
-int write_netstring(FILE* w, char* buf, int len);
+extern "C" char* read_netstring(FILE* r, int* lenp);
+extern "C" int write_netstring(FILE* w, const char* buf, int len);
