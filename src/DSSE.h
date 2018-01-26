@@ -115,6 +115,7 @@ private:
  * It implements the network layer on top of DSSE::Core.
  */
 class Server {
+public:
 	void HandleMessage(msg::Request *msg); // i guess
 };
 

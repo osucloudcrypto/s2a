@@ -1,6 +1,10 @@
 CXXFLAGS?=-O2 -ggdb -Wall
 CXXFLAGS+=-std=c++11
-DSSE_objs=dsse.pb.o DSSE.o DSSEClient.o
+CFLAGS?=-O2 -ggdb -Wall
+CFLAGS+=-std=c99
+
+DSSE_objs=DSSE.o DSSEClient.o DSSEServer.o dsse.pb.o netstring.o
+
 
 CXXFLAGS+=-I../third_party/libtomcrypt/src/headers
 LIBS+=../third_party/libtomcrypt/libtomcrypt.a
