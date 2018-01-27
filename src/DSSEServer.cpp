@@ -13,10 +13,38 @@ namespace DSSE {
 template <class T> bool send_message(FILE* sock, T &msg);
 void handle(Server* server, int fd);
 
-void Server::HandleMessage(msg::Request* req) {
+void Server::HandleMessage(const msg::Request* req, FILE* sock) {
 	std::cout << "Got a request\n";
+
+	if (req->has_setup()) {
+		this->HandleSetup(req->setup(), sock);
+	} else if (req->has_search()) {
+		this->HandleSearch(req->search(), sock);
+	} else {
+		std::cerr << "SERVER got nknown message type\n";
+	}
+
 	return;
 }
+
+void Server::HandleSetup(const msg::Setup &setup, FILE* sock) {
+
+}
+
+void Server::HandleSearch(const msg::Search &search, FILE* sock) {
+	typedef uint8_t key_t[256/6];
+	key_t K1, K2, K1plus, K2plus, K1minus;
+	auto vec = this->core.SearchServer(K1, K2, K1plus, K2plus, K1minus);
+	msg::SearchResult result;
+	for (auto fileid : vec) {
+		result.add_fileid(fileid);
+	}
+	if (!send_message(sock, result)) {
+		fprintf(stderr, "SERVER: error sending result\n");
+		return;
+	}
+}
+
 
 void Server::ListenAndServe(std::string hostname, int port) {
 	int listenfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -114,14 +142,7 @@ void handle(Server* server, int fd) {
 		return;
 	}
 
-	server->HandleMessage(&req);
-
-	msg::SearchResult result;
-	result.add_fileid(42);
-	if (!send_message(sock, result)) {
-		fprintf(stderr, "SERVER: error sending result\n");
-		return;
-	}
+	server->HandleMessage(&req, sock);
 
 	if (fflush(sock) < 0) {
 		perror("fflush");

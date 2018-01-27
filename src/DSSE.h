@@ -94,8 +94,8 @@ private:
 	std::map<std::string, std::string> Dplus; // mac'd token id -> encrypted file id
 };
 
-// forward-declare message type
-namespace msg { class Request; }
+// forward-declare message types
+namespace msg { class Request; class Search; class Setup; }
 
 
 /**
@@ -128,9 +128,13 @@ private:
 class Server {
 public:
 	void ListenAndServe(std::string hostname, int port);
-	void HandleMessage(msg::Request* req);
+	void HandleMessage(const msg::Request* req, FILE* sock);
 
 private:
+	void HandleSetup(const msg::Setup& setup, FILE* sock);
+	void HandleSearch(const msg::Search& search, FILE* sock);
+
+	Core core;
 };
 
 } // namespace DSSE
