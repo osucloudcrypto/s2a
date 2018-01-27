@@ -51,7 +51,7 @@ bool Client::Connect(std::string hostname, int port)
 	return true;
 }
 
-// TODO: deduplicate with DSSE.h
+// TODO: deduplicate with DSSE.cpp
 const int KEYLEN = 256/8;
 typedef uint8_t key_t[KEYLEN];
 
