@@ -11,6 +11,7 @@ message Request {
 
 message Setup {
     message TokenPair {
+        // TODO: rename counter to token for consistency with the rest of the codebase
         optional bytes Counter = 2; // hashed counter
         optional bytes FileID = 3; // encrypted fileid
     }

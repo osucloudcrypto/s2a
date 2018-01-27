@@ -12,9 +12,7 @@ int main() {
 	register_hash(&sha256_desc);
 	register_cipher(&aes_desc);
 
-	std::string cmd = "search";
-	DSSE::Core dsse;
-
+	DSSE::Core core;
 	std::vector<std::string> tokens = {
 		"this",
 		"is",
@@ -28,9 +26,10 @@ int main() {
 		{"a", {1}},
 		{"test", {1}}
 	};
-	dsse.Setup(tokens, fidmap);
+	std::vector<DSSE::SetupPair> L;
+	core.SetupClient(tokens, fidmap, L);
 
-	auto ids = dsse.SearchTest("this");
+	auto ids = core.SearchTest("this");
 	//auto ids = fidmap.at("this");
 	for (auto &id : ids) {
 		std::cout << id << "\n";
@@ -42,7 +41,18 @@ int main() {
 		return 1;
 	}
 
-	ids = client.Search("hi");
+	client.Setup(tokens, fidmap);
+	std::cout << "setup finished\n";
+
+	// TODO: the server closes the connection after every request, so we
+	// have to connect again. fix this. (reconnecting also leaks fds)
+	client.Disconnect();
+	if (!client.Connect("localhost", DSSE::DefaultPort)) {
+		std::cerr << "error connecting\n";
+		return 1;
+	}
+
+	ids = client.Search("test");
 	for (auto &id : ids) {
 		std::cout << id << "\n";
 	}

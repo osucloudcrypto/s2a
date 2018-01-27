@@ -14,6 +14,11 @@ const int DefaultPort = 24992;
 
 typedef uint64_t fileid_t;
 
+struct SetupPair {
+	std::string Token;
+	std::string FileID;
+};
+
 // pair of values returned by AddClient
 struct AddPair {
 	std::string Token;
@@ -32,10 +37,20 @@ public:
 	// TODO: need methods to:
 	//     * create a new DSSE from scratch
 	//     * create a DSSE based on some stored state
+	// TODO: actually, i think we need a separate persitence layer
 
 	// Setup creates an initial index from a list of tokens and a map of
 	// file id => token list
-	void Setup(std::vector<std::string> &tokens, std::map<std::string, std::vector<fileid_t> > &fileids);
+	void SetupClient(
+		std::vector<std::string> &tokens,
+		std::map<std::string, std::vector<fileid_t> > &fileids,
+		// Output
+		std::vector<SetupPair> &L
+	);
+
+	void SetupServer(
+		std::vector<SetupPair> &L
+	);
 
 	// SearchClient performs the client side of searching the index for a given keyword.
 	// It returns a bunch of keys to send to the server.
@@ -109,7 +124,15 @@ public:
 	 * You must call connect before calling Search, Add, or Delete.
 	 */
 	bool Connect(std::string hostname, int port);
+	bool Disconnect() {
+		if (fclose(this->sock) < 0) {
+			perror("close");
+			return false;
+		}
+		return true;
+	}
 
+	bool Setup(std::vector<std::string> &tokens, std::map<std::string, std::vector<fileid_t>> &fileids);
 	std::vector<fileid_t> Search(std::string w);
 	bool Add(std::string fileid, std::string word);
 	bool Delete(std::string fileid);

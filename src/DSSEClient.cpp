@@ -55,6 +55,34 @@ bool Client::Connect(std::string hostname, int port)
 const int KEYLEN = 256/8;
 typedef uint8_t key_t[KEYLEN];
 
+bool Client::Setup(std::vector<std::string> &tokens, std::map<std::string, std::vector<fileid_t>> &fileids) {
+	std::vector<SetupPair> L;
+	this->dsse.SetupClient(tokens, fileids, L);
+
+	msg::Request req;
+	msg::Setup *msg = req.mutable_setup();
+	for (auto &p : L) {
+		msg::Setup_TokenPair *q = msg->add_l();
+		q->set_counter(p.Token);
+		q->set_fileid(p.FileID);
+	}
+
+	if (!send_message(this->sock, req)) {
+		return false;
+	}
+
+	// TODO: add setupresult message?
+	/*
+	msg::SetupResult result;
+	if (!recv_response(this->sock, result)) {
+		return false;
+		return std::vector<fileid_t>(); // TODO return error
+	}
+	std::cout << "got response\n";
+	*/
+	return true;
+}
+
 std::vector<DSSE::fileid_t>
 Client::Search(std::string w) {
 	msg::Request req;

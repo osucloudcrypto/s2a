@@ -162,10 +162,17 @@ void print_bytes(FILE* fp, const char *title, const uint8_t *data, size_t len) {
     }
     fprintf(fp, "\n");
 }
+void print_bytes(FILE* fp, const char *title, std::string s) {
+    print_bytes(fp, title, reinterpret_cast<const uint8_t*>(s.data()), s.size());
+}
 
 // Setup creates an initial index from a list of tokens and a map of
 // file id => token list
-void Core::Setup(std::vector<std::string> &tokens, std::map<std::string, std::vector<fileid_t> > &fileids) {
+void Core::SetupClient(
+    std::vector<std::string> &tokens,
+    std::map<std::string, std::vector<fileid_t> > &fileids,
+    std::vector<SetupPair> &Loutput
+) {
     // initialize client state
     random_key(this->key); // Figure 5 (page 8)
     random_key(this->kplus); // page 17
@@ -211,21 +218,24 @@ void Core::Setup(std::vector<std::string> &tokens, std::map<std::string, std::ve
 
     std::sort(L.begin(), L.end(), compare_token_pair);
 
-    // send L to server
-    // and do this on the server side:
-    this->D.clear();
-    for (token_pair& p: L) {
-        std::pair<std::string,std::string> v(
+    // hand L off to the server
+    for (token_pair &p : L) {
+        Loutput.push_back(SetupPair{
             std::string((char*)p.l, sizeof p.l),
             std::string((char*)p.d, sizeof p.d)
-        );
-        this->D.insert(v);
-        //print_bytes(stdout, "key", p.l, sizeof p.l);
-        //print_bytes(stdout, "value", p.d, sizeof p.d);
+        });
     }
+}
 
+void Core::SetupServer(std::vector<SetupPair> &L) {
+    this->D.clear();
     this->Dplus.clear(); // page 17
 
+    for (SetupPair& p : L) {
+        this->D[p.Token] = p.FileID;
+        //print_bytes(stdout, "key", p.Token);
+        //print_bytes(stdout, "value", p.FileID);
+    }
 }
 
 std::vector<fileid_t> Core::SearchTest(std::string w) {

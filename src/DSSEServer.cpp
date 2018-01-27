@@ -14,21 +14,24 @@ template <class T> bool send_message(FILE* sock, T &msg);
 void handle(Server* server, int fd);
 
 void Server::HandleMessage(const msg::Request* req, FILE* sock) {
-	std::cout << "Got a request\n";
-
 	if (req->has_setup()) {
+		std::cout << "Got a setup request\n";
 		this->HandleSetup(req->setup(), sock);
 	} else if (req->has_search()) {
+		std::cout << "Got a search request\n";
 		this->HandleSearch(req->search(), sock);
 	} else {
-		std::cerr << "SERVER got nknown message type\n";
+		std::cerr << "SERVER got unknown message type\n";
 	}
-
-	return;
 }
 
 void Server::HandleSetup(const msg::Setup &setup, FILE* sock) {
-
+	std::vector<SetupPair> L;
+	for (auto &p : setup.l()) {
+		L.push_back(SetupPair{p.counter(), p.fileid()});
+	}
+	this->core.SetupServer(L);
+	// TODO: send back an "OK" message?
 }
 
 void Server::HandleSearch(const msg::Search &search, FILE* sock) {
