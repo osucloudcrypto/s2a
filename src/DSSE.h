@@ -8,6 +8,8 @@
 
 namespace DSSE {
 
+const int DefaultPort = 24992;
+
 // TODO: add types for fileid and token, and encrypted fileids and tokens
 
 typedef uint64_t fileid_t;
@@ -125,7 +127,10 @@ private:
  */
 class Server {
 public:
-	void HandleMessage(msg::Request *msg); // i guess
+	void ListenAndServe(std::string hostname, int port);
+	void HandleMessage(msg::Request* req);
+
+private:
 };
 
 } // namespace DSSE

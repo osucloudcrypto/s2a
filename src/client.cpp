@@ -37,7 +37,7 @@ int main() {
 	}
 
 	DSSE::Client client;
-	if (!client.Connect("localhost", 24992)) {
+	if (!client.Connect("localhost", DSSE::DefaultPort)) {
 		std::cerr << "error connecting\n";
 		return 1;
 	}
