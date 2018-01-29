@@ -10,6 +10,8 @@
 
 namespace DSSE {
 
+const int KEYLEN = 256/8; // XXX
+
 template <class T> bool send_message(FILE* sock, T &msg);
 void handle(Server* server, int fd);
 
@@ -37,6 +39,31 @@ void Server::HandleSetup(const msg::Setup &setup, FILE* sock) {
 void Server::HandleSearch(const msg::Search &search, FILE* sock) {
 	typedef uint8_t key_t[256/6];
 	key_t K1, K2, K1plus, K2plus, K1minus;
+	if (search.k1().size() != KEYLEN) {
+		fprintf(stderr, "SERVER: K1 has wrong length %zd\n", search.k1().size());
+		return;
+	}
+	if (search.k2().size() != KEYLEN) {
+		fprintf(stderr, "SERVER: K2 has wrong length %zd\n", search.k2().size());
+		return;
+	}
+	if (search.k1plus().size() != KEYLEN) {
+		fprintf(stderr, "SERVER: K1plus has wrong length %zd\n", search.k1plus().size());
+		return;
+	}
+	if (search.k2plus().size() != KEYLEN) {
+		fprintf(stderr, "SERVER: K2plus has wrong length %zd\n", search.k2plus().size());
+		return;
+	}
+	if (search.k1minus().size() != KEYLEN) {
+		fprintf(stderr, "SERVER: K1minus has wrong length %zd\n", search.k1minus().size());
+		return;
+	}
+	memmove(K1, search.k1().data(), KEYLEN);
+	memmove(K2, search.k2().data(), KEYLEN);
+	memmove(K1plus, search.k1plus().data(), KEYLEN);
+	memmove(K2plus, search.k2plus().data(), KEYLEN);
+	memmove(K1minus, search.k1minus().data(), KEYLEN);
 	auto vec = this->core.SearchServer(K1, K2, K1plus, K2plus, K1minus);
 	msg::SearchResult result;
 	for (auto fileid : vec) {

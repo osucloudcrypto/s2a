@@ -186,6 +186,7 @@ void Core::SetupClient(
         mac_key(this->key, '1', w.c_str(), K1);
         mac_key(this->key, '2', w.c_str(), K2);
         auto& fids = fileids.at(w);
+        //print_bytes(stdout, "K1", K1, KEYLEN);
         for (size_t c = 0; c < fids.size(); c++) {
             uint8_t counter_bytes[8];
             counter_bytes[0] = c&0xff;
@@ -276,6 +277,7 @@ std::vector<uint64_t> Core::SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1p
     uint64_t c = 0;
     std::vector<uint64_t> ids;
 
+    //print_bytes(stdout, "K1", K1, KEYLEN);
     for (c = 0;; c++) {
         uint8_t l[DIGESTLEN];
         std::string d;
