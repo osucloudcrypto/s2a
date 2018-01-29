@@ -57,7 +57,7 @@ typedef uint8_t key_t[KEYLEN];
 
 bool Client::Setup(std::vector<std::string> &tokens, std::map<std::string, std::vector<fileid_t>> &fileids) {
 	std::vector<SetupPair> L;
-	this->dsse.SetupClient(tokens, fileids, L);
+	this->core.SetupClient(tokens, fileids, L);
 
 	msg::Request req;
 	msg::Setup *msg = req.mutable_setup();
@@ -88,7 +88,7 @@ Client::Search(std::string w) {
 	msg::Request req;
 	msg::Search *msg = req.mutable_search();
 	key_t K1, K2, K1plus, K2plus, K1minus;
-	this->dsse.SearchClient(w,
+	this->core.SearchClient(w,
 		K1, K2, K1plus, K2plus, K1minus);
 	msg->set_k1(std::string(reinterpret_cast<char*>(K1), sizeof K1));
 	msg->set_k2(std::string(reinterpret_cast<char*>(K2), sizeof K2));

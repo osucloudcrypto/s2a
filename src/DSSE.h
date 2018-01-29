@@ -138,7 +138,7 @@ public:
 	bool Delete(std::string fileid);
 
 private:
-	Core dsse;
+	Core core;
 	FILE* sock;
 
 	// XXX the client should probably store a fileid => filename mapping somewhere
