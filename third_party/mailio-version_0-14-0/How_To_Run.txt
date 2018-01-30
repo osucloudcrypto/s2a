@@ -1,0 +1,38 @@
+How to run pop3 Library
+
+1. Run makefile from source folder (s2a/third_party/mailio-version_0-14-0/
+2.Go into folder (examples)
+3.  Run this script to compile the pop3s_fetch_one.cpp Example
+
+g++ -std=c++11 -I../include -lpthread -lboost_system -lboost_regex -lboost_date_time -lboost_random -lssl -lcrypto -o pop3test pop3s_fetch_one.cpp ../lib/libmailio.a 
+./pop3test
+
+This example pop3s_fetch_one.cpp pulls from my pop3 Gmail account.
+
+Logging into my Gmail Pop3 Email.
+
+Fake Email Info:
+Username: Pop3testserver
+Password: supersecretpassword
+
+Setting up your Own Pop3 Email server: (Change the POP info inside the pop3_fetch_one.cpp file)
+
+My work:
+
+• Gmail POP server address: pop.gmail.com
+• Gmail POP user name: Your full Gmail address (example@gmail.com, for example)
+• Gmail POP password: Your Gmail password
+• Gmail POP port: 995
+
+Example Pop3 Fetch Compile Script:
+g++ -std=c++11 -I../include -lpthread -lboost_system -lboost_regex -lboost_date_time -lboost_random -lssl -lcrypto -o pop3test pop3s_fetch_one.cpp ../lib/libmailio.a 
+
+
+Set up Fake Email Server to test Pop3 Library.
+	- Allow Pop3 Interaction under Gmail Settings.
+	- Click the Settings gear in Gmail.
+	- Select Settings from the menu that shows.
+	- Open the Forwarding and POP/IMAP tab.
+	- Make sure either Enable POP for all mail
+	- Click Save Changes.
+	
