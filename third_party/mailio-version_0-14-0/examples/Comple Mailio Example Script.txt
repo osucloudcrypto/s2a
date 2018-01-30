@@ -1,0 +1,1 @@
+g++ -std=c++11 -I../include -lpthread -lboost_system -lboost_regex -lboost_date_time -lboost_random -lssl -lcrypto -o pop3test pop3s_fetch_one.cpp ../lib/libmailio.a 
