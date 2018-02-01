@@ -1,53 +1,25 @@
 #include <iostream>
-
-// yay sockets
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
+#include <sstream>
+#include <zmq.hpp>
 
 #include "DSSE.h"
 #include "dsse.pb.h"
-#include "netstring.h"
 
 namespace DSSE {
 
-bool send_message(FILE* sock, msg::Request &msg);
-template<class T> bool recv_response(FILE* sock, T &msg);
+bool send_message(zmq::socket_t &sock, msg::Request &msg);
+template<class T> bool recv_response(zmq::socket_t &sock, T &msg);
 
 bool Client::Connect(std::string hostname, int port)
 {
-	struct sockaddr_in addr;
+	std::ostringstream buf;
+	buf << "tcp://" << hostname << ":" << port;
 
-	// Set up the server address struct
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(port);
-	addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-	//TODO: resolve host
+	std::string addr = buf.str();
 
-	// Set up the socket
-	int fd = socket(AF_INET, SOCK_STREAM, 0); // Create the socket
-	if (fd < 0) {
-		perror("socket");
-		fprintf(stderr, "CLIENT: error opening socket");
-		return false;
-	}
-
-	// Connect to server
-	if (connect(fd, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
-		perror("connect");
-		fprintf(stderr, "CLIENT: error connecting");
-		return false;
-	}
-
-	sock = fdopen(fd, "r+b");
-
-	//this->fd = fd;
-	this->sock = sock;
-	//this->hostname = hostname;
-	//this->port = port;
+	// TODO catch exceptions
+	this->sock.connect(addr);
+	this->addr = addr;
 	return true;
 }
 
@@ -68,6 +40,12 @@ bool Client::Setup(std::vector<std::string> &tokens, std::map<std::string, std::
 	}
 
 	if (!send_message(this->sock, req)) {
+		return false;
+	}
+
+	// receive empty response
+	zmq::message_t zmsg;
+	if (!this->sock.recv(&zmsg)) {
 		return false;
 	}
 
@@ -111,29 +89,28 @@ Client::Search(std::string w) {
 	return ret;
 }
 
-bool send_message(FILE* sock, msg::Request &msg) {
+bool send_message(zmq::socket_t &sock, msg::Request &msg) {
 	std::string str;
 	if (!msg.SerializeToString(&str)) {
 		std::cerr << "CLIENT: encoding failed\n";
 		return false;
 	}
-	const char* cstr = str.c_str();
-	if (write_netstring(sock, cstr, str.size()) < 0) {
+	zmq::message_t zmsg((void*)(str.data()), str.size(), nullptr);
+	if (!sock.send(zmsg)) {
 		std::cerr << "CLIENT: error sending message\n";
 		return false;
 	}
 	return true;
 }
 
-template <class T> bool recv_response(FILE* sock, T &resp) {
-	int len;
-	char* cstr = read_netstring(sock, &len);
-	if (cstr == NULL) {
+template <class T> bool recv_response(zmq::socket_t &sock, T &resp) {
+	zmq::message_t zmsg;
+	if (!sock.recv(&zmsg)) {
 		std::cerr << "CLIENT: error reading response\n";
 		return false;
 	}
 
-	std::string str(cstr, len);
+	std::string str((char*)zmsg.data(), zmsg.size());
 	if (!resp.ParseFromString(str)) {
 		std::cerr << "CLIENT: error parsing response\n";
 		return false;

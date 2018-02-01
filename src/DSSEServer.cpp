@@ -1,42 +1,42 @@
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
+#include <iostream>
+#include <sstream>
+#include <zmq.hpp>
 
 #include "DSSE.h"
 #include "dsse.pb.h"
-#include "netstring.h"
 
 namespace DSSE {
 
 const int KEYLEN = 256/8; // XXX
 
-template <class T> bool send_message(FILE* sock, T &msg);
-void handle(Server* server, int fd);
+template <class T> bool send_message(zmq::socket_t& sock, T &msg);
+void handle(Server* server, zmq::message_t&);
 
-void Server::HandleMessage(const msg::Request* req, FILE* sock) {
+void Server::HandleMessage(const msg::Request* req) {
 	if (req->has_setup()) {
 		std::cout << "Got a setup request\n";
-		this->HandleSetup(req->setup(), sock);
+		this->HandleSetup(req->setup());
 	} else if (req->has_search()) {
 		std::cout << "Got a search request\n";
-		this->HandleSearch(req->search(), sock);
+		this->HandleSearch(req->search());
 	} else {
 		std::cerr << "SERVER got unknown message type\n";
 	}
 }
 
-void Server::HandleSetup(const msg::Setup &setup, FILE* sock) {
+void Server::HandleSetup(const msg::Setup &setup) {
 	std::vector<SetupPair> L;
 	for (auto &p : setup.l()) {
 		L.push_back(SetupPair{p.counter(), p.fileid()});
 	}
 	this->core.SetupServer(L);
+	// send back and empty reply
 	// TODO: send back an "OK" message?
+	zmq::message_t response(0);
+	this->sock.send(response);
 }
 
-void Server::HandleSearch(const msg::Search &search, FILE* sock) {
+void Server::HandleSearch(const msg::Search &search) {
 	typedef uint8_t key_t[256/8];
 	key_t K1, K2, K1plus, K2plus, K1minus;
 	if (search.k1().size() != KEYLEN) {
@@ -69,7 +69,7 @@ void Server::HandleSearch(const msg::Search &search, FILE* sock) {
 	for (auto fileid : vec) {
 		result.add_fileid(fileid);
 	}
-	if (!send_message(sock, result)) {
+	if (!send_message(this->sock, result)) {
 		fprintf(stderr, "SERVER: error sending result\n");
 		return;
 	}
@@ -77,116 +77,52 @@ void Server::HandleSearch(const msg::Search &search, FILE* sock) {
 
 
 void Server::ListenAndServe(std::string hostname, int port) {
-	int listenfd = socket(AF_INET, SOCK_STREAM, 0);
-	struct sockaddr_in listenaddr = {0};
-
-	const int maxconn = 5;
-	const bool reuseport = true;
-
-	// TODO: look up hostname
-
-	// Set up the address struct for this process (the server)
-	listenaddr.sin_family = AF_INET;
-	listenaddr.sin_port = htons(port);
-	listenaddr.sin_addr.s_addr = htonl(INADDR_ANY); // Any address is allowed for connection to this process
-
-	// Set up the socket
-	listenfd = socket(AF_INET, SOCK_STREAM, 0);
-	if (listenfd < 0) {
-		perror("socket");
-		fprintf(stderr, "error opening socket");
-		return;
+	std::ostringstream buf;
+	if (hostname == "") {
+		hostname = "*";
 	}
+	buf << "tcp://" << hostname << ":" << port;
 
-	// Attempt to set the reuse port option
-	// This allows us to bind to the socket
-	// even if another process is using it
-	if (reuseport) {
-		int optval = 1;
-		if (setsockopt(listenfd, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof optval) < 0) {
-			// print an warning if setting REUSEPORT fails,
-			// but continue since it isn't critical
-			perror("setsockopt");
-		}
-	}
+	std::string addr = buf.str();
 
-	// Enable the socket to begin listening
-	if (bind(listenfd, (struct sockaddr *)&listenaddr, sizeof(listenaddr)) < 0) {
-		perror("bind");
-		fprintf(stderr, "error on binding");
-		return;
-	}
+	this->sock.bind(addr);
 
 	std::cout << "Listening on port " << port << "\n";
 
-	// Flip the socket on - it can now receive up to maxconn connections
-	listen(listenfd, maxconn);
-
 	for (;;) {
-		int fd;
-
-		// Accept a connection, blocking if one is not available until one connects
-		fd = accept(listenfd, NULL, 0);
-		if (fd < 0) {
-			perror("accept");
-			continue;
-		}
-
-		// Handle the connection.
-		// We don't fork off a handler process because DSSE
-		// isn't built to handle concurrent access (yet).
-		handle(this, fd);
-
-		// Close the socket
-		if (close(fd) < 0) {
-			perror("close");
+		zmq::message_t zmsg;
+		if (this->sock.recv(&zmsg)) {
+			// TODO: handle in a separate thread?
+			handle(this, zmsg);
 		}
 	}
-
-	close(listenfd); // Close the listening socket
-
-	return;
 }
 
-
-void handle(Server* server, int fd) {
-	// read message
-	FILE* sock = fdopen(fd, "r+b");
-	if (sock == NULL) {
-		perror("fdopen");
-		return;
-	}
-
-	int len;
-	char* cstr = read_netstring(sock, &len);
-	if (cstr == NULL) {
-		fprintf(stderr, "SERVER: error reading message from socket\n");
-		return;
-	}
-
-	std::string str(cstr, len);
+void handle(Server* server, zmq::message_t &zmsg) {
+	// TODO: eliminate this copy somehow?
+	std::string str((char*)zmsg.data(), zmsg.size());
 
 	msg::Request req;
 	if (!req.ParseFromString(str)) {
+		// FIXME: we have to send back an response
 		fprintf(stderr, "SERVER: error parsing message\n");
 		return;
 	}
 
-	server->HandleMessage(&req, sock);
-
-	if (fflush(sock) < 0) {
-		perror("fflush");
-	}
+	server->HandleMessage(&req);
 }
 
-template <class T> bool send_message(FILE* sock, T &msg) {
+template <class T> bool send_message(zmq::socket_t& sock, T &msg) {
 	std::string str;
 	if (!msg.SerializeToString(&str)) {
 		std::cerr << "SERVER: encoding failed\n";
 		return false;
 	}
-	const char* cstr = str.c_str();
-	if (write_netstring(sock, cstr, str.size()) < 0) {
+	//zmq::message_t zmsg((void*)str.data(), str.size(), nullptr);
+	// TODO: Eliminate this copy
+	zmq::message_t zmsg(str.size());
+	memmove(zmsg.data(), str.data(), str.size());
+	if (!sock.send(zmsg)) {
 		std::cerr << "SERVER: error sending message\n";
 		return false;
 	}

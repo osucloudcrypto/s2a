@@ -5,6 +5,8 @@
 #include <vector>
 #include <map> // TODO: sparsehash?
 
+#include <zmq.hpp>
+
 
 namespace DSSE {
 
@@ -119,16 +121,15 @@ namespace msg { class Request; class Search; class Setup; }
  */
 class Client {
 public:
+	Client() : sock(zctx, ZMQ_REQ) {}
+
 	/**
 	 * Connect initiates a connection to the DSSE server.
 	 * You must call connect before calling Search, Add, or Delete.
 	 */
 	bool Connect(std::string hostname, int port);
 	bool Disconnect() {
-		if (fclose(this->sock) < 0) {
-			perror("close");
-			return false;
-		}
+		this->sock.disconnect(this->addr);
 		return true;
 	}
 
@@ -139,7 +140,9 @@ public:
 
 private:
 	Core core;
-	FILE* sock;
+	std::string addr;
+	zmq::context_t zctx;
+	zmq::socket_t sock;
 
 	// XXX the client should probably store a fileid => filename mapping somewhere
 };
@@ -150,14 +153,18 @@ private:
  */
 class Server {
 public:
+	Server() : sock(zctx, ZMQ_REP) {}
 	void ListenAndServe(std::string hostname, int port);
-	void HandleMessage(const msg::Request* req, FILE* sock);
+	void HandleMessage(const msg::Request* req);
 
 private:
-	void HandleSetup(const msg::Setup& setup, FILE* sock);
-	void HandleSearch(const msg::Search& search, FILE* sock);
+	void HandleSetup(const msg::Setup& setup);
+	void HandleSearch(const msg::Search& search);
 
 	Core core;
+	std::string addr;
+	zmq::context_t zctx;
+	zmq::socket_t sock;
 };
 
 } // namespace DSSE

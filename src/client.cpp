@@ -44,18 +44,12 @@ int main() {
 	client.Setup(tokens, fidmap);
 	std::cout << "setup finished\n";
 
-	// TODO: the server closes the connection after every request, so we
-	// have to connect again. fix this. (reconnecting also leaks fds)
-	client.Disconnect();
-	if (!client.Connect("localhost", DSSE::DefaultPort)) {
-		std::cerr << "error connecting\n";
-		return 1;
-	}
-
 	ids = client.Search("test");
 	for (auto &id : ids) {
 		std::cout << id << "\n";
 	}
+
+	client.Disconnect();
 
 	return 0;
 }
