@@ -1,4 +1,4 @@
-Privacy-Preserving Cloud, Email and Password Systems 
+Privacy-Preserving Cloud, Email and Password Systems
 ==========
 
 This is the central repository for the our CS Capstone project.
@@ -12,10 +12,14 @@ Members:
 Building
 -----
 
-First, build the third-party libraries
+Building is as simple as running
 
-    (cd third_party/libtomcrypt && make)
+    ./make.sh
 
-Then build the main project
+This will build all the dependencies of s2a (in the `third_party` directory)
+and then build s2a.
+
+If you have already run `make.sh`, you can build just s2a by running `make`
+in the `src` directory.
 
     cd src && make
