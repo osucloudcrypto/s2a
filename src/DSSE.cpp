@@ -19,6 +19,9 @@ Core::Core() {
     this->key = new uint8_t[KEYLEN];
     this->kplus = new uint8_t[KEYLEN];
     this->kminus = new uint8_t[KEYLEN];
+    memset(this->key, 0, KEYLEN);
+    memset(this->kplus, 0, KEYLEN);
+    memset(this->kminus, 0, KEYLEN);
 }
 
 
