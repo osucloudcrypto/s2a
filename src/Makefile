@@ -1,5 +1,5 @@
 CXXFLAGS?=-O2 -ggdb -Wall
-CXXFLAGS+=-std=c++11
+CXXFLAGS+=-std=c++11 -pthread
 CFLAGS?=-O2 -ggdb -Wall
 CFLAGS+=-std=c99
 
