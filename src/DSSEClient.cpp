@@ -95,7 +95,9 @@ bool send_message(zmq::socket_t &sock, msg::Request &msg) {
 		std::cerr << "CLIENT: encoding failed\n";
 		return false;
 	}
-	zmq::message_t zmsg((void*)(str.data()), str.size(), nullptr);
+	// TODO: eliminate this copy
+	zmq::message_t zmsg(str.size());
+	memmove(zmsg.data(), str.data(), str.size());
 	if (!sock.send(zmsg)) {
 		std::cerr << "CLIENT: error sending message\n";
 		return false;
