@@ -1,8 +1,8 @@
 # This script builds the third-party libs and then builds our project
 
-top=$(dirname "$0")
+cd "$(dirname "$0")" || exit 1
+top=$(pwd)
 prefix="$top"/third_party
-cd "$top" || exit 1
 
 echo "building tomcrypt"
 (cd third_party/libtomcrypt && make -j 12)
@@ -12,6 +12,9 @@ echo "building protobuf"
 
 echo "building zeromq"
 (cd third_party/zeromq && ./configure --prefix="$prefix" && make -j 12 && make install)
+
+echo "\"building\" cppzmq"
+cp -f third_party/cppzmq/zmq.hpp "$prefix/include/zmq.hpp"
 
 echo "building s2a"
 (cd src && make)

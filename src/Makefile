@@ -11,8 +11,6 @@ LIBS+=../third_party/libtomcrypt/libtomcrypt.a
 
 CXXFLAGS+=-I../third_party/include
 LIBS+=../third_party/lib/libprotobuf.a
-
-CXXFLAGS+=-I../third_party/include
 LIBS+=../third_party/lib/libzmq.a
 
 all: server client
