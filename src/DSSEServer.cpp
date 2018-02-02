@@ -19,6 +19,9 @@ void Server::HandleMessage(const msg::Request* req) {
 	} else if (req->has_search()) {
 		std::cout << "Got a search request\n";
 		this->HandleSearch(req->search());
+	} else if (req->has_add()) {
+		std::cout << "Got an add request\n";
+		this->HandleAdd(req->add());
 	} else {
 		std::cerr << "SERVER got unknown message type\n";
 	}
@@ -72,6 +75,21 @@ void Server::HandleSearch(const msg::Search &search) {
 	if (!send_message(this->sock, result)) {
 		fprintf(stderr, "SERVER: error sending result\n");
 		return;
+	}
+}
+
+void Server::HandleAdd(const msg::Add &add) {
+	std::vector<AddPair> L;
+	for (auto &p : add.l()) {
+		L.push_back(AddPair{p.token(), p.fileid()});
+	}
+
+	this->core.AddServer(L);
+
+	msg::Result result;
+	msg::AddResult *addresult = result.mutable_add();
+	if (!send_message(this->sock, result)) {
+		fprintf(stderr, "SERVER: error sending result\n");
 	}
 }
 

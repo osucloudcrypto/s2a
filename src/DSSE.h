@@ -77,7 +77,7 @@ public:
 	// AddClient performs the client side of the add action.
 	void AddClient(
 		// Input
-		std::string id, std::vector<std::string> words,
+		fileid_t id, std::vector<std::string> words,
 		// Output
 		std::vector<AddPair> &L
 	);
@@ -112,7 +112,13 @@ private:
 };
 
 // forward-declare message types
-namespace msg { class Request; class Search; class Setup; }
+namespace msg {
+	class Request;
+	class Result;
+	class Search;
+	class Setup;
+	class Add;
+}
 
 
 /**
@@ -135,8 +141,13 @@ public:
 
 	bool Setup(std::vector<std::string> &tokens, std::map<std::string, std::vector<fileid_t>> &fileids);
 	std::vector<fileid_t> Search(std::string w);
-	bool Add(std::string fileid, std::string word);
-	bool Delete(std::string fileid);
+	bool Add(fileid_t fileid, std::vector<std::string> words);
+	bool Delete(fileid_t fileid, std::vector<std::string> words);
+
+	// Convenience methods
+	//bool AddFile(std::string filename, std::string contents)
+	//bool UpdateFile(std::string filename, std::string contents)
+	//bool DeleteFile(std::string filename)
 
 private:
 	Core core;
@@ -160,6 +171,7 @@ public:
 private:
 	void HandleSetup(const msg::Setup& setup);
 	void HandleSearch(const msg::Search& search);
+	void HandleAdd(const msg::Add &add);
 
 	Core core;
 	std::string addr;

@@ -109,7 +109,16 @@ void encrypt_bytes(uint8_t key[], uint8_t msg[], size_t msglen, uint8_t out[]){
 }
 
 void encrypt_long(uint8_t key[], uint64_t value, uint8_t out[]) {
-    // TODO
+    uint8_t bytes[8];
+    bytes[0] = value&0xff;
+    bytes[1] = (value>>8)&0xff;
+    bytes[2] = (value>>16)&0xff;
+    bytes[3] = (value>>24)&0xff;
+    bytes[4] = (value>>32)&0xff;
+    bytes[5] = (value>>40)&0xff;
+    bytes[6] = (value>>48)&0xff;
+    bytes[7] = (value>>56)&0xff;
+    encrypt_bytes(key, bytes, 8, out);
 }
 
 void decrypt_bytes(uint8_t key[], const uint8_t ctext[], size_t ctextlen, uint8_t out[]) {
@@ -311,7 +320,7 @@ std::vector<uint64_t> Core::SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1p
         } catch (std::out_of_range& e) {
             break;
         }
-        uint64_t id;
+        uint64_t id = 0;
         decrypt_long(K2plus, reinterpret_cast<const uint8_t*>(d.data()), id);
 
         /*
@@ -327,7 +336,7 @@ std::vector<uint64_t> Core::SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1p
 
 void Core::AddClient(
     // Input
-    std::string id, std::vector<std::string> words,
+    fileid_t id, std::vector<std::string> words,
     // Output
     std::vector<AddPair> &Loutput
 ) {
@@ -346,7 +355,7 @@ void Core::AddClient(
         token_pair p;
         uint64_t c = this->Dcount[w];
         mac_long(K1plus, c, p.l);
-        encrypt_long(K2plus, c, p.d);
+        encrypt_long(K2plus, id, p.d);
         this->Dcount[w]++;
 
         L.push_back(p); // XXX

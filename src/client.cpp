@@ -49,6 +49,19 @@ int main() {
 		std::cout << id << "\n";
 	}
 
+
+	ids = client.Search("balloons");
+	for (auto &id : ids) {
+		std::cout << "balloons: " << id << "\n";
+	}
+	if (!client.Add(4, std::vector<std::string>{"balloons"})) {
+		std::cout << "add failed\n";
+	}
+	ids = client.Search("balloons");
+	for (auto &id : ids) {
+		std::cout << "balloons: " << id << "\n";
+	}
+
 	client.Disconnect();
 
 	return 0;

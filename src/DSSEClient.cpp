@@ -89,6 +89,34 @@ Client::Search(std::string w) {
 	return ret;
 }
 
+bool Client::Add(fileid_t fileid, std::vector<std::string> w) {
+	std::vector<AddPair> L;
+	this->core.AddClient(fileid, w, L);
+
+	msg::Request req;
+	msg::Add *msg = req.mutable_add();
+	for (auto &p : L) {
+		auto q = msg->add_l();
+		q->set_token(p.Token);
+		q->set_fileid(p.FileID);
+	}
+
+	if (!send_message(this->sock, req)) {
+		// TODO: throw an error
+		return false;
+	}
+
+	msg::AddResult result;
+	if (!recv_response(this->sock, result)) {
+		// TODO: throw an error
+		return false;
+	}
+
+	std::vector<std::string> r, W_in_order_of_Lrev; // XXX
+	this->core.AddClient2(r, W_in_order_of_Lrev);
+	return true;
+}
+
 bool send_message(zmq::socket_t &sock, msg::Request &msg) {
 	std::string str;
 	if (!msg.SerializeToString(&str)) {
