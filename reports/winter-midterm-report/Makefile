@@ -43,6 +43,16 @@ showps: $(PSF)
 
 all: pdf
 
+archive: slides.tar.bz2 progress-report.tar.bz2
+
+slides.tar.bz2: slides.pdf slides.pptx
+	rm -f $@
+	tar -acf $@ $^
+
+progress-report.tar.bz2: progress-report.pdf progress-report.tex main.bib Makefile
+	rm -f $@
+	tar -acf $@ $^
+
 clean:
 	rm -f *.ps *.dvi *.out *.log *.aux *.bbl *.blg *.pyg
 
