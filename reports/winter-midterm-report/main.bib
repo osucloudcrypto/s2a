@@ -1,0 +1,194 @@
+@Comment{  Searchable Encryption   }
+
+@MISC{Song00,
+    author = {Dawn Xiaodong Song and David Wagner and Song David and Adrian Perrig},
+    title = {Practical Techniques for Searches on Encrypted Data},
+    year = {2000},
+    annote = {
+	The original searchable encryption paper.
+        The authors introduce the concept of searchable encryption and define the essential properties of a searchable encryption scheme:
+        that the server should not be able to learn anything about the plaintext;
+        that the server should not be able to learn which keywords the user is searching for;
+        and that the server cannot perform a search without the user's permission.
+
+        They do not rigorously define what operations a searchable encryption scheme supports. They mention dynamic schemes only in passing.
+
+        They also present a basic scheme and prove its security. Remarkably, the scheme they present does not use a search index(!); rather, it performs a linear scan over the encrypted documents.
+        They briefly discuss a scheme which uses an index at the end, but do not go into detail.
+
+        Basically, the scheme works by encrypting the list of tokens and xoring each encrypted token with a pair of values (L,R) such that L and R are related, but in a way that can only be detected if the server knows the keyword.
+
+       To search, the client provides the server with the encrypted keyword and the server performs a linear search over the encrypted document, xoring each block with the encrypted keyword and checking if the property holds.
+
+       Notably, this search method is probabilistic(!) because it can have false positives.
+
+        The scheme leaks information about where tokens appear in files.
+
+        Search runs in $\mathcal{O}(n)$ time, where $n$ is the \textit{size of all the documents to be searched}. The paper claims that this is efficient.
+    },
+}
+
+@misc{cash14,
+    author = {David Cash and Joseph Jaeger and Stanislaw Jarecki and Charanjit Jutla and Hugo Krawczyk and Marcel-Cătălin Roşu and Michael Steiner},
+    title = {Dynamic Searchable Encryption in Very-Large Databases: Data Structures and Implementation},
+    howpublished = {Cryptology ePrint Archive, Report 2014/853},
+    year = {2014},
+    url = {https://eprint.iacr.org/2014/853},
+    annote = {
+	The authors describe a dynamic symmetric searchable encryption scheme in which the encrypted index is stored as a hash table. The keys derived from the search token, and the values are the encrypted file index.
+        Collisions are avoided by running a per-token counter through a MAC
+        --- in essence, using an open addressing hash table.
+        The main search index is actually static --- updates are performed by storing added keywords in a separate hash table of added keywords, and deleted keywords in a separate set of deleted keywords. The search index should be periodically reconstructed to take these modifications into account.
+        They also describe several variants of the basic scheme which have better methods for reducing the size of the state.
+        Search time is $\mathcal{O}(r)$ (which is optimal), update time is not given, and index size is $\mathcal{O}(N)$, where r is the number of files which match a given query and N is the number of keyword-file pairs in the index.
+        The algorithm is parallelizable.
+    },
+}
+
+@misc{yavuz15,
+    author = {Attila A. Yavuz and Jorge Guajardo},
+    title = {Dynamic Searchable Symmetric Encryption with Minimal Leakage and Efficient Updates on Commodity Hardware},
+    howpublished = {Selected Areas in Cryptography (SAC) 2015, Sackville, New Brunswick, Canada},
+    year = {2015},
+    month = {August},
+    note = {\url{http://web.engr.oregonstate.edu/~yavuza/Yavuz_DSSE_SAC2015.pdf}},
+
+    annote = {
+	The authors describe a dynamic searchable encryption scheme in which the search index is stored as an adjacency matrix where the rows correspond to keywords. Each row is encrypted with a stream cipher using a per-row key.
+        Updates are performed by replacing the relevant column.
+        They claim better security than all previous schemes and competitive performance.
+        Search is $\mathcal{O}(m)$, update is $\mathcal{O}(m)$, server state size is $\mathcal{O}(mn)$, and client state size is $\mathcal{O}(n+m)$ where $m$ is the number of keywords and $n$ is the number of files. The algorithm is parallelizable.
+    },
+}
+
+
+@misc{im-dsse,
+	author="Thang Hoang",
+    title={{IM-DSSE: Dynamic Searchable Symmetric Encryption with Incidence Matrix (IM)}},
+    url={https://github.com/thanghoang/IM-DSSE},
+    year=2017,
+}
+
+@misc{Clusion,
+	title={{Clusion: A searchable encryption library from the Encrypted Systems Lab @ Brown University.}},
+    author="Tarik Moataz and Seny Kamara and Sam Zhao",
+    year=2017,
+}
+
+
+@misc {chacha,
+	author = {D. J. Bernstein.},
+    title = {ChaCha, a variant of Salsa20},
+    year = "2008",
+    month = Jan,
+    day = "28",
+    url = {http://cr.yp.to/papers.html#chacha},
+	djbid = "Document ID:  4027b5256e17b9796842e6d0f68b0b5e"
+}
+
+@misc{eBACS,
+	author = "Daniel J. Bernstein and Tanja Lange",
+    title = {{eBACS: ECRYPT Benchmarking of Cryptographic Systems}},
+    note={Accessed 2017-11-19},
+    url={https://bench.cr.yp.to},
+}
+
+@misc{rfc7905,
+	series =	{Request for Comments},
+	number =	7905,
+	howpublished =	{RFC 7905},
+	publisher =	{RFC Editor},
+	doi =		{10.17487/RFC7905},
+	url =		{https://rfc-editor.org/rfc/rfc7905.txt},
+        author =	{Adam Langley and Wan-Teh Chang and Nikos Mavrogiannopoulos and Joachim Strombergson and Simon Josefsson},
+	title =		{{ChaCha20-Poly1305 Cipher Suites for Transport Layer Security (TLS)}},
+	pagetotal =	8,
+	year =		2016,
+	month =		jun,
+	abstract =	{This document describes the use of the ChaCha stream cipher and Poly1305 authenticator in the Transport Layer Security (TLS) and Datagram Transport Layer Security (DTLS) protocols.},
+}
+
+
+
+@Comment{ Google Drive }
+
+@misc {driveapi,
+	title = {{Google Drive Platform: Downloads | Drive REST API | Google Developers}},
+    author = "Google",
+    year=2017,
+	url = {https://developers.google.com/drive/v3/web/downloads},
+}
+
+@misc {drivecpp,
+	title = {{Google APIs Client Library for C++}},
+    author = "Google",
+    publisher = "Github",
+    year = 2017,
+    url = {https://google.github.io/google-api-cpp-client/latest/},
+}
+
+
+
+@Comment{ Dropbox }
+
+@misc{dropbox,
+	title = {{Dropbox}},
+    author = "Dropbox",
+    year = 2017,
+    url = {https://www.dropbox.com/},
+}
+
+@misc{dropboxplans,
+	title = {{Choose the right Dropbox for you and your business}},
+    author = "Dropbox",
+    year=2017,
+    url = {
+https://www.dropbox.com/plans},
+}
+
+@misc{dropboxapi,
+	title = {{Dropbox - Developers}},
+    author = "Dropbox",
+    year=2017,
+    url = {https://www.dropbox.com/developers/documentation
+},
+}
+
+
+
+
+@Comment{ Amazon S3 }
+
+@misc{s3,
+	title = {{Amazon Simple Storage Service (S3) - Cloud Storage - AWS}},
+    author = {{Amazon}},
+    year = 2017,
+    url = {https://aws.amazon.com/s3/},
+}
+
+@misc{s3-pricing,
+	title = {{Cloud Storage Pricing – Amazon Simple Storage Service (S3) – AWS}},
+    author = {{Amazon}},
+	url={https://aws.amazon.com/s3/pricing/},
+}
+
+@misc{aws-sdk,
+	title = {{AWS SDK for C++}},
+	url={https://github.com/aws/aws-sdk-cpp},
+}
+
+
+
+
+@misc{fortune,
+	author="Erin Griffith",
+    publisher="Fortune",
+	title="Who's winning the consumer cloud storage wars?",
+	url={http://fortune.com/2014/11/06/dropbox-google-drive-microsoft-onedrive/},
+}
+
+@misc{tomcrypt,
+    title="LibTomCrypt",
+    url={http://www.libtom.net/LibTomCrypt/},
+    summary="LibTomCrypt is a fairly comprehensive, modular and portable cryptographic toolkit that provides developers with a vast array of well known published block ciphers, one-way hash functions, chaining modes, pseudo-random number generators, public key cryptography and a plethora of other routines.",
+}

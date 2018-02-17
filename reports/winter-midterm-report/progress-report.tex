@@ -1,0 +1,394 @@
+\nonstopmode % halt on errors
+\documentclass[onecolumn, draftclsnofoot,10pt, compsoc]{IEEEtran}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{setspace}
+\usepackage{verbatim}
+
+\usepackage{geometry}
+\geometry{textheight=9.5in, textwidth=7in}
+
+% 1. Fill in these details
+\def \CapstoneTeamName{		The Secret Bunny Team}
+\def \CapstoneTeamNumber{		38}
+\def \GroupMemberOne{			Andrew Ekstedt}
+\def \GroupMemberTwo{			Scott Merrill}
+\def \GroupMemberThree{			Scott Russell}
+\def \CapstoneProjectName{		Privacy Preserving Cloud, Email, and Password Systems}
+\def \CapstoneSponsorCompany{	OSU}
+\def \CapstoneSponsorPerson{		Attila Yavuz}
+
+% 2. Uncomment the appropriate line below so that the document type works
+\def \DocType{	%Problem Statement
+				%Requirements Document
+				%Technology Review
+				%Design Document
+				Winter Midterm Progress Report
+				}
+			
+\newcommand{\NameSigPair}[1]{\par
+\makebox[2.75in][r]{#1} \hfil 	\makebox[3.25in]{\makebox[2.25in]{\hrulefill} \hfill		\makebox[.75in]{\hrulefill}}
+\par\vspace{-12pt} \textit{\tiny\noindent
+\makebox[2.75in]{} \hfil		\makebox[3.25in]{\makebox[2.25in][r]{Signature} \hfill	\makebox[.75in][r]{Date}}}}
+% 3. If the document is not to be signed, uncomment the RENEWcommand below
+%\renewcommand{\NameSigPair}[1]{#1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\begin{titlepage}
+    \pagenumbering{gobble}
+    \begin{singlespace}
+        %\includegraphics[height=4cm]{coe_v_spot1}
+        \hfill 
+        % 4. If you have a logo, use this includegraphics command to put it on the coversheet.
+        %\includegraphics[height=4cm]{CompanyLogo}   
+        \par\vspace{.2in}
+        \centering
+        \scshape{
+            \huge CS Capstone \DocType \par
+            {\large\today}\par
+            \vspace{.5in}
+            \textbf{\Huge\CapstoneProjectName}\par
+            \vfill
+            {\large Prepared for}\par
+            \Huge \CapstoneSponsorCompany\par
+            \vspace{5pt}
+            {\Large\NameSigPair{\CapstoneSponsorPerson}\par}
+            {\large Prepared by }\par
+            Group\CapstoneTeamNumber\par
+            % 5. comment out the line below this one if you do not wish to name your team
+            \CapstoneTeamName\par 
+            \vspace{5pt}
+            {\Large
+                \NameSigPair{\GroupMemberOne}\par
+                \NameSigPair{\GroupMemberTwo}\par
+                \NameSigPair{\GroupMemberThree}\par
+            }
+            \vspace{20pt}
+        }
+        \begin{abstract}
+        	This document provides a report of progress our team has made on our project during the first half of the Winter 2018 term. We outline our current status, problems we've encountered, and future work. We also provide individual accounts of what each group member has accomplished.
+       
+        \end{abstract}     
+    \end{singlespace}
+\end{titlepage}
+\newpage
+\pagenumbering{arabic}
+\tableofcontents
+% 7. uncomment this (if applicable). Consider adding a page break.
+%\listoffigures
+%\listoftables
+\clearpage
+
+\section{Project Purpose and Goals}
+The ``Privacy Preserving Cloud, Email and Password Manager'' Capstone project is a research-oriented project that aims
+to find a way to implement the DSSE scheme proposed by David Cash. This implementation will be executed through command line prompts and hosted on OSU’s engineering servers. A user can use this system with a client-server model to perform actions, such as search or update, on a ``cloud-based'' database. User interface is not considered a priority as this project is not intended to be used in any commercial capacity. There are five primary goals of this project. First the implementation of David Cash's DSSE Algorithm. The following four aspects can be done in parallel: parallelization, optimization, cloud integration, and email integration. Finally benchmarking will be done during the final stages and after implementation of the previous items.
+
+
+\section{Current Status}
+Our original schedule called for us to work on the core DSSE scheme for the first two-to-three weeks of Winter term, and then branch off into projects using that core.
+So that's what we worked on.
+At the advice of our client, we took a couple more weeks to add more features to the core and fill it out a bit before moving on to other stuff.
+
+We have the following methods implemented
+\begin{itemize}
+\item Setup - create an initial encrypted search index from a set of documents
+\item Search - search for a token in the encrypted database
+\item Add - update the encrypted index by adding tokens to a file
+\end{itemize}
+
+Also:
+\begin{itemize}
+\item network connectivity over local socket
+\end{itemize}
+
+\section{Problems that impeded progress, with solutions}
+As we begin implementation of our capstone project it is important to be able to look back at progress throughout the term. If we can understand what went well and poorly we can use that information to be able to have a more cohesive plan for the following terms.
+
+\subsection {Establishing a meeting time with our client}
+The first time our client, Attila, was available to meet with us was in Week 3, and it turned out that he got sick that week so we were unable to meet until Week 5.
+
+Going forward, we are planning to meet every approximately every two weeks.
+
+\subsection {Missing TA}
+
+Our capstone TA was missing in action for the first few weeks of the term.
+Combined with the difficulty of meeting with our client, this left us with little outside guidance for the first half of the term.
+
+We were eventually able to work out a meeting time in Week 5.
+
+
+\subsection {Group Dynamic}
+
+In the fall term we had a clear cut goal for each week. With a new writing assignment assigned and due it kept us on a good pace with what we imagined the project process would be. Now that we are "cut lose" to do our own implementation we are finding it hard to stay on track compared to our Gantt Chart that we imagined progress would be this term. 
+
+\section {Future work}
+We have a lot of work ahead of us. We have a basic DSSE implementation in place now that we can launch from, but there is still a lot more left to implement.
+
+\begin{itemize}
+\item Implement two-level pointer optimization described in \cite{cash14}
+\item Write email integration daemon
+\item Write persistent storage module for DSSE % TODO: might finish that this week
+\item Investigate storage-only server
+\item Investigate parallelism
+\item Benchmark our implementation versus IM-DSSE and Clusion
+\item Write up our results
+\end{itemize}
+
+
+\section{Individual Progress}
+
+\subsection{Andrew Ekstedt}
+
+\subsubsection{Overview}
+
+The first half of the term for me was mostly about implementing the core DSSE methods, and the client and server communication.
+I was able to get three of the four methods implemented: Setup, Search, and Add.
+
+Last term, I wrote a little Python prototype of the DSSE to help understand the protocol, which was super helpful. When implementing the C++ version, I was able to, to some extent, transliterate the Python code line-by-line, allowing me to focus more on the low-level details of implementation rather than also having to hold the high-level details of the algorithm in my head.
+
+We had a little trouble getting in touch with our TA and client initially, but we now have set up weekly meetings with out TA and biweekly meetings with our client.
+
+Things have not gone as quickly as we had hoped, but our client seems understanding, and I think we're in a good position to at least get the core of what we are trying to accomplish done.
+Going forward, while there is still a little more work to do on the core DSSE, we should be able to start some of the optimizations and other projects that we have planned.
+
+\subsubsection{Week 1} 
+
+\noindent Progress: 
+
+Start of the term!
+This week was mostly about getting back into the swing of school after Winter Break, getting back up to speed with what we had done last term, and planning meetings with our group, our client, and our TA.
+
+We scheduled some group meeting times in week 2 (and have continued to meet at the same time throughout the rest of the term). We reached out to our client to schedule a meeting, but the first time he could meet was week 3.
+
+\noindent Problems: 
+\begin{itemize}
+\item Capstone is at 8 in the morning, but fortunately it doesn't meet often
+\end{itemize}
+
+\subsubsection{Week 2}
+
+\noindent Progress:
+
+The task this week was to start working on the core DSSE implementation. I decided to dive in and stub out the code, and got a simple program compiled and running. The DSSE is factored into Core, Client, and Server classes. The core class is responsible for all the cryptography, and the Client and Server classes are responsible for the network layer communication. I wrote out some header files for each of these classes, and implemented the Setup and Search methods of the core DSSE.
+
+I made a decision early on to vendor all our third-party dependencies into our source repository. The advantage of doing this is that the program can be built out-of-the-box with a single command, without the user having to mess around with compiling and installing a bunch of libraries. This was borne out of direct experience last term with trying to get IM-DSSE to compile. (IM-DSSE is an implementation of another DSSE algorithm that our client had written last year.)
+
+I also helped Scott Russell debug some problems with the mailio library.
+
+\noindent Problems: 
+\begin{itemize}
+  \item Bootstrapping/designing a library from scratch is a lot of work 
+  \item It's hard finding time to work on stuff between classes 
+  \item Haven't heard from our TA yet
+\end{itemize}
+
+\subsubsection{Week 3}
+
+\noindent Progress: 
+
+We met with our client for the first time this week, sort of. Attila had to cancel at the last minute because he was sick, so we met with his grad student Thang Hoang.
+
+I continued to work on core DSSE code. I implemented most of the core Add method, and started implementing some of the networking code for the Client and Server classes. In the DSSE paper \cite{cash14}, the Add and Delete operations are merged into a single Update operation for some reason, even though they are mostly unrelated. I decided to separate them in our implementation.
+
+%I think we should be able to get these into a working-enough state that we can start the other parts of our project by the end of next week. 
+
+\noindent Problems: 
+\begin{itemize}
+  \item Client was out sick, so we met with his grad student
+  \item Still haven't heard from TA
+  \item Had some problems getting libraries to build with our project
+\end{itemize}
+
+\noindent Summary:
+
+Made some solid progress on the implementation of the core DSSE and the client/server components.
+
+\subsubsection{Week 4} 
+
+\noindent Plans: 
+
+The plan this week was to get DSSE into a good enough state that we can start building the other stuff. Our original schedule called for us to concentrate on the DSSE implementation for the first two or three weeks of Winter term, after which we would split into working on separate projects.
+
+After talking with Thang last week, it sounds like we want to implement Add as well as Setup and Search.
+
+\noindent Progress: 
+
+Vendored the ZeroMQ socket library, which allowed me to rip out all my ad-hoc socket-handling code from week 3 and replace it with much more solid ZeroMQ-based sockets.
+ 
+I implemented the Add method for the core DSSE and the client / server classes.
+ 
+I also worked with Scott Russell to figure out configure Gmail to deliver the same messages repeatedly over POP3, for testing purposes. 
+
+\noindent Summary:
+
+Pretty productive week for me: got client \& server communication working with zero MQ and implemented the Add method. DSSE is in a pretty good state, just needs persistence.
+
+\subsubsection{Week 5}
+
+Met with our client, Attila, this week for the first time this term. He seemed satisfied with our progress so far. It seems he is most interested in getting the DSSE written and all the optimizations from the paper implemented, so that we can get some useful benchmark data. 
+
+We also met with our TA, Andrew Emmott, this week for the first time.
+He said it sounds like we are making good progress on our project.
+
+\noindent Progress:
+
+I didn't get a whole lot done code-wise. This was due to a combination of having a bunch of work to do for other classes, and having to work on the midterm report for this class.
+
+We worked on our project poster draft, midterm report, and presentation.
+
+\noindent Problems:
+
+\begin{itemize}
+\item Commitments to other classes made it hard to find time for capstone this week. Thing should hopefully calm down soon.
+\end{itemize}
+
+\subsubsection{Future work}
+
+\begin {itemize}
+\item Improvements to client and server. The client currently executes some hard-coded operations every time it is run. It needs a command-line interface that allows the user to perform arbitrary actions.
+\item Implement Delete method. This is the most complicated method of the DSSE scheme, and it touches how the other methods work as well.
+\item Persistence. The client and server do not currently store any data to disk. This is great for testing, since restarting the server wipes out all the old state, but not so great for actually using actual use. We need to add a storage layer ASAP.
+\item Storage-only server research. Part of our project is to research whether it is possible to perform all encryption and other computation client-side. This will require working out how to store the underlying data structures such that the client can efficiently retrieve and modify only the parts that it needs.
+\end{itemize}
+
+\subsection{Scott Merrill}
+So far I feel that this term has gone well. The start may have been a bit slow as we had some issues with establishing meeting times, both with our client and our TA. The early morning class meetings were going to be quite rough for me as I have to commute from Eugene. Fortunately we are not going to be meeting every week and therefore my schedule is not as miserable. At the beginning of the term I found my self in a odd situation where I was not sure with what direction I needed to go. The portion I was working on was dependent upon the core DSSE scheme being somewhat functional which took a couple week for that to get accomplished. Now that the core is working, it should be much easier for us to continue to modify it. 
+
+\subsubsection{Week 1} 
+
+Plans:
+\begin{itemize}
+\item Review DSSE Scheme for Implementation
+\item Plan weekly meetings 
+\item First meeting on Sunday
+\end{itemize}
+
+\noindent Progress:
+\begin{itemize}
+\item Scheduled a meeting with Attila on January 22nd
+\end{itemize}
+
+\noindent Problems: 
+\begin{itemize}
+\item Long commute for in class meetings at 8am
+\end{itemize}
+ 
+
+\subsubsection{Week 2}
+
+Progress: Reviewing the David Cash DSSE paper to get insight into goes into the sections I will be working on
+
+Problems:
+\begin{itemize}
+  \item Most of the DSSE Scheme pseudocode was written by Andrew in python 
+  \item We have not gotten a reply from our TA, will send out another email
+\end{itemize}
+
+Summary: Ready to begin working on implementation, may need to follow along with what Andrew is doing. 
+
+\subsubsection{Week 3}
+
+We met with our clients TA and discuessed progress on implementation as well as some feature we may want to look at (like single sign-on) and needing to add Upadate to the SSE scheme.
+
+Progress: Andrew has made quite a bit of progress with the core algorithm. I have read through the code to understand how I can modularize my components to fit with his. 
+
+\noindent Problems: 
+\begin{itemize}
+  \item Have been unable to really write any code yet
+  \item My C++ is quite rusty 
+  \item Another email has been sent out to our TA without a response
+\end{itemize}
+ 
+
+\subsubsection{Week 4} 
+
+\noindent Plans: 
+\begin{itemize}
+  \item Add tokenization to the DSSE Scheme
+  \item Read up on lvl2 pointers for implementation
+\end{itemize} 
+
+\noindent Progress: 
+\begin{itemize}
+  \item Found some resources for how tokenization could be implemented in C++
+  \item Was able to create a basic module for file tokenization. 
+ \end{itemize}
+
+\noindent Summary: 
+\begin{itemize}
+  \item This week was the first time I was able to push any code to github. I ran some tests on the tokenization method and found that it works as intended. I am not sure when the encryption is called on it, may need to 
+talk with Andrew about how this can fit in with the core scheme he has been working on. 
+\end{itemize}
+
+
+
+
+\subsubsection{Week 5}
+\noindent Plans: 
+\begin{itemize}
+  \item Meet with Attila
+  \item Work on DSSE sheme
+\end{itemize} 
+
+\noindent Progress: 
+\begin{itemize}
+  \item We met with Attila and learned that we may want to focus on update, delete and disc persistence for the DSSE scheme
+  \item lvl2 pointers optimization was the next task that I plan to take on
+ \end{itemize}
+
+\noindent Summary: 
+\begin{itemize}
+  \item This week we met with Attila and were able to have a little better understanding on what is vision for the project was. This was a helpful meeting and it was nice to learn that he seems happy with where we are.
+We have some new goals to work towards which may have us change priorities on what we focus on first. 
+\end{itemize}
+
+\subsubsection{Future work}
+With the main focus of the project being on getting the DSSE scheme running smoothly we have our work cut our for us. Implementation lvl2 pointers, which allow of optimization of the database based on size, will be the next big focus for myself. We also need to have persistence to disc working so that we can store our database rather that having it just run in memory. Also the Dynamic part of this database (having update and delete) have yet to be implemented. I think that all of these things are tasks that can be done simultaneously and we will need to meet to divvy these up. I expect that the next few weeks with be quite intense for our group as all of these parts start to come together in a cohesive whole. 
+
+\subsection{Scott Russell - Individual Section:}
+
+\subsubsection{Current Status}
+This term has been focused on the implementation of our DSSE Algorithm. During the first week we initiated emails to our Client and TA to touch base on progress for the term. It turned out that our Client was sick on the day we planned to meet, and our TA did not respond until week 5. This delayed our planning for the term. While we were waiting to talk to our client in person we worked on the implementation of David Cash’s DSSE Scheme. 
+
+Personally, my focus so far this term has been on the Email side of the project. First with the research and implementation of an open source C++ POP3 library. In our midterm report presentation, I demoed the basic functionality of this server and explain the setup process creating a test email hosted by Gmail. Email is an important functionality to this project since it allows for this conceptual idea of a DSSE Scheme to be put into a real-world application. I went through 5 different libraries until I ended up with the one we are currently using. (Mailio) It was chosen for its simplicity, lightweight interface and being coded in C++.
+
+Relative to the Capstone side of things we all worked together on creating this report, individual sections, and presentation where we demoed the basics of our algorithm and email capabilities. I also personally created the rough draft of our Expo Poster. I wanted our design to stand out. After talking to our TA Andrew about hard requirements we are awaiting feedback from McGrath to adjust the style, depth, and visual clarity of our poster.
+
+
+
+\subsubsection{What’s left to do} 
+My focus for the rest of the term is to incorporate Email and aid in implementation of core DSSE elements. Starting with the POP3 protocol by adding its functionality in place of our demo code for adding/updating to the local database. After talking to our client, we understand that our primary focus should be on this core DSSE algorithm. Implementation of Cloud and Email platforms are not the key components of our project but are real-world applications that help to ground this research project. The final, and arguably most important section, is that of optimization and benchmarking. To create an accurate representation of our DSSE algorithm we are going to compare it side by side to that of our client Attila Yavuz’s Bit Matrix Algorithm and another implementation of the DSSE Clusion coded in Java. These benchmarks will act as the analysis and conclusion to our poster and give us specific results that we can show at expo.
+
+\subsubsection{Problems impeding progress/Solutions:}       
+The biggest problem this term has been communication with our client and TA. Not being able to meet with them until later in the term it has impaired our ability to gain feedback and understanding of project requirements. We still our initial Gantt Chart to compare progress too and used that until meeting with our client. Another problem that I’ve experienced this term is a lack of hard deadlines. In the fall term we’ve had deadlines for every document. From requirements to specifications these have all been created for our capstone portfolio. However, in this term there has been a very hands-off approach from the capstone team. This is the first time I have worked on such a style of project. It is very realistic to how real-world companies divvying out tasks, so I am grateful that we can practice these self-motivational skills in a less stressful environment when our jobs are not on the line.
+
+In additional, being a research project, it is harder to put into words the progress that we’ve made outside of project code. For those teams focused on a more implementation heavy projects it is easier to show progress week by week. For example, one week I spent hours looking over and comparing POP3 algorithms against one another to find one that works well without specific implementation. I have listed these in my OneNote as progress, but it is hard to put into ‘progress’ without code pushes on GitHub. It is directly relevant to our project and vital to the overall success of meeting our client’s specifications.
+
+
+\subsubsection{Looking back and looking ahead:} 
+Overall, I feel that this term has been slower in terms of progress than our original Gantt Chart intended. We will continue to work on the core implementation throughout the rest of the term to have a working state that we can start doing benchmarks against other algorithms. We had a shaky start to the term missing our direct contact with client and TA. We are hopeful that we will can complete all requirements by our client and start the spring term with a satisfactory product that we can improve upon by creating real-world applications to test on for expo.
+
+With implementation of the core DSSE next term should be focused specifically on preparing for expo. Practicing pitches to different audiences, revising the poster within regulation, exploring ways of demoing our research project to appease a general audience and implementing Email and Cloud integration as time permits. This project has been successful this term and our group hopes to finish strong to be able to deliver the product that our client expects of us.
+
+
+
+\section {Retrospective / Conclusion}
+%Each Do One+ Positive/Delta with solutions
+
+\begin{tabular} {p{5.4cm} | p{5.4cm}  | p{5.4cm} }
+\hline
+\textbf{What Went Well?} & \textbf{What Didn't Go Well?} & \textbf{What Can We Change?} \\
+\hline
+Continuing progress on the project & The term started off a bit slow & Maintain focus on work that needs to get done \\ 
+\hline
+ Sections of the core DSSE and POP3 compile are are working & Meeting with client and TA didn't start happening until midway through the term & Plan meetings out before the term starts \\
+\hline
+\end {tabular}
+\\ \\ 
+Last term consisted mainly of planning and organizing for our project. As we headed into this term the tasks for the project were separated into sections as an attempt to parallelize the work being done. With more recent meetings with our client it has become apparent that the main focus of the project needs a slight adjustment. Attila would like to have priority go to creating the DSSE scheme (including update, delete, and the lvl2 pointers). With the refocusing of the project goals some of the tasks given to group members may have to change. Our proof of concept examples (Amazon cloud, Email, and "Dummy" server) are viewed to be more of stretch goal. So far this term, we have been successful in implementing the foundation of the DSSE scheme by importing libraries, creating methods to initialize the database, add to the database, tokenization of text files, and integration of POP3 email. libraries. This progress has gone well but, in light of recent changes we may want to have members double up on implementing the remainder of the core DSSE scheme (Update, Delete, lvl2 pointers, and persistence to disc) and fore go some of the other features. Discussion with our group's TA has also touched on this topic and we may need to plan for some edits to the requirements document as well. Aside from these changes the project is moving along and the group, as a whole seem to be in a good place. 
+
+\bibliographystyle{IEEEtran}
+\bibliography{main}{}
+
+\end{document}
