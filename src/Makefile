@@ -16,6 +16,9 @@ LIBS+=../third_party/lib/libzmq.a
 all: server client
 protobuf: dsse.pb.cc
 
+storage: storage.o
+	g++ $(CXXFLAGS) $(LDFLAGS) -o $@ $<
+
 server: server.o $(DSSE_objs) Makefile
 	g++ $(CXXFLAGS) $(LDFLAGS) -o server $< $(DSSE_objs) $(LIBS)
 
