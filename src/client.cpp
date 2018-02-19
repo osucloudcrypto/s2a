@@ -36,13 +36,18 @@ int main() {
 	}
 
 	DSSE::Client client;
+
 	if (!client.Connect("localhost", DSSE::DefaultPort)) {
 		std::cerr << "error connecting\n";
 		return 1;
 	}
 
-	client.Setup(tokens, fidmap);
-	std::cout << "setup finished\n";
+	if (client.Load("client-state")) {
+		std::cout << "loaded client state\n";
+	} else {
+		client.Setup(tokens, fidmap);
+		std::cout << "setup finished\n";
+	}
 
 	ids = client.Search("test");
 	for (auto &id : ids) {
@@ -61,6 +66,7 @@ int main() {
 	for (auto &id : ids) {
 		std::cout << "balloons: " << id << "\n";
 	}
+	client.Save("client-state");
 
 	client.Disconnect();
 

@@ -64,20 +64,24 @@ bool readMap(std::string filename, Dmap &map) {
 
 bool writeBytes(std::string filename, const uint8_t* bytes, size_t size) {
 	std::fstream out;
-	out.open(filename);
-	if (!out.is_open()) {
+	out.open(filename, std::ios::out | std::ios::binary);
+	if (!out) {
 		perror("open");
 		return false;
 	}
 
 	out.write(reinterpret_cast<const char*>(bytes), size);
-	return out.good() && static_cast<size_t>(out.gcount()) == size;
+	if (!out) {
+		perror("write");
+		return false;
+	}
+	return true;
 }
 
 bool readBytes(std::string filename, uint8_t* bytes, size_t size) {
 	std::fstream in;
-	in.open(filename, std::ios::out | std::ios::binary);
-	if (!in.is_open()) {
+	in.open(filename);
+	if (!in) {
 		perror("open");
 		return false;
 	}
@@ -94,9 +98,10 @@ bool SaveClientToStorage(DSSE::Core &core, std::string base) {
 		}
 	}
 
-	if (!writeBytes(base+"/key", core.key, KEYSIZE)) { return false; }
+	if (!writeBytes(base+"/key", core.key, KEYSIZE)) { std::cerr<<"uhoh\n"; return false; }
 	if (!writeBytes(base+"/kplus", core.kplus, KEYSIZE)) { return false; }
 	if (!writeBytes(base+"/kminus", core.kminus, KEYSIZE)) { return false; }
+	//if (!writeMapCount(base+"/Dcount", core.Dcount)) { return false; }
 	return true;
 }
 
@@ -113,11 +118,26 @@ bool SaveServerToStorage(DSSE::Core &core, std::string base) {
 	return true;
 }
 
+bool LoadClientFromStorage(DSSE::Core &core, std::string base) {
+	if (!readBytes(base+"/key", core.key, KEYSIZE)) { return false; }
+	if (!readBytes(base+"/kplus", core.kplus, KEYSIZE)) { return false; }
+	if (!readBytes(base+"/kminus", core.kminus, KEYSIZE)) { return false; }
+	//if (!readMapCount(base+"/Dcount", core.Dcount)) { return false; }
+	return true;
+}
+
+bool LoadServerFromStorage(DSSE::Core &core, std::string base) {
+	if (!readMap(base+"/D", core.D)) { return false; }
+	if (!readMap(base+"/Dplus", core.Dplus)) { return false; }
+	return true;
+}
+
 
 
 } // namespace DSSE
 
 
+/*
 void save() {
 	Dmap m;
 	m["AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"] = "aaa";
@@ -140,3 +160,4 @@ int main() {
 	save();
 	load();
 }
+*/

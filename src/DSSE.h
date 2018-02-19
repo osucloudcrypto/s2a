@@ -170,10 +170,14 @@ public:
 	//bool DeleteFile(std::string filename)
 
 	// Save saves the client state to the given directory
-	bool Save(std::string directory);
+	bool Save(std::string directory) {
+		return SaveClientToStorage(this->core, directory);
+	}
 
 	// Load loads the saved client state from the given directory
-	bool Load(std::string directory);
+	bool Load(std::string directory) {
+		return LoadClientFromStorage(this->core, directory);
+	}
 
 private:
 	Core core;
