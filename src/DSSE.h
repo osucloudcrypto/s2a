@@ -27,6 +27,7 @@ struct AddPair {
 	std::string FileID;
 };
 
+
 /**
  * DSSE::Core is the core searchable encryption class.
  * It impements all the cryptography for  both the client side and server side
@@ -40,6 +41,24 @@ public:
 	//     * create a new DSSE from scratch
 	//     * create a DSSE based on some stored state
 	// TODO: actually, i think we need a separate persitence layer
+
+/* storage methods */
+
+	// LoadClientFromStorage initializes the client state from a directory
+	// previously saved to with SaveClientToStorage.
+	friend bool LoadClientFromStorage(Core& core, std::string path);
+
+	// SaveClientToStorage saves the client state to a directory named by the given path.
+	friend bool SaveClientToStorage(Core& core, std::string path);
+
+	// LoadServerFromStorage initializes the server state from a directory
+	// previously saved to with SaveServerToStorage.
+	friend bool LoadServerFromStorage(Core& core, std::string path);
+
+	// SaveServerToStorage saves the server state to a directory named by the given path.
+	friend bool SaveServerToStorage(Core& core, std::string path);
+
+	/* crypto methods */
 
 	// Setup creates an initial index from a list of tokens and a map of
 	// file id => token list
@@ -99,6 +118,7 @@ public:
 	// Delete removes keywords from a file.
 	// DeleteServer performs the server side of a delete action.
 	void UpdateServer(std::string action, std::vector<std::string> L);
+
 private:
 	// Client state
 	uint8_t* key; // The master key. Only used by the client
@@ -148,6 +168,12 @@ public:
 	//bool AddFile(std::string filename, std::string contents)
 	//bool UpdateFile(std::string filename, std::string contents)
 	//bool DeleteFile(std::string filename)
+
+	// Save saves the client state to the given directory
+	bool Save(std::string directory);
+
+	// Load loads the saved client state from the given directory
+	bool Load(std::string directory);
 
 private:
 	Core core;

@@ -94,11 +94,22 @@ bool SaveClientToStorage(DSSE::Core &core, std::string base) {
 		}
 	}
 
-	writeBytes(base+"/key", core.key, KEYSIZE);
-	writeBytes(base+"/kplus", core.kplus, KEYSIZE);
-	writeBytes(base+"/kminus", core.kminus, KEYSIZE);
-	//writeMap(base+"/D", core.D);
-	//writeMap(base+"/Dplus", core.Dplus);
+	if (!writeBytes(base+"/key", core.key, KEYSIZE)) { return false; }
+	if (!writeBytes(base+"/kplus", core.kplus, KEYSIZE)) { return false; }
+	if (!writeBytes(base+"/kminus", core.kminus, KEYSIZE)) { return false; }
+	return true;
+}
+
+bool SaveServerToStorage(DSSE::Core &core, std::string base) {
+	if (mkdir(base.c_str(), 0777) < 0) {
+		if (errno != EEXIST) {
+			perror("mkdir");
+			return false;
+		}
+	}
+
+	if (!writeMap(base+"/D", core.D)) { return false; }
+	if (!writeMap(base+"/Dplus", core.Dplus)) { return false; }
 	return true;
 }
 
