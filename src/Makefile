@@ -25,6 +25,8 @@ server: server.o $(DSSE_objs) Makefile
 client: client.o $(DSSE_objs) Makefile
 	g++ $(CXXFLAGS) $(LDFLAGS) -o client $< $(DSSE_objs) $(LIBS)
 
+clean: 
+	rm -rf *.o client server
 # add a dependency on the header files
 client.o server.o $(DSSE_objs): DSSE.h dsse.pb.h
 
