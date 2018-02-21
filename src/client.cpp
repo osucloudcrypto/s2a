@@ -42,6 +42,8 @@ int main() {
 		return 1;
 	}
 
+	// Attempt to load saved client state,
+	// or run Setup if no state found
 	if (client.Load("client-state")) {
 		std::cout << "loaded client state\n";
 	} else {
@@ -49,12 +51,13 @@ int main() {
 		std::cout << "setup finished\n";
 	}
 
+	// Simple search test
 	ids = client.Search("test");
 	for (auto &id : ids) {
 		std::cout << id << "\n";
 	}
 
-
+	// Test adding a keyword
 	ids = client.Search("balloons");
 	for (auto &id : ids) {
 		std::cout << "balloons: " << id << "\n";
