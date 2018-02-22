@@ -6,7 +6,7 @@
 #include "DSSE.h"
 #include "tomcrypt.h"
 
-int main() {
+int main(int argc, char* argv[]) {
 	// initialize tomcrypt
 	register_hash(&sha256_desc);
 	register_cipher(&aes_desc);
@@ -17,6 +17,11 @@ int main() {
 	if (!server.Load()) {
 		std::cerr << "warning: unable to load server state\n";
 	}
-	server.ListenAndServe("", DSSE::DefaultPort);
+	if (argc > 1){
+		int temp = atoi(argv[1]);
+		server.ListenAndServe("", temp);
+	}
+	else
+		server.ListenAndServe("", DSSE::DefaultPort);
 }
 
