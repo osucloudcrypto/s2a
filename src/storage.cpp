@@ -55,7 +55,7 @@ bool readMap(std::string filename, Dmap &map) {
 		size_t length;
 		char comma;
 		in >> length >> comma;
-		std::cerr << length << '\n';
+		//std::cerr << length << '\n';
 		std::string v(length, '\0');
 		in.read(&v[0], v.size());
 		map[k] = v;
@@ -83,7 +83,7 @@ bool writeMapCount(std::string filename, Dcountmap& map) {
 		out << static_cast<char>((v >> 40) & 0xff);
 		out << static_cast<char>((v >> 48) & 0xff);
 		out << static_cast<char>((v >> 56) & 0xff);
-		out << '\n';
+		out << '.';
 	}
 
 	out.flush();
@@ -114,14 +114,23 @@ bool readMapCount(std::string filename, Dcountmap &map) {
 		}
 
 		char b0, b1, b2, b3, b4, b5, b6, b7;
-		in >> b0 >> b1 >> b2 >> b3 >> b4 >> b5 >> b6 >> b7 >> c2;
+		in.get(b0);
+		in.get(b1);
+		in.get(b2);
+		in.get(b3);
+		in.get(b4);
+		in.get(b5);
+		in.get(b6);
+		in.get(b7);
+		in.get(c2);
 
-		if (!in) {
+		if (c0 != ':' || c1 != ',' || c2 != '.') {
+			std::cerr << "invalid syntax in Dcount\n";
+			std::cerr << c0 << c1 << c2;
 			break;
 		}
 
-		if (c0 != ':' || c1 != ',' || c2 != '\n') {
-			std::cerr << "invalid syntax in Dcount\n";
+		if (!in) {
 			break;
 		}
 
