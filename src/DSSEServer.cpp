@@ -93,7 +93,6 @@ void Server::HandleAdd(const msg::Add &add) {
 	}
 }
 
-
 void Server::ListenAndServe(std::string hostname, int port) {
 	std::ostringstream buf;
 	if (hostname == "") {
@@ -112,6 +111,11 @@ void Server::ListenAndServe(std::string hostname, int port) {
 		if (this->sock.recv(&zmsg)) {
 			// TODO: handle in a separate thread?
 			handle(this, zmsg);
+
+			// save state after every request
+			if (!this->saveDir.empty()) {
+				SaveServerToStorage(this->core, this->saveDir);
+			}
 		}
 	}
 }

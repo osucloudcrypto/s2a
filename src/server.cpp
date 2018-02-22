@@ -12,7 +12,11 @@ int main() {
 	register_cipher(&aes_desc);
 
 	DSSE::Server server;
-	// TODO: init server state here
+	std::string saveDir = "server-state";
+	server.SetSaveDir(saveDir);
+	if (!server.Load()) {
+		std::cerr << "warning: unable to load server state\n";
+	}
 	server.ListenAndServe("", DSSE::DefaultPort);
 }
 

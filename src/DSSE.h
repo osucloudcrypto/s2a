@@ -198,6 +198,14 @@ public:
 	void ListenAndServe(std::string hostname, int port);
 	void HandleMessage(const msg::Request* req);
 
+	void SetSaveDir(std::string& dir) {
+		this->saveDir = dir;
+	}
+
+	bool Load() {
+		return LoadServerFromStorage(this->core, this->saveDir);
+	}
+
 private:
 	void HandleSetup(const msg::Setup& setup);
 	void HandleSearch(const msg::Search& search);
@@ -207,6 +215,7 @@ private:
 	std::string addr;
 	zmq::context_t zctx;
 	zmq::socket_t sock;
+	std::string saveDir;
 };
 
 } // namespace DSSE
