@@ -8,8 +8,9 @@
 #include "tomcrypt.h"
 
 int main(int argc, char* argv[]) {
-	// port variable
-	int port;
+	// command-line arguments
+	int port = DSSE::DefaultPort;
+
 	// initialize tomcrypt
 	register_hash(&sha256_desc);
 	register_cipher(&aes_desc);
@@ -37,14 +38,12 @@ int main(int argc, char* argv[]) {
 		std::cout << id << "\n";
 	}
 
-	DSSE::Client client;
-
 	// Check to see if user passed in a port number 
-	if (argc > 1)
+	if (argc > 1) {
 		port = atoi(argv[1]);
-	else
-		port = DSSE::DefaultPort;
+	}
 
+	DSSE::Client client;
 	if (!client.Connect("localhost", port)) {
 		std::cerr << "error connecting\n";
 		return 1;

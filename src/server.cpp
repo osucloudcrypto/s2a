@@ -13,15 +13,17 @@ int main(int argc, char* argv[]) {
 
 	DSSE::Server server;
 	std::string saveDir = "server-state";
+	int port = DSSE::DefaultPort;
+
+	if (argc > 1) {
+		port = atoi(argv[1]);
+	}
+
 	server.SetSaveDir(saveDir);
 	if (!server.Load()) {
 		std::cerr << "warning: unable to load server state\n";
 	}
-	if (argc > 1){
-		int temp = atoi(argv[1]);
-		server.ListenAndServe("", temp);
-	}
-	else
-		server.ListenAndServe("", DSSE::DefaultPort);
+
+	server.ListenAndServe("", port);
 }
 
