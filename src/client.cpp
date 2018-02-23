@@ -8,14 +8,17 @@
 #include "tomcrypt.h"
 
 int main(int argc, char* argv[]) {
-	// command-line arguments
-	int port = DSSE::DefaultPort;
-
 	// initialize tomcrypt
 	register_hash(&sha256_desc);
 	register_cipher(&aes_desc);
 
-	DSSE::Core core;
+	// Check to see if user passed in a port number
+	int port = DSSE::DefaultPort;
+	if (argc > 1) {
+		port = atoi(argv[1]);
+	}
+
+	// Some simple test data for initializing our DB
 	std::vector<std::string> tokens = {
 		"this",
 		"is",
@@ -29,20 +32,8 @@ int main(int argc, char* argv[]) {
 		{"a", {1}},
 		{"test", {1}}
 	};
-	std::vector<DSSE::SetupPair> L;
-	core.SetupClient(tokens, fidmap, L);
 
-	auto ids = core.SearchTest("this");
-	//auto ids = fidmap.at("this");
-	for (auto &id : ids) {
-		std::cout << id << "\n";
-	}
-
-	// Check to see if user passed in a port number 
-	if (argc > 1) {
-		port = atoi(argv[1]);
-	}
-
+	// Connect to the server
 	DSSE::Client client;
 	if (!client.Connect("localhost", port)) {
 		std::cerr << "error connecting\n";
@@ -59,7 +50,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	// Simple search test
-	ids = client.Search("test");
+	auto ids = client.Search("test");
 	for (auto &id : ids) {
 		std::cout << id << "\n";
 	}
@@ -76,6 +67,8 @@ int main(int argc, char* argv[]) {
 	for (auto &id : ids) {
 		std::cout << "balloons: " << id << "\n";
 	}
+
+	// Finally, save the client state to disk and disconnect
 	client.Save("client-state");
 
 	client.Disconnect();
