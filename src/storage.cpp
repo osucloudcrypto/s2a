@@ -74,16 +74,12 @@ bool writeMapCount(std::string filename, Dcountmap& map) {
 	for (auto &pair : map) {
 		auto&k = pair.first;
 		auto&v = pair.second;
+		// Encode token as a netstring
 		out << k.size() << ":" << k << ',';
-		out << static_cast<char>((v >> 0) & 0xff);
-		out << static_cast<char>((v >> 8) & 0xff);
-		out << static_cast<char>((v >> 16) & 0xff);
-		out << static_cast<char>((v >> 24) & 0xff);
-		out << static_cast<char>((v >> 32) & 0xff);
-		out << static_cast<char>((v >> 40) & 0xff);
-		out << static_cast<char>((v >> 48) & 0xff);
-		out << static_cast<char>((v >> 56) & 0xff);
-		out << '.';
+		// encode count as a decimal number
+		out << v;
+		// separate by newlines
+		out << "\n";
 	}
 
 	out.flush();
@@ -100,7 +96,7 @@ bool readMapCount(std::string filename, Dcountmap &map) {
 
 	for (;;) {
 		size_t size;
-		char c0, c1, c2;
+		char c0, c1;
 		in >> size >> c0;
 		if (!in) {
 			break;
@@ -109,24 +105,9 @@ bool readMapCount(std::string filename, Dcountmap &map) {
 		in.read(&token[0], size);
 		in >> c1;
 
-		if (!in) {
-			break;
-		}
-
-		char b0, b1, b2, b3, b4, b5, b6, b7;
-		in.get(b0);
-		in.get(b1);
-		in.get(b2);
-		in.get(b3);
-		in.get(b4);
-		in.get(b5);
-		in.get(b6);
-		in.get(b7);
-		in.get(c2);
-
-		if (c0 != ':' || c1 != ',' || c2 != '.') {
+		if (c0 != ':' || c1 != ',') {
 			std::cerr << "invalid syntax in Dcount\n";
-			std::cerr << c0 << c1 << c2;
+			std::cerr << c0 << c1;
 			break;
 		}
 
@@ -134,14 +115,14 @@ bool readMapCount(std::string filename, Dcountmap &map) {
 			break;
 		}
 
-		uint64_t v = (static_cast<uint64_t>(b0)) +
-		             (static_cast<uint64_t>(b1) << 8) +
-		             (static_cast<uint64_t>(b2) << 16) +
-		             (static_cast<uint64_t>(b3) << 24) +
-		             (static_cast<uint64_t>(b4) << 32) +
-		             (static_cast<uint64_t>(b5) << 40) +
-		             (static_cast<uint64_t>(b6) << 48) +
-		             (static_cast<uint64_t>(b7) << 56);
+		uint64_t v;
+		in >> v;
+
+		if (!in) {
+			break;
+		}
+
+		std::cerr << token << ": " << v << '\n';
 		map[token] = v;
 	}
 	if (in.bad() || in.fail()) {
