@@ -98,8 +98,11 @@ bool readMapCount(std::string filename, Dcountmap &map) {
 		size_t size;
 		char c0, c1;
 		in >> size >> c0;
-		if (!in) {
+		if (in.eof()) {
 			break;
+		}
+		if (!in) {
+			goto error;
 		}
 		std::string token(size, '\0');
 		in.read(&token[0], size);
@@ -108,28 +111,32 @@ bool readMapCount(std::string filename, Dcountmap &map) {
 		if (c0 != ':' || c1 != ',') {
 			std::cerr << "invalid syntax in Dcount\n";
 			std::cerr << c0 << c1;
-			break;
+			goto error;
 		}
 
 		if (!in) {
-			break;
+			goto error;
 		}
 
 		uint64_t v;
 		in >> v;
 
 		if (!in) {
-			break;
+			goto error;
 		}
 
 		std::cerr << token << ": " << v << '\n';
 		map[token] = v;
 	}
-	if (in.bad() || in.fail()) {
-		perror("read");
-		return false;
-	}
 	return true;
+
+error:
+	if (in.fail()) {
+		perror("read");
+	} else {
+		std::cerr << "error reading Dcount\n";
+	}
+	return false;
 }
 
 bool writeBytes(std::string filename, const uint8_t* bytes, size_t size) {
