@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <map> // TODO: sparsehash?
+#include <set>
 
 #include <zmq.hpp>
 
@@ -128,6 +129,7 @@ private:
 	// Server state;
 	std::map<std::string, std::string> D; // mac'd token id -> encrypted file id
 	std::map<std::string, std::string> Dplus; // mac'd token id -> encrypted file id
+	std::set<std::string> Srev; // set of revoked tokens
 };
 
 // forward-declare message types

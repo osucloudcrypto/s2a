@@ -404,6 +404,34 @@ void Core::AddClient2(
     */
 }
 
+void Core::DeleteClient(
+    fileid_t id, std::vector<std::string> words,
+    std::vector<std::string> &Lrev
+) {
+    // page 20
+    for (auto &w : words) {
+        key_t K1minus;
+        key_t revidbuf;
+
+        mac_key(this->kminus, '1', w.data(), K1minus);
+        mac_long(K1minus, id, revidbuf);
+
+        std::string revid(reinterpret_cast<char*>(&revidbuf[0]), KEYLEN);
+        Lrev.push_back(revid);
+    }
+    std::sort(Lrev.begin(), Lrev.end());
+}
+
+
+void Core::DeleteServer(std::vector<std::string> L)
+{
+    // page 20
+    for (auto &revid : L) {
+        this->Srev.insert(revid);
+    }
+}
+
+
 
 } // namespace DSSE
 
