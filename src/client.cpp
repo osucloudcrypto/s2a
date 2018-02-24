@@ -68,6 +68,10 @@ int main(int argc, char* argv[]) {
 		std::cout << "balloons: " << id << "\n";
 	}
 
+	if (!client.Add(4, std::vector<std::string>{"clowns", "bananas"})) {
+		std::cout << "add failed\n";
+	}
+
 	// Finally, save the client state to disk and disconnect
 	client.Save("client-state");
 
