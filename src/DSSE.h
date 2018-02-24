@@ -95,10 +95,8 @@ public:
 	// Add adds keywords to a file.
 	// AddClient performs the client side of the add action.
 	void AddClient(
-		// Input
-		fileid_t id, std::vector<std::string> words,
-		// Output
-		std::vector<AddPair> &L
+		fileid_t id, std::vector<std::string> words, // Input
+		std::vector<AddPair> &L // Output
 	);
 
 	// UpdateServer performs the server side of an add action.
@@ -111,13 +109,14 @@ public:
 	);
 
 	// Delete removes keywords from a file.
-	// DeletClient performs the client side of a delete action.
-	// Action should be add, del, edit-, or edit+.
-	void DeleteServer(std::string action, std::string id, std::vector<std::string> words);
+	// DeleteClient performs the client side of a delete action.
+	void DeleteClient(
+		fileid_t id, std::vector<std::string> words, // input
+		std::vector<std::string> &L // output
+	);
 
-	// Delete removes keywords from a file.
 	// DeleteServer performs the server side of a delete action.
-	void UpdateServer(std::string action, std::vector<std::string> L);
+	void DeleteServer(std::vector<std::string> L);
 
 private:
 	// Client state
