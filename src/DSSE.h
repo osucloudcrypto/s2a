@@ -22,12 +22,12 @@ struct SetupPair {
 	std::string FileID;
 };
 
-// pair of values returned by AddClient
+// pair... er... trio of values returned by AddClient
 struct AddPair {
 	std::string Token;
 	std::string FileID;
+	std::string RevID; // revocation id for token
 };
-
 
 /**
  * DSSE::Core is the core searchable encryption class.
@@ -96,16 +96,23 @@ public:
 	// Add adds keywords to a file.
 	// AddClient performs the client side of the add action.
 	void AddClient(
-		fileid_t id, std::vector<std::string> words, // Input
-		std::vector<AddPair> &L // Output
+		// Input
+		fileid_t id,
+		std::vector<std::string> words,
+		// Output
+		std::vector<AddPair> &L,
+		std::vector<std::string> &W_in_order_of_Lrev
 	);
 
 	// UpdateServer performs the server side of an add action.
-	void AddServer(std::vector<AddPair> L);
+	void AddServer(
+		std::vector<AddPair> L, // input
+		std::vector<unsigned char> &r // output
+	);
 
 	// AddClient2 performs the 2nd client half of Add action
 	void AddClient2(
-		std::vector<std::string> r,
+		std::vector<unsigned char> r,
 		std::vector<std::string> W_in_order_of_Lrev
 	);
 

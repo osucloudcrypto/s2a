@@ -91,7 +91,8 @@ Client::Search(std::string w) {
 
 bool Client::Add(fileid_t fileid, std::vector<std::string> w) {
 	std::vector<AddPair> L;
-	this->core.AddClient(fileid, w, L);
+	std::vector<std::string> W_in_order_of_Lrev;
+	this->core.AddClient(fileid, w, L, W_in_order_of_Lrev);
 
 	msg::Request req;
 	msg::Add *msg = req.mutable_add();
@@ -106,13 +107,17 @@ bool Client::Add(fileid_t fileid, std::vector<std::string> w) {
 		return false;
 	}
 
-	msg::AddResult result;
+	msg::Result result;
 	if (!recv_response(this->sock, result)) {
 		// TODO: throw an error
 		return false;
 	}
 
-	std::vector<std::string> r, W_in_order_of_Lrev; // XXX
+	std::vector<unsigned char> r;
+	for (bool x : result.add().r()) {
+		r.push_back(x?1:0);
+	}
+
 	this->core.AddClient2(r, W_in_order_of_Lrev);
 	return true;
 }

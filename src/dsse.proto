@@ -49,8 +49,10 @@ message Add {
     message Pair {
         optional bytes Token = 2;
         optional bytes FileID = 3;
+        optional bytes RevID = 4;
     }
     repeated Pair L = 1;
 }
 message AddResult {
+    repeated bool r = 1;
 }

@@ -84,10 +84,15 @@ void Server::HandleAdd(const msg::Add &add) {
 		L.push_back(AddPair{p.token(), p.fileid()});
 	}
 
-	this->core.AddServer(L);
+	std::vector<unsigned char> r;
+	this->core.AddServer(L, r);
 
 	msg::Result result;
 	msg::AddResult *addresult = result.mutable_add();
+	for (unsigned char x : r) {
+		addresult->add_r(x != 0);
+	}
+
 	if (!send_message(this->sock, result)) {
 		fprintf(stderr, "SERVER: error sending result\n");
 	}
