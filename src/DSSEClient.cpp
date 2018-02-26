@@ -100,6 +100,7 @@ bool Client::Add(fileid_t fileid, std::vector<std::string> w) {
 		auto q = msg->add_l();
 		q->set_token(p.Token);
 		q->set_fileid(p.FileID);
+		q->set_revid(p.RevID);
 	}
 
 	if (!send_message(this->sock, req)) {

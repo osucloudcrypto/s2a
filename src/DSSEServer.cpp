@@ -84,7 +84,11 @@ void Server::HandleSearch(const msg::Search &search) {
 void Server::HandleAdd(const msg::Add &add) {
 	std::vector<AddPair> L;
 	for (auto &p : add.l()) {
-		L.push_back(AddPair{p.token(), p.fileid()});
+		L.push_back(AddPair{
+			p.token(),
+			p.fileid(),
+			p.revid(),
+		});
 	}
 
 	std::vector<unsigned char> r;
