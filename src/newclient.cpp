@@ -41,17 +41,17 @@ int main(int argc, char* argv[]) {
 		usage();
 	}
 
+	std::string command = argv[optind];
+
+	char** cmdargv = argv + optind + 1;
+	int    cmdargc = argc - optind - 1;
+
 	// Connect to the server
 	DSSE::Client client;
 	if (!client.Connect("localhost", port)) {
 		std::cerr << "error connecting\n";
 		return 1;
 	}
-
-	std::string command = argv[1];
-
-	char** cmdargv = argv + optind + 1;
-	int    cmdargc = argc - optind - 1;
 
 	// If the command is setup, do that
 	// Otherwise, attempt to load saved client state
@@ -125,6 +125,9 @@ int main(int argc, char* argv[]) {
 		if (!client.Delete(static_cast<uint64_t>(fileid), words)) {
 			std::cerr << "error: delete failed, check server log\n";
 		}
+	} else {
+		std::cerr << "error: unknown command " << command << "\n";
+		exit(1);
 	}
 
 	// Finally, save the client state to disk and disconnect
