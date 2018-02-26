@@ -122,6 +122,29 @@ bool Client::Add(fileid_t fileid, std::vector<std::string> w) {
 	return true;
 }
 
+bool Client::Delete(fileid_t fileid, std::vector<std::string> words) {
+	std::vector<std::string> L;
+	this->core.DeleteClient(fileid, words, L);
+
+	msg::Request req;
+	msg::Delete *msg = req.mutable_delete_();
+	for (auto &revid : L) {
+		msg->add_l(revid);
+	}
+
+	if (!send_message(this->sock, req)) {
+		// TODO: throw an error
+		return false;
+	}
+
+	msg::Result result;
+	if (!recv_response(this->sock, result)) {
+		// TODO: throw an error
+		return false;
+	}
+	return true;
+}
+
 bool send_message(zmq::socket_t &sock, msg::Request &msg) {
 	std::string str;
 	if (!msg.SerializeToString(&str)) {
@@ -153,6 +176,8 @@ template <class T> bool recv_response(zmq::socket_t &sock, T &resp) {
 
 	return true;
 }
+
+
 
 
 } // namespace DSSE

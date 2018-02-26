@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
 		std::cout << "balloons: " << id << "\n";
 	}
 	if (!client.Add(4, std::vector<std::string>{"balloons"})) {
-		std::cout << "add failed\n";
+		std::cout << "error: add failed\n";
 	}
 	ids = client.Search("balloons");
 	for (auto &id : ids) {
@@ -69,7 +69,18 @@ int main(int argc, char* argv[]) {
 	}
 
 	if (!client.Add(4, std::vector<std::string>{"clowns", "bananas"})) {
-		std::cout << "add failed\n";
+		std::cout << "error: add failed\n";
+	}
+
+	// Test deleting a keyword
+	std::cout << "deleting...\n";
+	if (!client.Delete(4, std::vector<std::string>{"balloons"})) {
+		std::cout << "error: delete failed\n";
+	}
+
+	ids = client.Search("balloons");
+	for (auto &id : ids) {
+		std::cout << "balloons: " << id << "\n";
 	}
 
 	// Finally, save the client state to disk and disconnect

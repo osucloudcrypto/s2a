@@ -146,6 +146,7 @@ namespace msg {
 	class Search;
 	class Setup;
 	class Add;
+	class Delete;
 }
 
 
@@ -218,6 +219,7 @@ private:
 	void HandleSetup(const msg::Setup& setup);
 	void HandleSearch(const msg::Search& search);
 	void HandleAdd(const msg::Add &add);
+	void HandleDelete(const msg::Delete &delete_msg);
 
 	Core core;
 	std::string addr;

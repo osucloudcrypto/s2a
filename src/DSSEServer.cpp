@@ -22,6 +22,9 @@ void Server::HandleMessage(const msg::Request* req) {
 	} else if (req->has_add()) {
 		std::cout << "Got an add request\n";
 		this->HandleAdd(req->add());
+	} else if (req->has_delete_()) {
+		std::cout << "Got a delete request\n";
+		this->HandleDelete(req->delete_());
 	} else {
 		std::cerr << "SERVER got unknown message type\n";
 	}
@@ -92,6 +95,23 @@ void Server::HandleAdd(const msg::Add &add) {
 	for (unsigned char x : r) {
 		addresult->add_r(x != 0);
 	}
+
+	if (!send_message(this->sock, result)) {
+		fprintf(stderr, "SERVER: error sending result\n");
+	}
+}
+
+void Server::HandleDelete(const msg::Delete &msg) {
+	std::vector<std::string> L;
+	for (auto &revid : msg.l()) {
+		L.push_back(revid);
+	}
+
+	this->core.DeleteServer(L);
+
+	msg::Result result;
+	msg::DeleteResult *delresult = result.mutable_delete_();
+	(void)delresult;
 
 	if (!send_message(this->sock, result)) {
 		fprintf(stderr, "SERVER: error sending result\n");
