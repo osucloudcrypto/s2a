@@ -50,24 +50,29 @@ int main(int argc, char* argv[]) {
 	}
 
 	// Simple search test
+	std::cout << "searching for \"test\"...\n";
 	auto ids = client.Search("test");
 	for (auto &id : ids) {
-		std::cout << id << "\n";
+		std::cout << "test: " << id << "\n";
 	}
 
 	// Test adding a keyword
+	std::cout << "searchin for \"balloons\"...\n";
 	ids = client.Search("balloons");
 	for (auto &id : ids) {
 		std::cout << "balloons: " << id << "\n";
 	}
+	std::cout << "adding \"balloons\" to document 4...\n";
 	if (!client.Add(4, std::vector<std::string>{"balloons"})) {
 		std::cout << "error: add failed\n";
 	}
+	std::cout << "searchin for \"balloons\" again...\n";
 	ids = client.Search("balloons");
 	for (auto &id : ids) {
 		std::cout << "balloons: " << id << "\n";
 	}
 
+	std::cout << "adding \"clowns\" and \"bananas\" to document 4...\n";
 	if (!client.Add(4, std::vector<std::string>{"clowns", "bananas"})) {
 		std::cout << "error: add failed\n";
 	}
@@ -78,6 +83,7 @@ int main(int argc, char* argv[]) {
 		std::cout << "error: delete failed\n";
 	}
 
+	std::cout << "searchin for \"balloons\" again...\n";
 	ids = client.Search("balloons");
 	for (auto &id : ids) {
 		std::cout << "balloons: " << id << "\n";
