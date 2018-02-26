@@ -12,6 +12,7 @@ const int KEYSIZE = 256/8;
 
 typedef std::map<std::string,std::string> Dmap;
 typedef std::map<std::string,uint64_t> Dcountmap;
+typedef std::set<std::string> Revlist;
 
 namespace DSSE {
 
@@ -139,6 +140,45 @@ error:
 	return false;
 }
 
+bool writeRevlist(std::string filename, Revlist &m) {
+	std::fstream out;
+	out.open(filename, std::ios::out | std::ios::binary);
+	if (!out.is_open()) {
+		perror("open");
+		return false;
+	}
+
+	for (auto &v : m) {
+		if (v.size() == KEYSIZE) {
+			out << v;
+		}
+	}
+
+	out.flush();
+
+	return true;
+}
+
+bool readRevlist(std::string filename, Revlist &m) {
+	std::fstream in;
+	in.open(filename);
+	if (!in.is_open()) {
+		perror("open");
+		return false;
+	}
+
+	m.clear();
+	for (;;) {
+		std::string v(KEYSIZE, '\0');
+		in.read(&v[0], v.size());
+		if (in.eof()) {
+			break;
+		}
+		m.insert(v);
+	}
+	return true;
+}
+
 bool writeBytes(std::string filename, const uint8_t* bytes, size_t size) {
 	std::fstream out;
 	out.open(filename, std::ios::out | std::ios::binary);
@@ -192,6 +232,7 @@ bool SaveServerToStorage(DSSE::Core &core, std::string base) {
 
 	if (!writeMap(base+"/D", core.D)) { return false; }
 	if (!writeMap(base+"/Dplus", core.Dplus)) { return false; }
+	if (!writeRevlist(base+"/Srev", core.Srev)) { return false; }
 	return true;
 }
 
@@ -206,6 +247,7 @@ bool LoadClientFromStorage(DSSE::Core &core, std::string base) {
 bool LoadServerFromStorage(DSSE::Core &core, std::string base) {
 	if (!readMap(base+"/D", core.D)) { return false; }
 	if (!readMap(base+"/Dplus", core.Dplus)) { return false; }
+	if (!readRevlist(base+"/Srev", core.Srev)) { return false; }
 	return true;
 }
 
