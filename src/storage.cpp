@@ -111,7 +111,6 @@ bool readMapCount(std::string filename, Dcountmap &map) {
 
 		if (c0 != ':' || c1 != ',') {
 			std::cerr << "invalid syntax in Dcount\n";
-			std::cerr << c0 << c1;
 			goto error;
 		}
 
@@ -126,7 +125,7 @@ bool readMapCount(std::string filename, Dcountmap &map) {
 			goto error;
 		}
 
-		std::cerr << token << ": " << v << '\n';
+		std::cerr << "info: readMapCount: "<<token << ": " << v << '\n';
 		map[token] = v;
 	}
 	return true;

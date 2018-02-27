@@ -1,37 +1,50 @@
+
 /* main entry point for the DSSE command-line client */
 
 #include <cstring>
 #include <cstdint>
 #include <iostream>
+#include <unistd.h> // for getopt
 
 #include "DSSE.h"
 #include "tomcrypt.h"
+
+void usage() {
+	std::cerr << "Usage: client [-p port] <command> [args]\n";
+	std::cerr << "Commands:\n";
+	std::cerr << "\tclient setup\n";
+	std::cerr << "\tclient search <word>\n";
+	std::cerr << "\tclient add <fileid> [words...]\n";
+	std::cerr << "\tclient delete <fileid> [words...]\n";
+	exit(1);
+}
 
 int main(int argc, char* argv[]) {
 	// initialize tomcrypt
 	register_hash(&sha256_desc);
 	register_cipher(&aes_desc);
 
-	// Check to see if user passed in a port number
+	// parse command-line arguments
 	int port = DSSE::DefaultPort;
-	if (argc > 1) {
-		port = atoi(argv[1]);
+	int opt;
+	while ((opt = getopt(argc, argv, "p:")) != -1) {
+		switch (opt) {
+		case 'p':
+			port = atoi(optarg);
+			break;
+		default: /* '?' */
+			usage();
+		}
 	}
 
-	// Some simple test data for initializing our DB
-	std::vector<std::string> tokens = {
-		"this",
-		"is",
-		"a",
-		"test"
-	};
+	if (argc < 1) {
+		usage();
+	}
 
-	std::map<std::string,std::vector<DSSE::fileid_t>> fidmap = {
-		{"this", {1}},
-		{"is", {1}},
-		{"a", {1}},
-		{"test", {1}}
-	};
+	std::string command = argv[optind];
+
+	char** cmdargv = argv + optind + 1;
+	int    cmdargc = argc - optind - 1;
 
 	// Connect to the server
 	DSSE::Client client;
@@ -40,58 +53,87 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	// Attempt to load saved client state,
-	// or run Setup if no state found
-	if (client.Load("client-state")) {
-		std::cout << "loaded client state\n";
-	} else {
+	// If the command is setup, do that
+	// Otherwise, attempt to load saved client state
+	if (command == "setup") {
+		// TODO uh, don't hardcode this
+		std::vector<std::string> tokens = {
+			"this",
+			"is",
+			"a",
+			"test"
+		};
+
+		std::map<std::string,std::vector<DSSE::fileid_t>> fidmap = {
+			{"this", {1}},
+			{"is", {1}},
+			{"a", {1}},
+			{"test", {1}}
+		};
+
 		client.Setup(tokens, fidmap);
-		std::cout << "setup finished\n";
+		std::cerr << "setup finished\n";
+	} else {
+		if (client.Load("client-state")) {
+			std::cerr << "info: loaded client state\n";
+		} else {
+			std::cerr << "error: couldn't load client state\n";
+			exit(1);
+		}
 	}
 
-	// Simple search test
-	std::cout << "searching for \"test\"...\n";
-	auto ids = client.Search("test");
-	for (auto &id : ids) {
-		std::cout << "test: " << id << "\n";
-	}
+	// Run the given command
+	if (command == "setup") {
+		// handled above
+	} else if (command == "search") {
+		if (cmdargc < 1) {
+			usage();
+		}
+		std::string word = cmdargv[0];
 
-	// Test adding a keyword
-	std::cout << "searchin for \"balloons\"...\n";
-	ids = client.Search("balloons");
-	for (auto &id : ids) {
-		std::cout << "balloons: " << id << "\n";
-	}
-	std::cout << "adding \"balloons\" to document 4...\n";
-	if (!client.Add(4, std::vector<std::string>{"balloons"})) {
-		std::cout << "error: add failed\n";
-	}
-	std::cout << "searchin for \"balloons\" again...\n";
-	ids = client.Search("balloons");
-	for (auto &id : ids) {
-		std::cout << "balloons: " << id << "\n";
-	}
+		auto ids = client.Search(word);
+		for (auto &id : ids) {
+			std::cout << word << ": " << id << "\n";
+		}
 
-	std::cout << "adding \"clowns\" and \"bananas\" to document 4...\n";
-	if (!client.Add(4, std::vector<std::string>{"clowns", "bananas"})) {
-		std::cout << "error: add failed\n";
-	}
+		if (ids.size() == 0) {
+			std::cerr << "no results\n";
+		}
+	} else if (command == "add") {
+		if (cmdargc < 1) {
+			usage();
+		}
+		int fileid = atoi(cmdargv[0]);
+		std::vector<std::string> words;
+		for (int i = 1; i < cmdargc; i++) {
+			words.push_back(cmdargv[i]);
+		}
 
-	// Test deleting a keyword
-	std::cout << "deleting...\n";
-	if (!client.Delete(4, std::vector<std::string>{"balloons"})) {
-		std::cout << "error: delete failed\n";
-	}
+		if (!client.Add(static_cast<uint64_t>(fileid), words)) {
+			std::cerr << "error: add failed, check server log\n";
+		}
+	} else if (command == "delete") {
+		if (cmdargc < 1) {
+			usage();
+		}
+		int fileid = atoi(cmdargv[0]);
+		std::vector<std::string> words;
+		for (int i = 1; i < cmdargc; i++) {
+			words.push_back(cmdargv[i]);
+		}
 
-	std::cout << "searchin for \"balloons\" again...\n";
-	ids = client.Search("balloons");
-	for (auto &id : ids) {
-		std::cout << "balloons: " << id << "\n";
+		if (!client.Delete(static_cast<uint64_t>(fileid), words)) {
+			std::cerr << "error: delete failed, check server log\n";
+		}
+	} else {
+		std::cerr << "error: unknown command " << command << "\n";
+		exit(1);
 	}
 
 	// Finally, save the client state to disk and disconnect
-	client.Save("client-state");
-
+	if (!client.Save("client-state")) {
+		std::cerr << "error: couldn't save client state\n";
+	}
 	client.Disconnect();
 
 	return 0;
