@@ -13,7 +13,7 @@ CXXFLAGS+=-I../third_party/include
 LIBS+=../third_party/lib/libprotobuf.a
 LIBS+=../third_party/lib/libzmq.a
 
-all: server client
+all: server client bench
 protobuf: dsse.pb.cc
 
 storage: storage.o
@@ -25,8 +25,9 @@ server: server.o $(DSSE_objs) Makefile
 client: client.o $(DSSE_objs) Makefile
 	g++ $(CXXFLAGS) $(LDFLAGS) -o client $< $(DSSE_objs) $(LIBS)
 
-clean: 
-	rm -rf *.o client server
+bench: bench.o $(DSSE_objs) Makefile
+	g++ $(CXXFLAGS) $(LDFLAGS) -o $@ $< $(DSSE_objs) $(LIBS)
+
 # add a dependency on the header files
 client.o server.o $(DSSE_objs): DSSE.h dsse.pb.h
 
@@ -35,3 +36,6 @@ client.o server.o $(DSSE_objs): DSSE.h dsse.pb.h
 
 %.pb.h: %.pb.cc
 	@:
+
+clean:
+	rm -rf *.o client server bench
