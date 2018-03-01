@@ -11,13 +11,19 @@ int main(int argc, char* argv[]) {
 	register_hash(&sha256_desc);
 	register_cipher(&aes_desc);
 
-	DSSE::Server server;
-	// TODO: init server state here
-	if (argc > 1){
-		int temp = atoi(argv[1]);
-		server.ListenAndServe("", temp);		
+	std::string saveDir = "server-state";
+	int port = DSSE::DefaultPort;
+
+	if (argc > 1) {
+		port = atoi(argv[1]);
 	}
-	else
-		server.ListenAndServe("", DSSE::DefaultPort);
+
+	DSSE::Server server;
+	server.SetSaveDir(saveDir);
+	if (!server.Load()) {
+		std::cerr << "warning: unable to load server state\n";
+	}
+
+	server.ListenAndServe("", port);
 }
 

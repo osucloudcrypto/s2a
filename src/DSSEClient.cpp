@@ -91,7 +91,8 @@ Client::Search(std::string w) {
 
 bool Client::Add(fileid_t fileid, std::vector<std::string> w) {
 	std::vector<AddPair> L;
-	this->core.AddClient(fileid, w, L);
+	std::vector<std::string> W_in_order_of_Lrev;
+	this->core.AddClient(fileid, w, L, W_in_order_of_Lrev);
 
 	msg::Request req;
 	msg::Add *msg = req.mutable_add();
@@ -99,6 +100,7 @@ bool Client::Add(fileid_t fileid, std::vector<std::string> w) {
 		auto q = msg->add_l();
 		q->set_token(p.Token);
 		q->set_fileid(p.FileID);
+		q->set_revid(p.RevID);
 	}
 
 	if (!send_message(this->sock, req)) {
@@ -106,14 +108,41 @@ bool Client::Add(fileid_t fileid, std::vector<std::string> w) {
 		return false;
 	}
 
-	msg::AddResult result;
+	msg::Result result;
 	if (!recv_response(this->sock, result)) {
 		// TODO: throw an error
 		return false;
 	}
 
-	std::vector<std::string> r, W_in_order_of_Lrev; // XXX
+	std::vector<unsigned char> r;
+	for (bool x : result.add().r()) {
+		r.push_back(x?1:0);
+	}
+
 	this->core.AddClient2(r, W_in_order_of_Lrev);
+	return true;
+}
+
+bool Client::Delete(fileid_t fileid, std::vector<std::string> words) {
+	std::vector<std::string> L;
+	this->core.DeleteClient(fileid, words, L);
+
+	msg::Request req;
+	msg::Delete *msg = req.mutable_delete_();
+	for (auto &revid : L) {
+		msg->add_l(revid);
+	}
+
+	if (!send_message(this->sock, req)) {
+		// TODO: throw an error
+		return false;
+	}
+
+	msg::Result result;
+	if (!recv_response(this->sock, result)) {
+		// TODO: throw an error
+		return false;
+	}
 	return true;
 }
 
@@ -148,6 +177,8 @@ template <class T> bool recv_response(zmq::socket_t &sock, T &resp) {
 
 	return true;
 }
+
+
 
 
 } // namespace DSSE

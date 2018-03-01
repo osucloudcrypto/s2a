@@ -8,6 +8,7 @@ message Request {
         Setup setup = 1;
         Search search = 2;
         Add add = 3;
+        Delete delete = 4;
     }
 }
 
@@ -17,6 +18,7 @@ message Result {
         SetupResult setup = 2;
         SearchResult search = 3;
         AddResult add = 4;
+        DeleteResult delete = 5;
     }
 }
 
@@ -29,8 +31,7 @@ message Setup {
     repeated TokenPair L = 1;
 }
 
-message SetupResult {
-}
+message SetupResult { }
 
 message Search {
     optional bytes K1 = 1;
@@ -49,8 +50,17 @@ message Add {
     message Pair {
         optional bytes Token = 2;
         optional bytes FileID = 3;
+        optional bytes RevID = 4;
     }
     repeated Pair L = 1;
 }
+
 message AddResult {
+    repeated bool r = 1;
 }
+
+message Delete {
+    repeated bytes L = 1;
+}
+
+message DeleteResult { }

@@ -146,8 +146,10 @@ void decrypt_long(uint8_t key[], const uint8_t ctext[], uint64_t &out) {
 }
 
 struct token_pair {
+    std::string *w;
     uint8_t l[DIGESTLEN];
     uint8_t d[ENCRYPTLEN];
+    uint8_t r[DIGESTLEN];
 };
 
 // Reports whether a comes before b
@@ -161,6 +163,11 @@ bool compare_token_pair(const token_pair& a, const token_pair& b) {
     }
     for (i = 0; i < sizeof a.d; i++) {
         if (a.d[i] < b.d[i]) {
+            return true;
+        }
+    }
+    for (i = 0; i < sizeof a.r; i++) {
+        if (a.r[i] < b.r[i]) {
             return true;
         }
     }
@@ -221,7 +228,7 @@ void Core::SetupClient(
             fileid_bytes[6] = (fid>>48)&0xff;
             fileid_bytes[7] = (fid>>56)&0xff;
 
-            token_pair p;
+            token_pair p = {0};
             mac_counter(K1, counter_bytes, sizeof counter_bytes / 1, p.l);
             encrypt_bytes(K2, fileid_bytes, sizeof fileid_bytes / 1, p.d);
 
@@ -279,9 +286,6 @@ void Core::SearchClient(std::string w,
 
     // page 20
     mac_key(this->kminus, '1', w.c_str(), K1minus);
-
-    // return some sort of message for the server?
-    //return self.search_server(K1, K2, K1plus, K2plus, K1minus)
 }
 
 // SearchServer performs the server side of searching the index for a given keyword.
@@ -289,6 +293,7 @@ std::vector<uint64_t> Core::SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1p
     uint64_t c = 0;
     std::vector<uint64_t> ids;
 
+    std::string revid(KEYLEN, '\0');
     //print_bytes(stdout, "K1", K1, KEYLEN);
     for (c = 0;; c++) {
         uint8_t l[DIGESTLEN];
@@ -302,11 +307,14 @@ std::vector<uint64_t> Core::SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1p
         }
         uint64_t id;
         decrypt_long(K2, reinterpret_cast<const uint8_t*>(d.data()), id);
-        /*
-        revid = self._mac(K1minus, id) # p20
-        if revid not in self.Srev: # p20
-            ids.append(id)
-        */
+
+        // page 20
+        // check if id is on the revocation list
+        mac_long(K1minus, id, reinterpret_cast<uint8_t*>(&revid[0]));
+        if (this->Srev.count(revid) > 0) {
+            continue;
+        }
+
         ids.push_back(id);
     }
 
@@ -323,11 +331,13 @@ std::vector<uint64_t> Core::SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1p
         uint64_t id = 0;
         decrypt_long(K2plus, reinterpret_cast<const uint8_t*>(d.data()), id);
 
-        /*
-        revid = self._mac(K1minus, id) # p20
-        if revid not in self.Srev: # p20
-            ids.append(id)
-        */
+        // page 20
+        // check if id is on the revocation list
+        mac_long(K1minus, id, reinterpret_cast<uint8_t*>(&revid[0]));
+        if (this->Srev.count(revid) > 0) {
+            continue;
+        }
+
         ids.push_back(id);
     }
     return ids;
@@ -338,12 +348,10 @@ void Core::AddClient(
     // Input
     fileid_t id, std::vector<std::string> words,
     // Output
-    std::vector<AddPair> &Loutput
+    std::vector<AddPair> &Loutput,
+    std::vector<std::string> &Woutput
 ) {
-
     std::vector<token_pair> L;
-    //W_in_order_of_Lrev = [] // p20
-
     for (auto &w : words) {
         key_t K1plus, K2plus;
         key_t K1minus;
@@ -356,17 +364,20 @@ void Core::AddClient(
         uint64_t c = this->Dcount[w];
         mac_long(K1plus, c, p.l);
         encrypt_long(K2plus, id, p.d);
-        this->Dcount[w]++;
 
-        L.push_back(p); // XXX
+        // if we didn't have to handle deletion, we could do this instead
+        //this->Dcount[w]++;
+        //L.push_back(p);
 
-        /*
-        # page 20
-        revid = self._mac(K1minus, id)
-        L.append((l, d, revid))
-        W_in_order_of_Lrev.append(w)
-        */
+        // page 20
+        // compute revocation id
+        mac_long(K1minus, id, p.r);
+        p.w = &w;
+        L.push_back(p);
     }
+
+    // Sort L
+    std::sort(L.begin(), L.end(), compare_token_pair);
 
     // copy to output
     Loutput.clear();
@@ -374,11 +385,14 @@ void Core::AddClient(
         AddPair ap;
         ap.Token = std::string(reinterpret_cast<char*>(p.l), sizeof p.l);
         ap.FileID = std::string(reinterpret_cast<char*>(p.d), sizeof p.d);
+        ap.RevID = std::string(reinterpret_cast<char*>(p.r), sizeof p.r);
         Loutput.push_back(ap);
+        Woutput.push_back(*p.w);
     }
 }
 
-void Core::AddServer(std::vector<AddPair> L) {
+void Core::AddServer(std::vector<AddPair> L, std::vector<unsigned char> &r) {
+    /*
     for (AddPair &p : L) {
         if (this->Dplus.count(p.Token) > 0) {
             fprintf(stderr, "warning: token already in Dplus\n");
@@ -386,23 +400,69 @@ void Core::AddServer(std::vector<AddPair> L) {
         }
         this->Dplus[p.Token] = p.FileID;
     }
+    */
+    for (AddPair &p : L) {
+        // if token is revoked, remove it from Srev
+        // otherwise add it to Dplus
+        // return a bitmap of which tokens had been revoked
+        if (this->Srev.count(p.RevID) > 0) {
+            // page 20
+            r.push_back(1);
+            this->Srev.erase(p.RevID);
+        } else {
+            // page 18
+            if (this->Dplus.count(p.Token) > 0) {
+                fprintf(stderr, "warning: token already in Dplus\n");
+            } else {
+                this->Dplus[p.Token] = p.FileID;
+                r.push_back(0); // p20
+            }
+        }
+    }
 }
 
 // the second half of AddClient;
 // updates the update count for every non-revoked token
 void Core::AddClient2(
-    std::vector<std::string> r,
+    std::vector<unsigned char> r,
     std::vector<std::string> W_in_order_of_Lrev
 ) {
-    /*
-    # page 20
-    for ri, w in zip(r, W_in_order_of_Lrev):
-        if not ri:
-            c = self.Dcount.get(w, 0)
-            c += 1
-            self.Dcount[w] = c
-    */
+    // page 20
+    for (size_t i = 0; i < r.size(); i++) {
+        if (r[i] == 0) {
+            std::string &w = W_in_order_of_Lrev.at(i);
+            this->Dcount[w]++;
+        }
+    }
 }
+
+void Core::DeleteClient(
+    fileid_t id, std::vector<std::string> words,
+    std::vector<std::string> &Lrev
+) {
+    // page 20
+    for (auto &w : words) {
+        key_t K1minus;
+        key_t revidbuf;
+
+        mac_key(this->kminus, '1', w.data(), K1minus);
+        mac_long(K1minus, id, revidbuf);
+
+        std::string revid(reinterpret_cast<char*>(&revidbuf[0]), DIGESTLEN);
+        Lrev.push_back(revid);
+    }
+    std::sort(Lrev.begin(), Lrev.end());
+}
+
+
+void Core::DeleteServer(std::vector<std::string> L)
+{
+    // page 20
+    for (auto &revid : L) {
+        this->Srev.insert(revid);
+    }
+}
+
 
 
 } // namespace DSSE

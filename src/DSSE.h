@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <map> // TODO: sparsehash?
+#include <set>
 
 #include <zmq.hpp>
 
@@ -22,12 +23,12 @@ struct SetupPair {
 	std::string FileID;
 };
 
-// pair of values returned by AddClient
+// pair... er... trio of values returned by AddClient
 struct AddPair {
 	std::string Token;
 	std::string FileID;
+	std::string RevID; // revocation id for token
 };
-
 
 /**
  * DSSE::Core is the core searchable encryption class.
@@ -97,28 +98,34 @@ public:
 	// AddClient performs the client side of the add action.
 	void AddClient(
 		// Input
-		fileid_t id, std::vector<std::string> words,
+		fileid_t id,
+		std::vector<std::string> words,
 		// Output
-		std::vector<AddPair> &L
+		std::vector<AddPair> &L,
+		std::vector<std::string> &W_in_order_of_Lrev
 	);
 
 	// UpdateServer performs the server side of an add action.
-	void AddServer(std::vector<AddPair> L);
+	void AddServer(
+		std::vector<AddPair> L, // input
+		std::vector<unsigned char> &r // output
+	);
 
 	// AddClient2 performs the 2nd client half of Add action
 	void AddClient2(
-		std::vector<std::string> r,
+		std::vector<unsigned char> r,
 		std::vector<std::string> W_in_order_of_Lrev
 	);
 
 	// Delete removes keywords from a file.
-	// DeletClient performs the client side of a delete action.
-	// Action should be add, del, edit-, or edit+.
-	void DeleteServer(std::string action, std::string id, std::vector<std::string> words);
+	// DeleteClient performs the client side of a delete action.
+	void DeleteClient(
+		fileid_t id, std::vector<std::string> words, // input
+		std::vector<std::string> &L // output
+	);
 
-	// Delete removes keywords from a file.
 	// DeleteServer performs the server side of a delete action.
-	void UpdateServer(std::string action, std::vector<std::string> L);
+	void DeleteServer(std::vector<std::string> L);
 
 private:
 	// Client state
@@ -130,6 +137,7 @@ private:
 	// Server state;
 	std::map<std::string, std::string> D; // mac'd token id -> encrypted file id
 	std::map<std::string, std::string> Dplus; // mac'd token id -> encrypted file id
+	std::set<std::string> Srev; // set of revoked tokens
 };
 
 // forward-declare message types
@@ -139,6 +147,7 @@ namespace msg {
 	class Search;
 	class Setup;
 	class Add;
+	class Delete;
 }
 
 
@@ -199,15 +208,25 @@ public:
 	void ListenAndServe(std::string hostname, int port);
 	void HandleMessage(const msg::Request* req);
 
+	void SetSaveDir(std::string& dir) {
+		this->saveDir = dir;
+	}
+
+	bool Load() {
+		return LoadServerFromStorage(this->core, this->saveDir);
+	}
+
 private:
 	void HandleSetup(const msg::Setup& setup);
 	void HandleSearch(const msg::Search& search);
 	void HandleAdd(const msg::Add &add);
+	void HandleDelete(const msg::Delete &delete_msg);
 
 	Core core;
 	std::string addr;
 	zmq::context_t zctx;
 	zmq::socket_t sock;
+	std::string saveDir;
 };
 
 } // namespace DSSE

@@ -11,6 +11,8 @@
 const int KEYSIZE = 256/8;
 
 typedef std::map<std::string,std::string> Dmap;
+typedef std::map<std::string,uint64_t> Dcountmap;
+typedef std::set<std::string> Revlist;
 
 namespace DSSE {
 
@@ -54,10 +56,124 @@ bool readMap(std::string filename, Dmap &map) {
 		size_t length;
 		char comma;
 		in >> length >> comma;
-		std::cerr << length << '\n';
+		//std::cerr << length << '\n';
 		std::string v(length, '\0');
 		in.read(&v[0], v.size());
 		map[k] = v;
+	}
+	return true;
+}
+
+bool writeMapCount(std::string filename, Dcountmap& map) {
+	std::fstream out;
+	out.open(filename, std::ios::out | std::ios::binary);
+	if (!out.is_open()) {
+		perror("open");
+		return false;
+	}
+
+	for (auto &pair : map) {
+		auto&k = pair.first;
+		auto&v = pair.second;
+		// Encode token as a netstring
+		out << k.size() << ":" << k << ',';
+		// encode count as a decimal number
+		out << v;
+		// separate by newlines
+		out << "\n";
+	}
+
+	out.flush();
+	return true;
+}
+
+bool readMapCount(std::string filename, Dcountmap &map) {
+	std::fstream in;
+	in.open(filename);
+	if (!in.is_open()) {
+		perror("open");
+		return false;
+	}
+
+	for (;;) {
+		size_t size;
+		char c0, c1;
+		in >> size >> c0;
+		if (in.eof()) {
+			break;
+		}
+		if (!in) {
+			goto error;
+		}
+		std::string token(size, '\0');
+		in.read(&token[0], size);
+		in >> c1;
+
+		if (c0 != ':' || c1 != ',') {
+			std::cerr << "invalid syntax in Dcount\n";
+			goto error;
+		}
+
+		if (!in) {
+			goto error;
+		}
+
+		uint64_t v;
+		in >> v;
+
+		if (!in) {
+			goto error;
+		}
+
+		std::cerr << "info: readMapCount: "<<token << ": " << v << '\n';
+		map[token] = v;
+	}
+	return true;
+
+error:
+	if (in.fail()) {
+		perror("read");
+	} else {
+		std::cerr << "error reading Dcount\n";
+	}
+	return false;
+}
+
+bool writeRevlist(std::string filename, Revlist &m) {
+	std::fstream out;
+	out.open(filename, std::ios::out | std::ios::binary);
+	if (!out.is_open()) {
+		perror("open");
+		return false;
+	}
+
+	for (auto &v : m) {
+		if (v.size() == KEYSIZE) {
+			out << v;
+		}
+	}
+
+	out.flush();
+
+	return true;
+}
+
+bool readRevlist(std::string filename, Revlist &m) {
+	std::fstream in;
+	in.open(filename);
+	if (!in.is_open()) {
+		perror("open");
+		return false;
+	}
+
+	m.clear();
+	for (;;) {
+		std::string v(KEYSIZE, '\0');
+		in.read(&v[0], v.size());
+		if (in.eof()) {
+			break;
+		}
+		m.insert(v);
 	}
 	return true;
 }
@@ -101,7 +217,7 @@ bool SaveClientToStorage(DSSE::Core &core, std::string base) {
 	if (!writeBytes(base+"/key", core.key, KEYSIZE)) { std::cerr<<"uhoh\n"; return false; }
 	if (!writeBytes(base+"/kplus", core.kplus, KEYSIZE)) { return false; }
 	if (!writeBytes(base+"/kminus", core.kminus, KEYSIZE)) { return false; }
-	//if (!writeMapCount(base+"/Dcount", core.Dcount)) { return false; }
+	if (!writeMapCount(base+"/Dcount", core.Dcount)) { return false; }
 	return true;
 }
 
@@ -115,6 +231,7 @@ bool SaveServerToStorage(DSSE::Core &core, std::string base) {
 
 	if (!writeMap(base+"/D", core.D)) { return false; }
 	if (!writeMap(base+"/Dplus", core.Dplus)) { return false; }
+	if (!writeRevlist(base+"/Srev", core.Srev)) { return false; }
 	return true;
 }
 
@@ -122,13 +239,14 @@ bool LoadClientFromStorage(DSSE::Core &core, std::string base) {
 	if (!readBytes(base+"/key", core.key, KEYSIZE)) { return false; }
 	if (!readBytes(base+"/kplus", core.kplus, KEYSIZE)) { return false; }
 	if (!readBytes(base+"/kminus", core.kminus, KEYSIZE)) { return false; }
-	//if (!readMapCount(base+"/Dcount", core.Dcount)) { return false; }
+	if (!readMapCount(base+"/Dcount", core.Dcount)) { return false; }
 	return true;
 }
 
 bool LoadServerFromStorage(DSSE::Core &core, std::string base) {
 	if (!readMap(base+"/D", core.D)) { return false; }
 	if (!readMap(base+"/Dplus", core.Dplus)) { return false; }
+	if (!readRevlist(base+"/Srev", core.Srev)) { return false; }
 	return true;
 }
 
