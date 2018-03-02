@@ -228,4 +228,8 @@ private:
 	std::string saveDir;
 };
 
+// tokenize takes a files a returns a vector containing all words in the file and the files ID
+// it returns false if it encountered errors opening the file
+bool tokenize(std::string filename, std::vector<std::string> &tokens);
+
 } // namespace DSSE
