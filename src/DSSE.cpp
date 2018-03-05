@@ -1,6 +1,7 @@
 #include <algorithm> // sort
 #include <utility> // pair
 #include <cstring> // memset
+#include <cstdio>
 
 #include "DSSE.h"
 #include "tomcrypt.h"
@@ -25,10 +26,31 @@ Core::Core() {
 }
 
 
-// random_key writes a random key into theprovided buffer
+// random_bytes gets n random bytes from the OS
+// it aborts the program on failure
+void random_bytes(uint8_t* buf, ssize_t size) {
+    FILE* fp = fopen("/dev/urandom", "rb");
+    if (fp == NULL) {
+        perror("open /dev/urandom");
+        exit(1);
+    }
+    ssize_t n = size;
+    ssize_t nread;
+    memset(buf, 0, size);
+    while (n > 0) {
+        nread = fread(buf, 1, n, fp);
+        if (nread < 0) {
+            perror("read /dev/urandom");
+            exit(1);
+        }
+        n -= nread;
+        buf += nread;
+    }
+}
+
+// random_key writes a random key into the provided buffer
 void random_key(uint8_t key[]) {
-    // TODO
-    memset(key, 0, KEYLEN);
+    random_bytes(key, KEYLEN);
 }
 
 /**
@@ -201,6 +223,8 @@ void Core::SetupClient(
     std::map<std::string, std::vector<fileid_t> > &fileids,
     std::vector<SetupPair> &Loutput
 ) {
+    // XXX should setup take an entropy source?
+
     // initialize client state
     random_key(this->key); // Figure 5 (page 8)
     random_key(this->kplus); // page 17
