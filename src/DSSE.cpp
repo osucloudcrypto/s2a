@@ -160,15 +160,24 @@ bool compare_token_pair(const token_pair& a, const token_pair& b) {
         if (a.l[i] < b.l[i]) {
             return true;
         }
+        if (a.l[i] > b.l[i]) {
+            return false;
+        }
     }
     for (i = 0; i < sizeof a.d; i++) {
         if (a.d[i] < b.d[i]) {
             return true;
         }
+        if (a.d[i] > b.d[i]) {
+            return false;
+        }
     }
     for (i = 0; i < sizeof a.r; i++) {
         if (a.r[i] < b.r[i]) {
             return true;
+        }
+        if (a.r[i] > b.r[i]) {
+            return false;
         }
     }
     return false;
