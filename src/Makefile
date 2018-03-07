@@ -3,7 +3,7 @@ CXXFLAGS+=-std=c++11 -pthread
 CFLAGS?=-O2 -ggdb -Wall
 CFLAGS+=-std=c99
 
-DSSE_objs=DSSE.o DSSEClient.o DSSEServer.o dsse.pb.o storage.o
+DSSE_objs=DSSE.o DSSEClient.o DSSEServer.o DSSETokenize.o dsse.pb.o storage.o
 
 
 CXXFLAGS+=-I../third_party/libtomcrypt/src/headers
