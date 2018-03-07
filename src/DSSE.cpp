@@ -168,10 +168,10 @@ void decrypt_long(uint8_t key[], const uint8_t ctext[], uint64_t &out) {
 }
 
 struct token_pair {
-    std::string *w;
-    uint8_t l[DIGESTLEN];
-    uint8_t d[ENCRYPTLEN];
-    uint8_t r[DIGESTLEN];
+    std::string *w; // token
+    uint8_t l[DIGESTLEN]; // hashed token
+    uint8_t d[ENCRYPTLEN]; // encrypted fileid
+    uint8_t r[DIGESTLEN]; // revocation token
 };
 
 // Reports whether a comes before b
