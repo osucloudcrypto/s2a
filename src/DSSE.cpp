@@ -9,12 +9,10 @@
 namespace DSSE {
 
 // XXX we assume that KEYLEN and DIGESTLEN are equal
-const int KEYLEN = 256/8;
 const int DIGESTLEN = 256/8;
-// size of encrypted file id
-const int ENCRYPTLEN = sizeof(fileid_t) + 16; //???
 
-typedef uint8_t key_t[KEYLEN];
+// size of encrypted file id
+const int ENCRYPTLEN = sizeof(fileid_t) + 16; // 16 bytes for the IV
 
 Core::Core() {
     this->key = new uint8_t[KEYLEN];
