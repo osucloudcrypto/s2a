@@ -162,7 +162,7 @@ namespace msg {
  */
 class Client {
 public:
-	Client() : sock(zctx, ZMQ_REQ) {}
+	Client() : sock(zctx, ZMQ_REQ), lastFileid(0) {}
 
 	/**
 	 * Connect initiates a connection to the DSSE server.
@@ -186,21 +186,25 @@ public:
 
 	// Save saves the client state to the given directory
 	bool Save(std::string directory) {
-		return SaveClientToStorage(this->core, directory);
+		return SaveClientToStorage(this->core, directory) && this->saveExtraState(directory);
 	}
 
 	// Load loads the saved client state from the given directory
 	bool Load(std::string directory) {
-		return LoadClientFromStorage(this->core, directory);
+		return LoadClientFromStorage(this->core, directory) && this->loadExtraState(directory);
 	}
 
 private:
+	bool loadExtraState(std::string base);
+	bool saveExtraState(std::string base);
+
 	Core core;
 	std::string addr;
 	zmq::context_t zctx;
 	zmq::socket_t sock;
 
-	// XXX the client should probably store a fileid => filename mapping somewhere
+	fileid_t lastFileid;
+	std::map<fileid_t, std::string> fileidMap; // fileid -> filename
 };
 
 /**

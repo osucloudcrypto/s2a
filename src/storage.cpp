@@ -235,6 +235,22 @@ bool readBytes(std::string filename, uint8_t* bytes, size_t size) {
 }
 
 
+bool writeFileidMap(std::string filename, const std::map<fileid_t, std::string> &m) {
+	return true;
+}
+
+bool readFileidMap(std::string filename, std::map<fileid_t,std::string> &m) {
+	return true;
+}
+
+bool writeFileid(std::string filename, const fileid_t fileid) {
+	return true;
+}
+
+bool readFileid(std::string filename, fileid_t fileid) {
+	return true;
+}
+
 bool SaveClientToStorage(DSSE::Core &core, std::string base) {
 	if (mkdir(base.c_str(), 0777) < 0) {
 		if (errno != EEXIST) {
@@ -276,6 +292,18 @@ bool LoadServerFromStorage(DSSE::Core &core, std::string base) {
 	if (!readMap(base+"/D", core.D)) { return false; }
 	if (!readMap(base+"/Dplus", core.Dplus)) { return false; }
 	if (!readRevlist(base+"/Srev", core.Srev)) { return false; }
+	return true;
+}
+
+bool Client::saveExtraState(std::string base) {
+	if (!writeFileidMap(base+"/fileidMap", this->fileidMap)) { return false; }
+	if (!writeFileid(base+"/lastFileid", this->lastFileid)) { return false; }
+	return true;
+}
+
+bool Client::loadExtraState(std::string base) {
+	if (!readFileidMap(base+"/fileidMap", this->fileidMap)) { return false; }
+	if (!readFileid(base+"/lastFileid", this->lastFileid)) { return false; }
 	return true;
 }
 
