@@ -248,8 +248,10 @@ void Core::SetupClient(
             counter_bytes[6] = (c>>48)&0xff;
             counter_bytes[7] = (c>>56)&0xff;
 
+            // We want to make this contain up to 5 different file ids  
             uint8_t fileid_bytes[8];
-            fileid_t fid = fids.at(c);
+            // File 1
+            fileid_t fid = fids.at(c);            
             fileid_bytes[0] = fid&0xff;
             fileid_bytes[1] = (fid>>8)&0xff;
             fileid_bytes[2] = (fid>>16)&0xff;
@@ -258,6 +260,45 @@ void Core::SetupClient(
             fileid_bytes[5] = (fid>>40)&0xff;
             fileid_bytes[6] = (fid>>48)&0xff;
             fileid_bytes[7] = (fid>>56)&0xff;
+            // File 2 
+            fileid_t fid = fids.at(c+1);
+            fileid_bytes[8] = fid&0xff;
+            fileid_bytes[9] = (fid>>8)&0xff;
+            fileid_bytes[10] = (fid>>16)&0xff;
+            fileid_bytes[11] = (fid>>24)&0xff;
+            fileid_bytes[12] = (fid>>32)&0xff;
+            fileid_bytes[13] = (fid>>40)&0xff;
+            fileid_bytes[14] = (fid>>48)&0xff;
+            fileid_bytes[15] = (fid>>56)&0xff;
+            // File 3
+            fileid_bytes[16] = fid&0xff;
+            fileid_bytes[17] = (fid>>8)&0xff;
+            fileid_bytes[18] = (fid>>16)&0xff;
+            fileid_bytes[19] = (fid>>24)&0xff;
+            fileid_bytes[20] = (fid>>32)&0xff;
+            fileid_bytes[21] = (fid>>40)&0xff;
+            fileid_bytes[22] = (fid>>48)&0xff;
+            fileid_bytes[23] = (fid>>56)&0xff;
+            // File 4
+            fileid_bytes[24] = fid&0xff;
+            fileid_bytes[25] = (fid>>8)&0xff;
+            fileid_bytes[26] = (fid>>16)&0xff;
+            fileid_bytes[27] = (fid>>24)&0xff;
+            fileid_bytes[28] = (fid>>32)&0xff;
+            fileid_bytes[29] = (fid>>40)&0xff;
+            fileid_bytes[30] = (fid>>48)&0xff;
+            fileid_bytes[31] = (fid>>56)&0xff;
+            // File 5
+            fileid_bytes[32] = fid&0xff;
+            fileid_bytes[33] = (fid>>8)&0xff;
+            fileid_bytes[34] = (fid>>16)&0xff;
+            fileid_bytes[35] = (fid>>24)&0xff;
+            fileid_bytes[36] = (fid>>32)&0xff;
+            fileid_bytes[37] = (fid>>40)&0xff;
+            fileid_bytes[38] = (fid>>48)&0xff;
+            fileid_bytes[39] = (fid>>56)&0xff;
+
+
 
             token_pair p = {0};
             mac_counter(K1, counter_bytes, sizeof counter_bytes / 1, p.l);
