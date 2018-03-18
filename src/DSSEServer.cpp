@@ -7,8 +7,6 @@
 
 namespace DSSE {
 
-const int KEYLEN = 256/8; // XXX
-
 template <class T> bool send_message(zmq::socket_t& sock, T &msg);
 void handle(Server* server, zmq::message_t&);
 
@@ -43,7 +41,6 @@ void Server::HandleSetup(const msg::Setup &setup) {
 }
 
 void Server::HandleSearch(const msg::Search &search) {
-	typedef uint8_t key_t[256/8];
 	key_t K1, K2, K1plus, K2plus, K1minus;
 	if (search.k1().size() != KEYLEN) {
 		fprintf(stderr, "SERVER: K1 has wrong length %zd\n", search.k1().size());

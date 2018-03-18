@@ -23,10 +23,6 @@ bool Client::Connect(std::string hostname, int port)
 	return true;
 }
 
-// TODO: deduplicate with DSSE.cpp
-const int KEYLEN = 256/8;
-typedef uint8_t key_t[KEYLEN];
-
 bool Client::Setup(std::vector<std::string> &tokens, std::map<std::string, std::vector<fileid_t>> &fileids) {
 	std::vector<SetupPair> L;
 	this->core.SetupClient(tokens, fileids, L);

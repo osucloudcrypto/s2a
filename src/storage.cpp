@@ -8,8 +8,6 @@
 
 #include "DSSE.h"
 
-const int KEYSIZE = 256/8;
-
 typedef std::map<std::string,std::string> Dmap;
 typedef std::map<std::string,uint64_t> Dcountmap;
 typedef std::set<std::string> Revlist;
@@ -27,7 +25,7 @@ bool writeMap(std::string filename, Dmap& map) {
 	for (auto &pair : map) {
 		auto&k = pair.first;
 		auto&v = pair.second;
-		if (k.size() == KEYSIZE) {
+		if (k.size() == KEYLEN) {
 			out << k;
 			out << v.size() << ','; // TODO: encode as bytes
 			out << v;
@@ -48,7 +46,7 @@ bool readMap(std::string filename, Dmap &map) {
 	}
 
 	for (;;) {
-		std::string k(KEYSIZE, '\0');
+		std::string k(KEYLEN, '\0');
 		in.read(&k[0], k.size());
 		if (in.eof()) {
 			break;
@@ -148,7 +146,7 @@ bool writeRevlist(std::string filename, Revlist &m) {
 	}
 
 	for (auto &v : m) {
-		if (v.size() == KEYSIZE) {
+		if (v.size() == KEYLEN) {
 			out << v;
 		}
 	}
@@ -168,7 +166,7 @@ bool readRevlist(std::string filename, Revlist &m) {
 
 	m.clear();
 	for (;;) {
-		std::string v(KEYSIZE, '\0');
+		std::string v(KEYLEN, '\0');
 		in.read(&v[0], v.size());
 		if (in.eof()) {
 			break;
@@ -214,9 +212,9 @@ bool SaveClientToStorage(DSSE::Core &core, std::string base) {
 		}
 	}
 
-	if (!writeBytes(base+"/key", core.key, KEYSIZE)) { std::cerr<<"uhoh\n"; return false; }
-	if (!writeBytes(base+"/kplus", core.kplus, KEYSIZE)) { return false; }
-	if (!writeBytes(base+"/kminus", core.kminus, KEYSIZE)) { return false; }
+	if (!writeBytes(base+"/key", core.key, KEYLEN)) { std::cerr<<"uhoh\n"; return false; }
+	if (!writeBytes(base+"/kplus", core.kplus, KEYLEN)) { return false; }
+	if (!writeBytes(base+"/kminus", core.kminus, KEYLEN)) { return false; }
 	if (!writeMapCount(base+"/Dcount", core.Dcount)) { return false; }
 	return true;
 }
@@ -236,9 +234,9 @@ bool SaveServerToStorage(DSSE::Core &core, std::string base) {
 }
 
 bool LoadClientFromStorage(DSSE::Core &core, std::string base) {
-	if (!readBytes(base+"/key", core.key, KEYSIZE)) { return false; }
-	if (!readBytes(base+"/kplus", core.kplus, KEYSIZE)) { return false; }
-	if (!readBytes(base+"/kminus", core.kminus, KEYSIZE)) { return false; }
+	if (!readBytes(base+"/key", core.key, KEYLEN)) { return false; }
+	if (!readBytes(base+"/kplus", core.kplus, KEYLEN)) { return false; }
+	if (!readBytes(base+"/kminus", core.kminus, KEYLEN)) { return false; }
 	if (!readMapCount(base+"/Dcount", core.Dcount)) { return false; }
 	return true;
 }

@@ -14,9 +14,15 @@ namespace DSSE {
 
 const int DefaultPort = 24992;
 
-// TODO: add types for fileid and token, and encrypted fileids and tokens
+
+// Some useful typedefs and constants
+
+const int KEYLEN = 256/8;
 
 typedef uint64_t fileid_t;
+typedef uint8_t  key_t[KEYLEN];
+
+// TODO: add types for fileid and token, and encrypted fileids and tokens
 
 struct SetupPair {
 	std::string Token;
