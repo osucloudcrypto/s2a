@@ -244,10 +244,32 @@ bool readFileidMap(std::string filename, std::map<fileid_t,std::string> &m) {
 }
 
 bool writeFileid(std::string filename, const fileid_t fileid) {
+	std::fstream out;
+	out.open(filename, std::ios::out | std::ios::binary);
+	if (!out) {
+		perror("open");
+		return false;
+	}
+	out << fileid;
+	if (!out) {
+		perror("write");
+		return false;
+	}
 	return true;
 }
 
-bool readFileid(std::string filename, fileid_t fileid) {
+bool readFileid(std::string filename, fileid_t &fileid) {
+	std::fstream in;
+	in.open(filename);
+	if (!in) {
+		perror("open");
+		return false;
+	}
+	in >> fileid;
+	if (!in) {
+		perror("read");
+		return false;
+	}
 	return true;
 }
 
