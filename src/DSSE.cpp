@@ -8,11 +8,13 @@
 
 namespace DSSE {
 
+const int B = 5; // number of ids in a packed block
+
 // XXX we assume that KEYLEN and DIGESTLEN are equal
 const int DIGESTLEN = 256/8;
 
 // size of encrypted file id
-const int ENCRYPTLEN = sizeof(fileid_t)*5 + 16; // 16 bytes for the IV
+const int ENCRYPTLEN = sizeof(fileid_t)*B + 16; // 16 bytes for the IV
 
 Core::Core() {
     this->key = new uint8_t[KEYLEN];
@@ -237,7 +239,7 @@ void Core::SetupClient(
         mac_key(this->key, '2', w.c_str(), K2);
         auto& fids = fileids.at(w);
         //print_bytes(stdout, "K1", K1, KEYLEN);
-        for (size_t c = 0; c < ((fids.size()+4)/5); c++) {
+        for (size_t c = 0; c < ((fids.size()+(B-1))/B); c++) {
             uint8_t counter_bytes[8];
             counter_bytes[0] = c&0xff;
             counter_bytes[1] = (c>>8)&0xff;
@@ -249,11 +251,11 @@ void Core::SetupClient(
             counter_bytes[7] = (c>>56)&0xff;
 
             // We want to make this contain up to 5 different file ids  
-            uint8_t fileid_bytes[40];
-            for(size_t fidc = 0; fidc < 4; fidc++ ){
+            uint8_t fileid_bytes[B*sizeof(fileid_t)];
+            for(size_t fidc = 0; fidc < B; fidc++ ){
                 size_t offset = fidc * 8; 
-                if(c*4+fidc < fids.size()){
-                    fileid_t fid = fids.at(c*4+fidc);           
+                if(c*B+fidc < fids.size()){
+                    fileid_t fid = fids.at(c*B+fidc);
                     fileid_bytes[0 + offset] = fid&0xff;
                     fileid_bytes[1 + offset] = (fid>>8)&0xff;
                     fileid_bytes[2 + offset] = (fid>>16)&0xff;
@@ -343,12 +345,12 @@ std::vector<uint64_t> Core::SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1p
         } catch (std::out_of_range& e) {
             break;
         }
-        uint8_t retid[40];
+        uint8_t retid[B*sizeof(fileid_t)];
         decrypt_bytes(K2, reinterpret_cast<const uint8_t*>(d.data()),d.size(), retid);
 
         //Unpack retid
         uint8_t checkid[8];
-        for(int i=0; i<4; i++){
+        for(int i=0; i<B; i++){
             // Gets fid out of retid
             checkid[0] = retid[0 + (i*8)];
             checkid[1] = retid[1 + (i*8)];
