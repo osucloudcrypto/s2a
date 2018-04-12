@@ -244,7 +244,9 @@ bool writeFileidMap(std::string filename, const std::map<fileid_t, std::string> 
 	}
 	for (auto &pair : m) {
 		out << pair.first; // fileid
+		out << " ";
 		writeString(out, pair.second); // filename
+		out << "\n";
 	}
 	return true;
 }
