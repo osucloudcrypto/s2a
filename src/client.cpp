@@ -56,37 +56,11 @@ int main(int argc, char* argv[]) {
 	// If the command is setup, do that
 	// Otherwise, attempt to load saved client state
 	if (command == "setup") {
-		std::set<std::string> seen_tokens;
-		std::vector<std::string> all_tokens;
-		std::map<std::string,std::vector<std::string>> filenamemap;
-
-		for (int i = 0; i < cmdargc; i++) {
-			std::vector<std::string> file_tokens;
-			std::string filename = cmdargv[i];
-			if (DSSE::tokenize(filename, file_tokens)) {
-				for (auto &word : file_tokens) {
-					filenamemap[word].push_back(filename);
-					if (seen_tokens.count(word) <= 0) {
-						all_tokens.push_back(word);
-						seen_tokens.insert(word);
-						std::cout<< "word: "<<word<<"\n";
-					}
-				}
-			}
-		}
-
-		client.SetupWithNames(all_tokens, filenamemap);
-
-	/*
-		// Remember file names & file ids
-		//for (int i = 0; i < cmdargc; i++) {
-		//	client.fileidMap[i] = cmdargv[i];
-		//}
-		//client.lastFileid = 0;
-
 		// if we weren't given any files,
 		// seed with some test data
 		if (cmdargc == 0) {
+			std::vector<std::string> all_tokens;
+			std::map<std::string,std::vector<DSSE::fileid_t>> fidmap;
 			all_tokens.push_back("this");
 			all_tokens.push_back("is");
 			all_tokens.push_back("a");
@@ -95,11 +69,17 @@ int main(int argc, char* argv[]) {
 			fidmap["is"].push_back(1);
 			fidmap["a"].push_back(1);
 			fidmap["test"].push_back(1);
+			client.Setup(all_tokens, fidmap);
+		} else {
+			std::vector<std::string> filenames;
+			for (int i = 0; i < cmdargc; i++) {
+				std::string filename = cmdargv[i];
+				filenames.push_back(filename);
+			}
+			client.SetupFiles(filenames);
 		}
 
-		client.Setup(all_tokens, fidmap);
 		std::cerr << "setup finished\n";
-		*/
 	} else {
 		if (client.Load("client-state")) {
 			std::cerr << "info: loaded client state\n";

@@ -25,25 +25,38 @@ bool Client::Connect(std::string hostname, int port)
 	return true;
 }
 
-bool Client::SetupWithNames(std::vector<std::string> &tokens, std::map<std::string, std::vector<std::string>> &filenames) {
+bool Client::SetupFiles(std::vector<std::string> &filenames) {
 	std::map<filename_t, fileid_t> filenameToFileid;
 	std::map<fileid_t, filename_t> fileidToFilename;
 	std::map<std::string, std::vector<fileid_t>> fileids;
+	std::vector<std::string> all_tokens;
+
 	fileid_t lastFileid = 1;
-	for (auto &pair : filenames) {
-		auto &word = pair.first;
-		for (auto &filename : pair.second) {
+	for (auto& filename : filenames) {
+		std::vector<std::string> file_tokens;
+		if (tokenize(filename, file_tokens)) {
+			// allocate a fileid if this is a new filename
 			if (filenameToFileid.count(filename) <= 0) {
 				filenameToFileid[filename] = lastFileid;
 				fileidToFilename[lastFileid] = filename;
 				lastFileid++;
 			}
 			fileid_t fileid = filenameToFileid.at(filename);
-			fileids[word].push_back(fileid);
+			for (auto &word : file_tokens) {
+				// add word to all_tokens if this is a new token
+				if (fileids.count(word) <= 0) {
+					all_tokens.push_back(word);
+					std::cerr << "word: "<<word<<"\n"; // debug
+				}
+
+				fileids[word].push_back(fileid);
+			}
+		} else {
+			// error tokenizing file
 		}
 	}
 
-	if (!this->Setup(tokens, fileids)) {
+	if (!this->Setup(all_tokens, fileids)) {
 		return false;
 	}
 

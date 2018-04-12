@@ -180,10 +180,10 @@ public:
 	bool Delete(fileid_t fileid, std::vector<std::string> words);
 
 	// Convenience methods
+	bool SetupFiles(std::vector<std::string> &filenames);
 	//bool AddFile(std::string filename, std::string contents)
 	//bool UpdateFile(std::string filename, std::string contents)
 	//bool DeleteFile(std::string filename)
-	bool SetupWithNames(std::vector<std::string> &tokens, std::map<std::string, std::vector<std::string>> &filenames);
 
 	// Save saves the client state to the given directory
 	bool Save(std::string directory) {
