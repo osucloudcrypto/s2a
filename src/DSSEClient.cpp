@@ -7,6 +7,8 @@
 
 namespace DSSE {
 
+typedef std::string filename_t;
+
 bool send_message(zmq::socket_t &sock, msg::Request &msg);
 template<class T> bool recv_response(zmq::socket_t &sock, T &msg);
 
@@ -20,6 +22,34 @@ bool Client::Connect(std::string hostname, int port)
 	// TODO catch exceptions
 	this->sock.connect(addr);
 	this->addr = addr;
+	return true;
+}
+
+bool Client::SetupWithNames(std::vector<std::string> &tokens, std::map<std::string, std::vector<std::string>> &filenames) {
+	std::map<filename_t, fileid_t> filenameToFileid;
+	std::map<fileid_t, filename_t> fileidToFilename;
+	std::map<std::string, std::vector<fileid_t>> fileids;
+	fileid_t lastFileid = 1;
+	for (auto &pair : filenames) {
+		auto &word = pair.first;
+		for (auto &filename : pair.second) {
+			if (filenameToFileid.count(filename) <= 0) {
+				filenameToFileid[filename] = lastFileid;
+				fileidToFilename[lastFileid] = filename;
+				lastFileid++;
+			}
+			fileid_t fileid = filenameToFileid.at(filename);
+			fileids[word].push_back(fileid);
+		}
+	}
+
+	if (!this->Setup(tokens, fileids)) {
+		return false;
+	}
+
+	this->lastFileid = lastFileid;
+	this->fileidMap = std::move(fileidToFilename);
+
 	return true;
 }
 

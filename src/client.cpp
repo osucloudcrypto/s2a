@@ -58,14 +58,14 @@ int main(int argc, char* argv[]) {
 	if (command == "setup") {
 		std::set<std::string> seen_tokens;
 		std::vector<std::string> all_tokens;
-		std::map<std::string,std::vector<DSSE::fileid_t>> fidmap;
+		std::map<std::string,std::vector<std::string>> filenamemap;
 
 		for (int i = 0; i < cmdargc; i++) {
 			std::vector<std::string> file_tokens;
 			std::string filename = cmdargv[i];
 			if (DSSE::tokenize(filename, file_tokens)) {
 				for (auto &word : file_tokens) {
-					fidmap[word].push_back(i);
+					filenamemap[word].push_back(filename);
 					if (seen_tokens.count(word) <= 0) {
 						all_tokens.push_back(word);
 						seen_tokens.insert(word);
@@ -74,7 +74,15 @@ int main(int argc, char* argv[]) {
 				}
 			}
 		}
-		// TODO: remember file names & file ids
+
+		client.SetupWithNames(all_tokens, filenamemap);
+
+	/*
+		// Remember file names & file ids
+		//for (int i = 0; i < cmdargc; i++) {
+		//	client.fileidMap[i] = cmdargv[i];
+		//}
+		//client.lastFileid = 0;
 
 		// if we weren't given any files,
 		// seed with some test data
@@ -91,6 +99,7 @@ int main(int argc, char* argv[]) {
 
 		client.Setup(all_tokens, fidmap);
 		std::cerr << "setup finished\n";
+		*/
 	} else {
 		if (client.Load("client-state")) {
 			std::cerr << "info: loaded client state\n";
