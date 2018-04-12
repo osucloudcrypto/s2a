@@ -100,7 +100,12 @@ int main(int argc, char* argv[]) {
 
 		auto ids = client.Search(word);
 		for (auto &id : ids) {
-			std::cout << word << ": " << id << "\n";
+			std::string filename = client.Filename(id);
+			if (filename.empty()) {
+				std::cout << word << ": " << id << "\n";
+			} else {
+				std::cout << word << ": " << filename << "\n";
+			}
 		}
 
 		if (ids.size() == 0) {

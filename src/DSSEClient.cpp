@@ -12,6 +12,14 @@ typedef std::string filename_t;
 bool send_message(zmq::socket_t &sock, msg::Request &msg);
 template<class T> bool recv_response(zmq::socket_t &sock, T &msg);
 
+std::string Client::Filename(fileid_t fileid)
+{
+	if (this->fileidMap.count(fileid) >= 0) {
+		return this->fileidMap.at(fileid);
+	}
+	return "";
+}
+
 bool Client::Connect(std::string hostname, int port)
 {
 	std::ostringstream buf;

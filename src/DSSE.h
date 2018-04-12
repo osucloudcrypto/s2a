@@ -185,6 +185,10 @@ public:
 	//bool UpdateFile(std::string filename, std::string contents)
 	//bool DeleteFile(std::string filename)
 
+	// Get the filename associated with a fileid,
+	// or the empty string if the filename is unknown.
+	std::string Filename(fileid_t fileid);
+
 	// Save saves the client state to the given directory
 	bool Save(std::string directory) {
 		return SaveClientToStorage(this->core, directory) && this->saveExtraState(directory);
