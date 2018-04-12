@@ -236,11 +236,48 @@ bool readBytes(std::string filename, uint8_t* bytes, size_t size) {
 
 
 bool writeFileidMap(std::string filename, const std::map<fileid_t, std::string> &m) {
+	std::ofstream out;
+	out.open(filename);
+	if (!out) {
+		perror("open");
+		return false;
+	}
+	for (auto &pair : m) {
+		out << pair.first; // fileid
+		writeString(out, pair.second); // filename
+	}
 	return true;
 }
 
 bool readFileidMap(std::string filename, std::map<fileid_t,std::string> &m) {
+	std::ifstream in;
+	in.open(filename);
+	if (!in) {
+		perror("open");
+		return false;
+	}
+	for (;;) {
+		uint64_t fileid;
+		in >> fileid;
+		if (in.eof()) {
+			break;
+		}
+		std::string v = "";
+		if (!readString(in, v) || in.eof()) {
+			goto error;
+		}
+		m[fileid] = v;
+	}
 	return true;
+
+error:
+	if (in.bad()) {
+		std::cerr << "I/O error when reading D or Dplus\n";
+		perror("read");
+	} else {
+		std::cerr << "syntax error in D or Dplus\n";
+	}
+	return false;
 }
 
 bool writeFileid(std::string filename, const fileid_t fileid) {
