@@ -17,14 +17,15 @@ bool tokenize(std::string filename, std::vector<std::string> &tokens) {
 	}
 
 	// Read until eof and add words to vector:tokens
+	std::set<std::string> token_set;
 	std::string str;
-	while (fin >> str){
+	while (fin >> str) {
 		// Don't add duplicate words.
-		if (std::find(tokens.begin(), tokens.end(), str) == tokens.end()) {
-			tokens.push_back(str);
-		}
+		token_set.insert(str);
 	}
 	fin.close();
+
+	tokens = std::vector<std::string>(token_set.begin(), token_set.end());
 	return true;
 }
 
