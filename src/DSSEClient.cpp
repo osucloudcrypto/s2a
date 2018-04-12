@@ -54,7 +54,7 @@ bool Client::SetupFiles(std::vector<std::string> &filenames) {
 				// add word to all_tokens if this is a new token
 				if (fileids.count(word) <= 0) {
 					all_tokens.push_back(word);
-					std::cerr << "word: "<<word<<"\n"; // debug
+					std::cerr << "debug: word: "<<word<<"\n";
 				}
 
 				fileids[word].push_back(fileid);
@@ -71,6 +71,26 @@ bool Client::SetupFiles(std::vector<std::string> &filenames) {
 	this->lastFileid = lastFileid;
 	this->fileidMap = std::move(fileidToFilename);
 
+	return true;
+}
+
+bool Client::AddFileByName(std::string filename) {
+	std::vector<std::string> tokens;
+
+	if (!tokenize(filename, tokens)) {
+		return false;
+	}
+
+	// TODO: check if file has already been added?
+
+	fileid_t fileid = this->lastFileid;
+
+	if (!this->Add(fileid, tokens)) {
+		return false;
+	}
+
+	this->fileidMap[fileid] = filename;
+	this->lastFileid++;
 	return true;
 }
 

@@ -181,7 +181,7 @@ public:
 
 	// Convenience methods
 	bool SetupFiles(std::vector<std::string> &filenames);
-	//bool AddFile(std::string filename, std::string contents)
+	bool AddFileByName(std::string filename);
 	//bool UpdateFile(std::string filename, std::string contents)
 	//bool DeleteFile(std::string filename)
 
@@ -243,7 +243,7 @@ private:
 	std::string saveDir;
 };
 
-// tokenize takes a files a returns a vector containing all words in the file and the files ID
+// tokenize takes a files and returns a vector containing all unique words in the file and the files ID
 // it returns false if it encountered errors opening the file
 bool tokenize(std::string filename, std::vector<std::string> &tokens);
 

@@ -15,6 +15,7 @@ void usage() {
 	std::cerr << "\tclient setup [files...]\n";
 	std::cerr << "\tclient search <word>\n";
 	std::cerr << "\tclient add <fileid> [words...]\n";
+	std::cerr << "\tclient addfile <filename>\n";
 	std::cerr << "\tclient delete <fileid> [words...]\n";
 	exit(1);
 }
@@ -123,6 +124,15 @@ int main(int argc, char* argv[]) {
 
 		if (!client.Add(static_cast<uint64_t>(fileid), words)) {
 			std::cerr << "error: add failed, check server log\n";
+		}
+	} else if (command == "addfile") {
+		if (cmdargc < 1) {
+			usage();
+		}
+		std::string filename = cmdargv[0];
+		if (!client.AddFileByName(filename)) {
+			std::cerr << "error: add failed, check server log\n";
+			//XXX exit?
 		}
 	} else if (command == "delete") {
 		if (cmdargc < 1) {
