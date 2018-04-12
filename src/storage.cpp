@@ -15,14 +15,14 @@ typedef std::set<std::string> Revlist;
 namespace DSSE {
 
 // writeString writes a std::string in netstring format
-void writeString(std::fstream& out, const std::string& s) {
+void writeString(std::ofstream& out, const std::string& s) {
 	out << s.size() << ":" << s << ',';
 }
 
 // readString reads a netstring-formatted string
 // returns true if successful or on eof; check in.eof() to differentiate
 // returns false otherwise
-bool readString(std::fstream& in, std::string& s) {
+bool readString(std::ifstream& in, std::string& s) {
 	size_t size;
 	char c0, c1;
 	in >> size;
@@ -54,7 +54,7 @@ bool readString(std::fstream& in, std::string& s) {
 
 
 bool writeMap(std::string filename, Dmap& map) {
-	std::fstream out;
+	std::ofstream out;
 	out.open(filename, std::ios::out | std::ios::binary);
 	if (!out) {
 		perror("open");
@@ -76,7 +76,7 @@ bool writeMap(std::string filename, Dmap& map) {
 }
 
 bool readMap(std::string filename, Dmap &map) {
-	std::fstream in;
+	std::ifstream in;
 	in.open(filename);
 	if (!in) {
 		perror("open");
@@ -108,7 +108,7 @@ error:
 }
 
 bool writeMapCount(std::string filename, Dcountmap& map) {
-	std::fstream out;
+	std::ofstream out;
 	out.open(filename, std::ios::out | std::ios::binary);
 	if (!out) {
 		perror("open");
@@ -131,7 +131,7 @@ bool writeMapCount(std::string filename, Dcountmap& map) {
 }
 
 bool readMapCount(std::string filename, Dcountmap &map) {
-	std::fstream in;
+	std::ifstream in;
 	in.open(filename);
 	if (!in) {
 		perror("open");
@@ -169,7 +169,7 @@ error:
 }
 
 bool writeRevlist(std::string filename, Revlist &m) {
-	std::fstream out;
+	std::ofstream out;
 	out.open(filename, std::ios::out | std::ios::binary);
 	if (!out) {
 		perror("open");
@@ -188,7 +188,7 @@ bool writeRevlist(std::string filename, Revlist &m) {
 }
 
 bool readRevlist(std::string filename, Revlist &m) {
-	std::fstream in;
+	std::ifstream in;
 	in.open(filename);
 	if (!in) {
 		perror("open");
@@ -208,7 +208,7 @@ bool readRevlist(std::string filename, Revlist &m) {
 }
 
 bool writeBytes(std::string filename, const uint8_t* bytes, size_t size) {
-	std::fstream out;
+	std::ofstream out;
 	out.open(filename, std::ios::out | std::ios::binary);
 	if (!out) {
 		perror("open");
@@ -224,7 +224,7 @@ bool writeBytes(std::string filename, const uint8_t* bytes, size_t size) {
 }
 
 bool readBytes(std::string filename, uint8_t* bytes, size_t size) {
-	std::fstream in;
+	std::ifstream in;
 	in.open(filename);
 	if (!in) {
 		perror("open");
@@ -244,7 +244,7 @@ bool readFileidMap(std::string filename, std::map<fileid_t,std::string> &m) {
 }
 
 bool writeFileid(std::string filename, const fileid_t fileid) {
-	std::fstream out;
+	std::ofstream out;
 	out.open(filename, std::ios::out | std::ios::binary);
 	if (!out) {
 		perror("open");
@@ -259,7 +259,7 @@ bool writeFileid(std::string filename, const fileid_t fileid) {
 }
 
 bool readFileid(std::string filename, fileid_t &fileid) {
-	std::fstream in;
+	std::ifstream in;
 	in.open(filename);
 	if (!in) {
 		perror("open");
