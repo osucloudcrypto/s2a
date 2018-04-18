@@ -141,8 +141,9 @@ private:
 	std::map<std::string, uint64_t> Dcount;
 
 	// Server state;
-	std::map<std::string, std::string> D; // mac'd token id -> encrypted file id
+	std::map<std::string, std::string> D; // mac'd token id -> encrypted pointers to blocks of file ids 
 	std::map<std::string, std::string> Dplus; // mac'd token id -> encrypted file id
+	std::vector<std::string> A; // encrypted blocks of file ids I guess...
 	std::set<std::string> Srev; // set of revoked tokens
 };
 
