@@ -14,10 +14,49 @@ typedef std::set<std::string> Revlist;
 
 namespace DSSE {
 
+// writeString writes a std::string in netstring format
+void writeString(std::ofstream& out, const std::string& s) {
+	out << s.size() << ":" << s << ',';
+}
+
+// readString reads a netstring-formatted string
+// returns true if successful or on eof; check in.eof() to differentiate
+// returns false otherwise
+bool readString(std::ifstream& in, std::string& s) {
+	size_t size;
+	char c0, c1;
+	in >> size;
+	if (in.eof()) {
+		s = "";
+		return true;
+	}
+	if (!in) {
+		return false;
+	}
+
+	in >> c0;
+	if (!in) {
+		return false;
+	}
+
+	s = std::string(size, '\0');
+	in.read(&s[0], size);
+	in >> c1;
+
+	if (!in) {
+		return false;
+	}
+	if (c0 != ':' || c1 != ',') {
+		return false;
+	}
+	return true;
+}
+
+
 bool writeMap(std::string filename, Dmap& map) {
-	std::fstream out;
+	std::ofstream out;
 	out.open(filename, std::ios::out | std::ios::binary);
-	if (!out.is_open()) {
+	if (!out) {
 		perror("open");
 		return false;
 	}
@@ -27,8 +66,7 @@ bool writeMap(std::string filename, Dmap& map) {
 		auto&v = pair.second;
 		if (k.size() == KEYLEN) {
 			out << k;
-			out << v.size() << ','; // TODO: encode as bytes
-			out << v;
+			writeString(out, v);
 		}
 	}
 
@@ -38,9 +76,9 @@ bool writeMap(std::string filename, Dmap& map) {
 }
 
 bool readMap(std::string filename, Dmap &map) {
-	std::fstream in;
+	std::ifstream in;
 	in.open(filename);
-	if (!in.is_open()) {
+	if (!in) {
 		perror("open");
 		return false;
 	}
@@ -51,21 +89,28 @@ bool readMap(std::string filename, Dmap &map) {
 		if (in.eof()) {
 			break;
 		}
-		size_t length;
-		char comma;
-		in >> length >> comma;
-		//std::cerr << length << '\n';
-		std::string v(length, '\0');
-		in.read(&v[0], v.size());
+		std::string v = "";
+		if (!readString(in, v) || in.eof()) {
+			goto error;
+		}
 		map[k] = v;
 	}
 	return true;
+
+error:
+	if (in.bad()) {
+		std::cerr << "I/O error when reading D or Dplus\n";
+		perror("read");
+	} else {
+		std::cerr << "syntax error in D or Dplus\n";
+	}
+	return false;
 }
 
 bool writeMapCount(std::string filename, Dcountmap& map) {
-	std::fstream out;
+	std::ofstream out;
 	out.open(filename, std::ios::out | std::ios::binary);
-	if (!out.is_open()) {
+	if (!out) {
 		perror("open");
 		return false;
 	}
@@ -74,7 +119,7 @@ bool writeMapCount(std::string filename, Dcountmap& map) {
 		auto&k = pair.first;
 		auto&v = pair.second;
 		// Encode token as a netstring
-		out << k.size() << ":" << k << ',';
+		writeString(out, k);
 		// encode count as a decimal number
 		out << v;
 		// separate by newlines
@@ -86,61 +131,47 @@ bool writeMapCount(std::string filename, Dcountmap& map) {
 }
 
 bool readMapCount(std::string filename, Dcountmap &map) {
-	std::fstream in;
+	std::ifstream in;
 	in.open(filename);
-	if (!in.is_open()) {
+	if (!in) {
 		perror("open");
 		return false;
 	}
 
 	for (;;) {
-		size_t size;
-		char c0, c1;
-		in >> size >> c0;
+		std::string token;
+		if (!readString(in, token)) {
+			goto error;
+		}
 		if (in.eof()) {
 			break;
-		}
-		if (!in) {
-			goto error;
-		}
-		std::string token(size, '\0');
-		in.read(&token[0], size);
-		in >> c1;
-
-		if (c0 != ':' || c1 != ',') {
-			std::cerr << "invalid syntax in Dcount\n";
-			goto error;
-		}
-
-		if (!in) {
-			goto error;
 		}
 
 		uint64_t v;
 		in >> v;
-
 		if (!in) {
 			goto error;
 		}
 
-		std::cerr << "info: readMapCount: "<<token << ": " << v << '\n';
+		std::cerr << "debug: readMapCount: "<<token << ": " << v << '\n';
 		map[token] = v;
 	}
 	return true;
 
 error:
-	if (in.fail()) {
+	if (in.bad()) {
+		std::cerr << "I/O error when reading Dcount\n";
 		perror("read");
 	} else {
-		std::cerr << "error reading Dcount\n";
+		std::cerr << "invalid syntax in Dcount\n";
 	}
 	return false;
 }
 
 bool writeRevlist(std::string filename, Revlist &m) {
-	std::fstream out;
+	std::ofstream out;
 	out.open(filename, std::ios::out | std::ios::binary);
-	if (!out.is_open()) {
+	if (!out) {
 		perror("open");
 		return false;
 	}
@@ -157,9 +188,9 @@ bool writeRevlist(std::string filename, Revlist &m) {
 }
 
 bool readRevlist(std::string filename, Revlist &m) {
-	std::fstream in;
+	std::ifstream in;
 	in.open(filename);
-	if (!in.is_open()) {
+	if (!in) {
 		perror("open");
 		return false;
 	}
@@ -177,7 +208,7 @@ bool readRevlist(std::string filename, Revlist &m) {
 }
 
 bool writeBytes(std::string filename, const uint8_t* bytes, size_t size) {
-	std::fstream out;
+	std::ofstream out;
 	out.open(filename, std::ios::out | std::ios::binary);
 	if (!out) {
 		perror("open");
@@ -193,7 +224,7 @@ bool writeBytes(std::string filename, const uint8_t* bytes, size_t size) {
 }
 
 bool readBytes(std::string filename, uint8_t* bytes, size_t size) {
-	std::fstream in;
+	std::ifstream in;
 	in.open(filename);
 	if (!in) {
 		perror("open");
@@ -203,6 +234,83 @@ bool readBytes(std::string filename, uint8_t* bytes, size_t size) {
 	return in.good() && static_cast<size_t>(in.gcount()) == size;
 }
 
+
+bool writeFileidMap(std::string filename, const std::map<fileid_t, std::string> &m) {
+	std::ofstream out;
+	out.open(filename, std::ios::binary);
+	if (!out) {
+		perror("open");
+		return false;
+	}
+	for (auto &pair : m) {
+		out << pair.first; // fileid
+		out << " ";
+		writeString(out, pair.second); // filename
+		out << "\n";
+	}
+	return true;
+}
+
+bool readFileidMap(std::string filename, std::map<fileid_t,std::string> &m) {
+	std::ifstream in;
+	in.open(filename);
+	if (!in) {
+		perror("open");
+		return false;
+	}
+	for (;;) {
+		uint64_t fileid;
+		in >> fileid;
+		if (in.eof()) {
+			break;
+		}
+		std::string v = "";
+		if (!readString(in, v) || in.eof()) {
+			goto error;
+		}
+		m[fileid] = v;
+	}
+	return true;
+
+error:
+	if (in.bad()) {
+		std::cerr << "I/O error when reading D or Dplus\n";
+		perror("read");
+	} else {
+		std::cerr << "syntax error in D or Dplus\n";
+	}
+	return false;
+}
+
+bool writeFileid(std::string filename, const fileid_t fileid) {
+	std::ofstream out;
+	out.open(filename, std::ios::out | std::ios::binary);
+	if (!out) {
+		perror("open");
+		return false;
+	}
+	out << fileid;
+	if (!out) {
+		perror("write");
+		return false;
+	}
+	return true;
+}
+
+bool readFileid(std::string filename, fileid_t &fileid) {
+	std::ifstream in;
+	in.open(filename);
+	if (!in) {
+		perror("open");
+		return false;
+	}
+	in >> fileid;
+	if (!in) {
+		perror("read");
+		return false;
+	}
+	return true;
+}
 
 bool SaveClientToStorage(DSSE::Core &core, std::string base) {
 	if (mkdir(base.c_str(), 0777) < 0) {
@@ -245,6 +353,18 @@ bool LoadServerFromStorage(DSSE::Core &core, std::string base) {
 	if (!readMap(base+"/D", core.D)) { return false; }
 	if (!readMap(base+"/Dplus", core.Dplus)) { return false; }
 	if (!readRevlist(base+"/Srev", core.Srev)) { return false; }
+	return true;
+}
+
+bool Client::saveExtraState(std::string base) {
+	if (!writeFileidMap(base+"/fileidMap", this->fileidMap)) { return false; }
+	if (!writeFileid(base+"/lastFileid", this->lastFileid)) { return false; }
+	return true;
+}
+
+bool Client::loadExtraState(std::string base) {
+	if (!readFileidMap(base+"/fileidMap", this->fileidMap)) { return false; }
+	if (!readFileid(base+"/lastFileid", this->lastFileid)) { return false; }
 	return true;
 }
 

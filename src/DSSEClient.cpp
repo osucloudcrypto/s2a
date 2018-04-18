@@ -7,8 +7,18 @@
 
 namespace DSSE {
 
+typedef std::string filename_t;
+
 bool send_message(zmq::socket_t &sock, msg::Request &msg);
 template<class T> bool recv_response(zmq::socket_t &sock, T &msg);
+
+std::string Client::Filename(fileid_t fileid)
+{
+	if (this->fileidMap.count(fileid) >= 0) {
+		return this->fileidMap.at(fileid);
+	}
+	return "";
+}
 
 bool Client::Connect(std::string hostname, int port)
 {
@@ -20,6 +30,67 @@ bool Client::Connect(std::string hostname, int port)
 	// TODO catch exceptions
 	this->sock.connect(addr);
 	this->addr = addr;
+	return true;
+}
+
+bool Client::SetupFiles(std::vector<std::string> &filenames) {
+	std::map<filename_t, fileid_t> filenameToFileid;
+	std::map<fileid_t, filename_t> fileidToFilename;
+	std::map<std::string, std::vector<fileid_t>> fileids;
+	std::vector<std::string> all_tokens;
+
+	fileid_t lastFileid = 1;
+	for (auto& filename : filenames) {
+		std::vector<std::string> file_tokens;
+		if (tokenize(filename, file_tokens)) {
+			// allocate a fileid if this is a new filename
+			if (filenameToFileid.count(filename) <= 0) {
+				filenameToFileid[filename] = lastFileid;
+				fileidToFilename[lastFileid] = filename;
+				lastFileid++;
+			}
+			fileid_t fileid = filenameToFileid.at(filename);
+			for (auto &word : file_tokens) {
+				// add word to all_tokens if this is a new token
+				if (fileids.count(word) <= 0) {
+					all_tokens.push_back(word);
+					//std::cerr << "debug: word: "<<word<<"\n";
+				}
+
+				fileids[word].push_back(fileid);
+			}
+		} else {
+			// error tokenizing file
+		}
+	}
+
+	if (!this->Setup(all_tokens, fileids)) {
+		return false;
+	}
+
+	this->lastFileid = lastFileid;
+	this->fileidMap = std::move(fileidToFilename);
+
+	return true;
+}
+
+bool Client::AddFileByName(std::string filename) {
+	std::vector<std::string> tokens;
+
+	if (!tokenize(filename, tokens)) {
+		return false;
+	}
+
+	// TODO: check if file has already been added?
+
+	fileid_t fileid = this->lastFileid;
+
+	if (!this->Add(fileid, tokens)) {
+		return false;
+	}
+
+	this->fileidMap[fileid] = filename;
+	this->lastFileid++;
 	return true;
 }
 

@@ -3,6 +3,7 @@
 
 #include <cstring>
 #include <cstdint>
+#include <fstream>
 #include <iostream>
 #include <unistd.h> // for getopt
 
@@ -15,6 +16,7 @@ void usage() {
 	std::cerr << "\tclient setup [files...]\n";
 	std::cerr << "\tclient search <word>\n";
 	std::cerr << "\tclient add <fileid> [words...]\n";
+	std::cerr << "\tclient addfile <filename>\n";
 	std::cerr << "\tclient delete <fileid> [words...]\n";
 	exit(1);
 }
@@ -56,29 +58,11 @@ int main(int argc, char* argv[]) {
 	// If the command is setup, do that
 	// Otherwise, attempt to load saved client state
 	if (command == "setup") {
-		std::set<std::string> seen_tokens;
-		std::vector<std::string> all_tokens;
-		std::map<std::string,std::vector<DSSE::fileid_t>> fidmap;
-
-		for (int i = 0; i < cmdargc; i++) {
-			std::vector<std::string> file_tokens;
-			std::string filename = cmdargv[i];
-			if (DSSE::tokenize(filename, file_tokens)) {
-				for (auto &word : file_tokens) {
-					fidmap[word].push_back(i);
-					if (seen_tokens.count(word) <= 0) {
-						all_tokens.push_back(word);
-						seen_tokens.insert(word);
-						std::cout<< "word: "<<word<<"\n";
-					}
-				}
-			}
-		}
-		// TODO: remember file names & file ids
-
 		// if we weren't given any files,
 		// seed with some test data
 		if (cmdargc == 0) {
+			std::vector<std::string> all_tokens;
+			std::map<std::string,std::vector<DSSE::fileid_t>> fidmap;
 			all_tokens.push_back("this");
 			all_tokens.push_back("is");
 			all_tokens.push_back("a");
@@ -87,10 +71,36 @@ int main(int argc, char* argv[]) {
 			fidmap["is"].push_back(1);
 			fidmap["a"].push_back(1);
 			fidmap["test"].push_back(1);
+			client.Setup(all_tokens, fidmap);
+		} else {
+			std::vector<std::string> filenames;
+			for (int i = 0; i < cmdargc; i++) {
+				std::string filename = cmdargv[i];
+				filenames.push_back(filename);
+			}
+			client.SetupFiles(filenames);
 		}
 
-		client.Setup(all_tokens, fidmap);
 		std::cerr << "setup finished\n";
+	} else if (command == "setuplist") {
+		if (cmdargc != 1) {
+			std::cerr << "error: please supply a filename\n";
+			exit(1);
+		}
+		std::ifstream manifest;
+		manifest.open(cmdargv[0]);
+		if (!manifest) {
+			std::cerr << "error: couldn't open file";
+			exit(1);
+		}
+
+		std::vector<std::string> filenames;
+		std::string filename;
+		while (getline(manifest, filename)) {
+			filenames.push_back(filename);
+		}
+		client.SetupFiles(filenames);
+		std::cerr << "setup finished; added " << filenames.size() << " files\n";
 	} else {
 		if (client.Load("client-state")) {
 			std::cerr << "info: loaded client state\n";
@@ -101,7 +111,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	// Run the given command
-	if (command == "setup") {
+	if (command == "setup" || command == "setuplist") {
 		// handled above
 	} else if (command == "search") {
 		if (cmdargc < 1) {
@@ -111,7 +121,12 @@ int main(int argc, char* argv[]) {
 
 		auto ids = client.Search(word);
 		for (auto &id : ids) {
-			std::cout << word << ": " << id << "\n";
+			std::string filename = client.Filename(id);
+			if (filename.empty()) {
+				std::cout << word << ": " << id << "\n";
+			} else {
+				std::cout << word << ": " << filename << "\n";
+			}
 		}
 
 		if (ids.size() == 0) {
@@ -129,6 +144,15 @@ int main(int argc, char* argv[]) {
 
 		if (!client.Add(static_cast<uint64_t>(fileid), words)) {
 			std::cerr << "error: add failed, check server log\n";
+		}
+	} else if (command == "addfile") {
+		if (cmdargc < 1) {
+			usage();
+		}
+		std::string filename = cmdargv[0];
+		if (!client.AddFileByName(filename)) {
+			std::cerr << "error: add failed, check server log\n";
+			//XXX exit?
 		}
 	} else if (command == "delete") {
 		if (cmdargc < 1) {
