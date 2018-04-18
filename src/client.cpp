@@ -3,6 +3,7 @@
 
 #include <cstring>
 #include <cstdint>
+#include <fstream>
 #include <iostream>
 #include <unistd.h> // for getopt
 
@@ -81,6 +82,25 @@ int main(int argc, char* argv[]) {
 		}
 
 		std::cerr << "setup finished\n";
+	} else if (command == "setuplist") {
+		if (cmdargc != 1) {
+			std::cerr << "error: please supply a filename\n";
+			exit(1);
+		}
+		std::ifstream manifest;
+		manifest.open(cmdargv[0]);
+		if (!manifest) {
+			std::cerr << "error: couldn't open file";
+			exit(1);
+		}
+
+		std::vector<std::string> filenames;
+		std::string filename;
+		while (getline(manifest, filename)) {
+			filenames.push_back(filename);
+		}
+		client.SetupFiles(filenames);
+		std::cerr << "setup finished; added " << filenames.size() << " files\n";
 	} else {
 		if (client.Load("client-state")) {
 			std::cerr << "info: loaded client state\n";
@@ -91,7 +111,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	// Run the given command
-	if (command == "setup") {
+	if (command == "setup" || command == "setuplist") {
 		// handled above
 	} else if (command == "search") {
 		if (cmdargc < 1) {
