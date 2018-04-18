@@ -54,7 +54,7 @@ bool Client::SetupFiles(std::vector<std::string> &filenames) {
 				// add word to all_tokens if this is a new token
 				if (fileids.count(word) <= 0) {
 					all_tokens.push_back(word);
-					std::cerr << "debug: word: "<<word<<"\n";
+					//std::cerr << "debug: word: "<<word<<"\n";
 				}
 
 				fileids[word].push_back(fileid);
