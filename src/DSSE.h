@@ -144,6 +144,7 @@ private:
 	std::map<std::string, std::string> D; // mac'd token id -> encrypted pointers to blocks of file ids 
 	std::map<std::string, std::string> Dplus; // mac'd token id -> encrypted file id
 	std::vector<std::string> A; // encrypted blocks of file ids I guess...
+	int countA = 0; 			// Count to track the last element of the A vector
 	std::set<std::string> Srev; // set of revoked tokens
 };
 
