@@ -237,7 +237,7 @@ bool readBytes(std::string filename, uint8_t* bytes, size_t size) {
 
 bool writeFileidMap(std::string filename, const std::map<fileid_t, std::string> &m) {
 	std::ofstream out;
-	out.open(filename);
+	out.open(filename, std::ios::binary);
 	if (!out) {
 		perror("open");
 		return false;
