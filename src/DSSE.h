@@ -75,10 +75,12 @@ public:
 		std::map<std::string, std::vector<fileid_t> > &fileids,
 		// Output
 		std::vector<SetupPair> &L
+		std::vector<SetupPtr> &M
 	);
 
 	void SetupServer(
 		std::vector<SetupPair> &L
+		std::vector<SetupPtr> &M
 	);
 
 	// SearchClient performs the client side of searching the index for a given keyword.
