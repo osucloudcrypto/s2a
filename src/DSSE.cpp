@@ -289,17 +289,6 @@ void Core::SetupServer(std::vector<SetupPair> &L) {
     }
 }
 
-std::vector<fileid_t> Core::SearchTest(std::string w) {
-    // page  8
-    key_t K1, K2;
-    key_t K1plus, K1minus, K2plus;
-
-    this->SearchClient(w,
-        K1, K2, K1plus, K2plus, K1minus);
-
-    return this->SearchServer(K1, K2, K1plus, K2plus, K1minus);
-}
-
 void Core::SearchClient(std::string w,
     key_t K1, key_t K2,
     key_t K1plus, key_t K2plus,

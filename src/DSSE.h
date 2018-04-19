@@ -94,9 +94,6 @@ public:
 	// SearchServer performs the server side of searching the index for a given keyword.
 	std::vector<fileid_t> SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1plus[], uint8_t K2plus[], uint8_t K1minus[]);
 
-	// a method for testing which combines SearchClient and SearchServer
-	std::vector<fileid_t> SearchTest(std::string w);
-
 	// TODO: maybe split Update into separate add/edit/delete actions
 
 	// Add adds keywords to a file.
