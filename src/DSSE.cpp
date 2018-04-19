@@ -9,6 +9,7 @@
 namespace DSSE {
 
 const int B = 5; // number of ids in a packed block
+const int P = 5; // number of ids in a pointer block
 
 // XXX we assume that KEYLEN and DIGESTLEN are equal
 const int DIGESTLEN = 256/8;
@@ -174,6 +175,11 @@ struct token_pair {
     uint8_t r[DIGESTLEN]; // revocation token
 };
 
+struct ptr_pair {
+    size_t index;
+    uint8_t enc_block[ENCRYPTLEN];
+};
+
 // Reports whether a comes before b
 // TODO: make this constant-time?
 bool compare_token_pair(const token_pair& a, const token_pair& b) {
@@ -232,7 +238,7 @@ void Core::SetupClient(
 
     // Figure 5 (page 8)
     auto L = std::vector<token_pair>();
-
+    auto M = std::vector<ptr_pair>();
     for (auto& w : tokens) {
         uint8_t K1[DIGESTLEN], K2[DIGESTLEN];
         mac_key(this->key, '1', w.c_str(), K1);
@@ -250,7 +256,7 @@ void Core::SetupClient(
             counter_bytes[6] = (c>>48)&0xff;
             counter_bytes[7] = (c>>56)&0xff;
 
-            // We want to make this contain up to 5 different file ids  
+            // We want to make this contain up to 5 different file ids (edit: changed to be any set size)  
             uint8_t fileid_bytes[B*sizeof(fileid_t)];
             for(size_t fidc = 0; fidc < B; fidc++ ){
                 size_t offset = fidc * 8; 
