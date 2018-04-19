@@ -216,7 +216,7 @@ void print_bytes(FILE* fp, const char *title, std::string s) {
 
 // Setup creates an initial index from a list of tokens and a map of
 // file id => token list
-void Core::SetupClient(
+void BasicCore::SetupClient(
     std::vector<std::string> &tokens,
     std::map<std::string, std::vector<fileid_t> > &fileids,
     std::vector<SetupPair> &Loutput
@@ -278,7 +278,7 @@ void Core::SetupClient(
     }
 }
 
-void Core::SetupServer(std::vector<SetupPair> &L) {
+void BasicCore::SetupServer(std::vector<SetupPair> &L) {
     this->D.clear();
     this->Dplus.clear(); // page 17
 
@@ -289,7 +289,7 @@ void Core::SetupServer(std::vector<SetupPair> &L) {
     }
 }
 
-void Core::SearchClient(std::string w,
+void BasicCore::SearchClient(std::string w,
     key_t K1, key_t K2,
     key_t K1plus, key_t K2plus,
     key_t K1minus
@@ -309,7 +309,7 @@ void Core::SearchClient(std::string w,
 }
 
 // SearchServer performs the server side of searching the index for a given keyword.
-std::vector<uint64_t> Core::SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1plus[], uint8_t K2plus[], uint8_t K1minus[]) {
+std::vector<uint64_t> BasicCore::SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1plus[], uint8_t K2plus[], uint8_t K1minus[]) {
     uint64_t c = 0;
     std::vector<uint64_t> ids;
 
@@ -364,7 +364,7 @@ std::vector<uint64_t> Core::SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1p
 }
 
 
-void Core::AddClient(
+void BasicCore::AddClient(
     // Input
     fileid_t id, std::vector<std::string> words,
     // Output
@@ -411,7 +411,7 @@ void Core::AddClient(
     }
 }
 
-void Core::AddServer(std::vector<AddPair> L, std::vector<unsigned char> &r) {
+void BasicCore::AddServer(std::vector<AddPair> L, std::vector<unsigned char> &r) {
     /*
     for (AddPair &p : L) {
         if (this->Dplus.count(p.Token) > 0) {
@@ -443,7 +443,7 @@ void Core::AddServer(std::vector<AddPair> L, std::vector<unsigned char> &r) {
 
 // the second half of AddClient;
 // updates the update count for every non-revoked token
-void Core::AddClient2(
+void BasicCore::AddClient2(
     std::vector<unsigned char> r,
     std::vector<std::string> W_in_order_of_Lrev
 ) {
@@ -456,7 +456,7 @@ void Core::AddClient2(
     }
 }
 
-void Core::DeleteClient(
+void BasicCore::DeleteClient(
     fileid_t id, std::vector<std::string> words,
     std::vector<std::string> &Lrev
 ) {
@@ -475,7 +475,7 @@ void Core::DeleteClient(
 }
 
 
-void Core::DeleteServer(std::vector<std::string> L)
+void BasicCore::DeleteServer(std::vector<std::string> L)
 {
     // page 20
     for (auto &revid : L) {

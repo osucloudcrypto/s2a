@@ -33,7 +33,7 @@ void Server::HandleSetup(const msg::Setup &setup) {
 	for (auto &p : setup.l()) {
 		L.push_back(SetupPair{p.counter(), p.fileid()});
 	}
-	this->core.SetupServer(L);
+	this->core->SetupServer(L);
 	// send back and empty reply
 	// TODO: send back an "OK" message?
 	zmq::message_t response(0);
@@ -67,7 +67,7 @@ void Server::HandleSearch(const msg::Search &search) {
 	memmove(K1plus, search.k1plus().data(), KEYLEN);
 	memmove(K2plus, search.k2plus().data(), KEYLEN);
 	memmove(K1minus, search.k1minus().data(), KEYLEN);
-	auto vec = this->core.SearchServer(K1, K2, K1plus, K2plus, K1minus);
+	auto vec = this->core->SearchServer(K1, K2, K1plus, K2plus, K1minus);
 	msg::SearchResult result;
 	for (auto fileid : vec) {
 		result.add_fileid(fileid);
@@ -89,7 +89,7 @@ void Server::HandleAdd(const msg::Add &add) {
 	}
 
 	std::vector<unsigned char> r;
-	this->core.AddServer(L, r);
+	this->core->AddServer(L, r);
 
 	msg::Result result;
 	msg::AddResult *addresult = result.mutable_add();
@@ -108,7 +108,7 @@ void Server::HandleDelete(const msg::Delete &msg) {
 		L.push_back(revid);
 	}
 
-	this->core.DeleteServer(L);
+	this->core->DeleteServer(L);
 
 	msg::Result result;
 	msg::DeleteResult *delresult = result.mutable_delete_();
@@ -140,7 +140,7 @@ void Server::ListenAndServe(std::string hostname, int port) {
 
 			// save state after every request
 			if (!this->saveDir.empty()) {
-				SaveServerToStorage(this->core, this->saveDir);
+				SaveServerToStorage(*this->core, this->saveDir);
 			}
 		}
 	}

@@ -5,6 +5,7 @@
 #include <vector>
 #include <map> // TODO: sparsehash?
 #include <set>
+#include <memory>
 
 #include <zmq.hpp>
 
@@ -43,6 +44,7 @@ struct AddPair {
 class Core {
 public:
 	Core();
+	virtual ~Core() {}
 
 	// TODO: need methods to:
 	//     * create a new DSSE from scratch
@@ -69,67 +71,67 @@ public:
 
 	// Setup creates an initial index from a list of tokens and a map of
 	// file id => token list
-	void SetupClient(
+	virtual void SetupClient(
 		std::vector<std::string> &tokens,
 		std::map<std::string, std::vector<fileid_t> > &fileids,
 		// Output
 		std::vector<SetupPair> &L
-	);
+	) = 0;
 
-	void SetupServer(
+	virtual void SetupServer(
 		std::vector<SetupPair> &L
-	);
+	) = 0;
 
 	// SearchClient performs the client side of searching the index for a given keyword.
 	// It returns a bunch of keys to send to the server.
-	void SearchClient(
+	virtual void SearchClient(
 		// Input
 		std::string w,
 		// Output
 		uint8_t *K1, uint8_t *K2,
 		uint8_t *K1plus, uint8_t *K2plus,
 		uint8_t *K1minus
-	);
+	) = 0;
 
 	// SearchServer performs the server side of searching the index for a given keyword.
-	std::vector<fileid_t> SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1plus[], uint8_t K2plus[], uint8_t K1minus[]);
+	virtual std::vector<fileid_t> SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1plus[], uint8_t K2plus[], uint8_t K1minus[]) = 0;
 
 	// TODO: maybe split Update into separate add/edit/delete actions
 
 	// Add adds keywords to a file.
 	// AddClient performs the client side of the add action.
-	void AddClient(
+	virtual void AddClient(
 		// Input
 		fileid_t id,
 		std::vector<std::string> words,
 		// Output
 		std::vector<AddPair> &L,
 		std::vector<std::string> &W_in_order_of_Lrev
-	);
+	) = 0;
 
 	// UpdateServer performs the server side of an add action.
-	void AddServer(
+	virtual void AddServer(
 		std::vector<AddPair> L, // input
 		std::vector<unsigned char> &r // output
-	);
+	) = 0;
 
 	// AddClient2 performs the 2nd client half of Add action
-	void AddClient2(
+	virtual void AddClient2(
 		std::vector<unsigned char> r,
 		std::vector<std::string> W_in_order_of_Lrev
-	);
+	) = 0;
 
 	// Delete removes keywords from a file.
 	// DeleteClient performs the client side of a delete action.
-	void DeleteClient(
+	virtual void DeleteClient(
 		fileid_t id, std::vector<std::string> words, // input
 		std::vector<std::string> &L // output
-	);
+	) = 0;
 
 	// DeleteServer performs the server side of a delete action.
-	void DeleteServer(std::vector<std::string> L);
+	virtual void DeleteServer(std::vector<std::string> L) = 0;
 
-private:
+protected:
 	// Client state
 	uint8_t* key; // The master key. Only used by the client
 	uint8_t* kplus; // The master key for additions. Only used by the client
@@ -140,6 +142,69 @@ private:
 	std::map<std::string, std::string> D; // mac'd token id -> encrypted file id
 	std::map<std::string, std::string> Dplus; // mac'd token id -> encrypted file id
 	std::set<std::string> Srev; // set of revoked tokens
+};
+
+class BasicCore : public Core {
+	virtual void SetupClient(
+		std::vector<std::string> &tokens,
+		std::map<std::string, std::vector<fileid_t> > &fileids,
+		// Output
+		std::vector<SetupPair> &L
+	);
+
+	virtual void SetupServer(
+		std::vector<SetupPair> &L
+	);
+
+	// SearchClient performs the client side of searching the index for a given keyword.
+	// It returns a bunch of keys to send to the server.
+	virtual void SearchClient(
+		// Input
+		std::string w,
+		// Output
+		uint8_t *K1, uint8_t *K2,
+		uint8_t *K1plus, uint8_t *K2plus,
+		uint8_t *K1minus
+	);
+
+	// SearchServer performs the server side of searching the index for a given keyword.
+	virtual std::vector<fileid_t> SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1plus[], uint8_t K2plus[], uint8_t K1minus[]);
+
+	// TODO: maybe split Update into separate add/edit/delete actions
+
+	// Add adds keywords to a file.
+	// AddClient performs the client side of the add action.
+	virtual void AddClient(
+		// Input
+		fileid_t id,
+		std::vector<std::string> words,
+		// Output
+		std::vector<AddPair> &L,
+		std::vector<std::string> &W_in_order_of_Lrev
+	);
+
+	// UpdateServer performs the server side of an add action.
+	virtual void AddServer(
+		std::vector<AddPair> L, // input
+		std::vector<unsigned char> &r // output
+	);
+
+	// AddClient2 performs the 2nd client half of Add action
+	virtual void AddClient2(
+		std::vector<unsigned char> r,
+		std::vector<std::string> W_in_order_of_Lrev
+	);
+
+	// Delete removes keywords from a file.
+	// DeleteClient performs the client side of a delete action.
+	virtual void DeleteClient(
+		fileid_t id, std::vector<std::string> words, // input
+		std::vector<std::string> &L // output
+	);
+
+	// DeleteServer performs the server side of a delete action.
+	virtual void DeleteServer(std::vector<std::string> L);
+
 };
 
 // forward-declare message types
@@ -159,7 +224,9 @@ namespace msg {
  */
 class Client {
 public:
-	Client() : sock(zctx, ZMQ_REQ), lastFileid(0) {}
+	Client() : sock(zctx, ZMQ_REQ), lastFileid(0) {
+		this->core = std::unique_ptr<Core>(new BasicCore());
+	}
 
 	/**
 	 * Connect initiates a connection to the DSSE server.
@@ -188,19 +255,19 @@ public:
 
 	// Save saves the client state to the given directory
 	bool Save(std::string directory) {
-		return SaveClientToStorage(this->core, directory) && this->saveExtraState(directory);
+		return SaveClientToStorage(*this->core, directory) && this->saveExtraState(directory);
 	}
 
 	// Load loads the saved client state from the given directory
 	bool Load(std::string directory) {
-		return LoadClientFromStorage(this->core, directory) && this->loadExtraState(directory);
+		return LoadClientFromStorage(*this->core, directory) && this->loadExtraState(directory);
 	}
 
 private:
 	bool loadExtraState(std::string base);
 	bool saveExtraState(std::string base);
 
-	Core core;
+	std::unique_ptr<Core> core;
 	std::string addr;
 	zmq::context_t zctx;
 	zmq::socket_t sock;
@@ -215,7 +282,10 @@ private:
  */
 class Server {
 public:
-	Server() : sock(zctx, ZMQ_REP) {}
+	Server() : sock(zctx, ZMQ_REP) {
+		this->core = std::unique_ptr<Core>(new BasicCore());
+	}
+
 	void ListenAndServe(std::string hostname, int port);
 	void HandleMessage(const msg::Request* req);
 
@@ -224,7 +294,7 @@ public:
 	}
 
 	bool Load() {
-		return LoadServerFromStorage(this->core, this->saveDir);
+		return LoadServerFromStorage(*this->core, this->saveDir);
 	}
 
 private:
@@ -233,7 +303,7 @@ private:
 	void HandleAdd(const msg::Add &add);
 	void HandleDelete(const msg::Delete &delete_msg);
 
-	Core core;
+	std::unique_ptr<Core> core;
 	std::string addr;
 	zmq::context_t zctx;
 	zmq::socket_t sock;

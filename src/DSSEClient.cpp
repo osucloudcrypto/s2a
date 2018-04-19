@@ -14,7 +14,7 @@ template<class T> bool recv_response(zmq::socket_t &sock, T &msg);
 
 std::string Client::Filename(fileid_t fileid)
 {
-	if (this->fileidMap.count(fileid) >= 0) {
+	if (this->fileidMap.count(fileid) > 0) {
 		return this->fileidMap.at(fileid);
 	}
 	return "";
@@ -96,7 +96,7 @@ bool Client::AddFileByName(std::string filename) {
 
 bool Client::Setup(std::vector<std::string> &tokens, std::map<std::string, std::vector<fileid_t>> &fileids) {
 	std::vector<SetupPair> L;
-	this->core.SetupClient(tokens, fileids, L);
+	this->core->SetupClient(tokens, fileids, L);
 
 	msg::Request req;
 	msg::Setup *msg = req.mutable_setup();
@@ -133,7 +133,7 @@ Client::Search(std::string w) {
 	msg::Request req;
 	msg::Search *msg = req.mutable_search();
 	key_t K1, K2, K1plus, K2plus, K1minus;
-	this->core.SearchClient(w,
+	this->core->SearchClient(w,
 		K1, K2, K1plus, K2plus, K1minus);
 	msg->set_k1(std::string(reinterpret_cast<char*>(K1), sizeof K1));
 	msg->set_k2(std::string(reinterpret_cast<char*>(K2), sizeof K2));
@@ -159,7 +159,7 @@ Client::Search(std::string w) {
 bool Client::Add(fileid_t fileid, std::vector<std::string> w) {
 	std::vector<AddPair> L;
 	std::vector<std::string> W_in_order_of_Lrev;
-	this->core.AddClient(fileid, w, L, W_in_order_of_Lrev);
+	this->core->AddClient(fileid, w, L, W_in_order_of_Lrev);
 
 	msg::Request req;
 	msg::Add *msg = req.mutable_add();
@@ -186,13 +186,13 @@ bool Client::Add(fileid_t fileid, std::vector<std::string> w) {
 		r.push_back(x?1:0);
 	}
 
-	this->core.AddClient2(r, W_in_order_of_Lrev);
+	this->core->AddClient2(r, W_in_order_of_Lrev);
 	return true;
 }
 
 bool Client::Delete(fileid_t fileid, std::vector<std::string> words) {
 	std::vector<std::string> L;
-	this->core.DeleteClient(fileid, words, L);
+	this->core->DeleteClient(fileid, words, L);
 
 	msg::Request req;
 	msg::Delete *msg = req.mutable_delete_();
