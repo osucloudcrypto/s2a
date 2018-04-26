@@ -24,9 +24,9 @@ bool Client::Connect(std::string hostname, int port)
 }
 
 bool Client::Setup(std::vector<std::string> &tokens, std::map<std::string, std::vector<fileid_t>> &fileids) {
-	std::vector<SetupPair> L;
-	this->core.SetupClient(tokens, fileids, L);
-	std::std::vector<SetupPtr> M;
+	std::vector<SetupPair> L;		//will map keyword to PTRblocks
+	std::std::vector<SetupPtr> M;	//will map pointers to FIDblocks
+	this->core.SetupClient(tokens, fileids, L, M);
 	msg::Request req;
 	msg::Setup *msg = req.mutable_setup();
 	for (auto &p : L) {
