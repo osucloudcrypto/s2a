@@ -24,9 +24,16 @@ typedef uint8_t  key_t[KEYLEN];
 
 // TODO: add types for fileid and token, and encrypted fileids and tokens
 
+// Pair for adding FileID blocks to A
+struct SetupPtr {
+	std::string PtrIndice;
+	std::string FileID
+};
+
+// Pair for adding Pointer blocks to DB
 struct SetupPair {
 	std::string Token;
-	std::string FileID;
+	std::string PtrBlock;
 };
 
 // pair... er... trio of values returned by AddClient
@@ -74,12 +81,12 @@ public:
 		std::vector<std::string> &tokens,
 		std::map<std::string, std::vector<fileid_t> > &fileids,
 		// Output
-		std::vector<SetupPair> &L
-		std::vector<SetupPtr> &M
+		std::vector<SetupPair> &L,
+		std::vector<SetupPtr> &M  //Added for Ptr implementation
 	);
 
 	void SetupServer(
-		std::vector<SetupPair> &L
+		std::vector<SetupPair> &L,
 		std::vector<SetupPtr> &M
 	);
 
