@@ -227,7 +227,8 @@ void print_bytes(FILE* fp, const char *title, std::string s) {
 void Core::SetupClient(
     std::vector<std::string> &tokens,
     std::map<std::string, std::vector<fileid_t> > &fileids,
-    std::vector<SetupPair> &Loutput
+    std::vector<SetupPair> &Loutput,
+    std::vector<SetupPTR> &Moutput  //Added for PTR implementation
 ) {
     // XXX should setup take an entropy source?
 
@@ -239,12 +240,16 @@ void Core::SetupClient(
     // Figure 5 (page 8)
     auto L = std::vector<token_pair>();
     auto M = std::vector<ptr_pair>();
+
+    // TODO: Create PTR implementation using M strucure 
     for (auto& w : tokens) {
         uint8_t K1[DIGESTLEN], K2[DIGESTLEN];
         mac_key(this->key, '1', w.c_str(), K1);
         mac_key(this->key, '2', w.c_str(), K2);
         auto& fids = fileids.at(w);
         //print_bytes(stdout, "K1", K1, KEYLEN);
+
+        //what the heck do we do? 
         for (size_t c = 0; c < ((fids.size()+(B-1))/B); c++) {
             uint8_t counter_bytes[8];
             counter_bytes[0] = c&0xff;
@@ -423,6 +428,7 @@ void Core::AddClient(
     std::vector<std::string> &Woutput
 ) {
     std::vector<token_pair> L;
+    std::vecotr<ptr_pair> M; //added for ptr implementation
     for (auto &w : words) {
         key_t K1plus, K2plus;
         key_t K1minus;
