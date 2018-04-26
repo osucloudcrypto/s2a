@@ -4,6 +4,8 @@ consisting of 1k, 10k, 20k, 30k, and 40k files.
 DSSEServer.cpp was modified not to write out the server state after every request
 and also to not print "Got an add response"
 
+Add_Benchmarks are the time to perform 10k adds.
+
 Benchmarks were performed on a Macbook Pro 15"
 
 MacBook Pro (15-inch, Early 2011)
