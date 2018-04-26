@@ -228,7 +228,7 @@ void Core::SetupClient(
     std::vector<std::string> &tokens,
     std::map<std::string, std::vector<fileid_t> > &fileids,
     std::vector<SetupPair> &Loutput,
-    std::vector<SetupPTR> &Moutput  //Added for PTR implementation
+    std::vector<SetupPtr> &Moutput  //Added for PTR implementation
 ) {
     // XXX should setup take an entropy source?
 
@@ -428,7 +428,7 @@ void Core::AddClient(
     std::vector<std::string> &Woutput
 ) {
     std::vector<token_pair> L;
-    std::vecotr<ptr_pair> M; //added for ptr implementation
+    std::vector<ptr_pair> M; //added for ptr implementation
     for (auto &w : words) {
         key_t K1plus, K2plus;
         key_t K1minus;

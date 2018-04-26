@@ -27,7 +27,7 @@ typedef uint8_t  key_t[KEYLEN];
 // Pair for adding FileID blocks to A
 struct SetupPtr {
 	std::string PtrIndice;
-	std::string FileID
+	std::string FileID;
 };
 
 // Pair for adding Pointer blocks to DB
