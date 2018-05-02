@@ -2,6 +2,13 @@ syntax = "proto2";
 
 package DSSE.msg;
 
+enum Version {
+    Basic = 0;
+    Packed = 1;
+    Pointer = 2;
+    TwoLevelPointer = 3;
+}
+
 // The server API takes a Request and returns a Result
 message Request {
     oneof msg {
@@ -10,6 +17,8 @@ message Request {
         Add add = 3;
         Delete delete = 4;
     }
+
+    optional Version version = 5 [default = Basic];
 }
 
 message Result {

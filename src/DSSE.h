@@ -36,6 +36,13 @@ struct AddPair {
 	std::string RevID; // revocation id for token
 };
 
+enum Version {
+	Basic = 0,
+	Packed = 1,
+	Pointer = 2,
+	TwoLevelPointer = 3,
+};
+
 /**
  * DSSE::Core is the core searchable encryption class.
  * It impements all the cryptography for  both the client side and server side
@@ -131,6 +138,30 @@ public:
 	void DeleteServer(std::vector<std::string> L);
 
 private:
+	// Private Setup & Search methods for each variant
+	void SetupClientBasic(
+		std::vector<std::string> &tokens,
+		std::map<std::string, std::vector<fileid_t> > &fileids,
+		std::vector<SetupPair> &L
+	);
+	void SetupServerBasic(std::vector<SetupPair> &L);
+	void SearchClientBasic(std::string w, uint8_t *K1, uint8_t *K2, uint8_t *K1plus, uint8_t *K2plus, uint8_t *K1minus);
+	std::vector<fileid_t> SearchServerBasic(uint8_t *K1, uint8_t *K2, uint8_t *K1plus, uint8_t *K2plus, uint8_t *K1minus);
+
+	void SetupClientPacked(
+		std::vector<std::string> &tokens,
+		std::map<std::string, std::vector<fileid_t> > &fileids,
+		std::vector<SetupPair> &L
+	);
+	void SetupServerPacked(std::vector<SetupPair> &L);
+	void SearchClientPacked(std::string w, uint8_t *K1, uint8_t *K2, uint8_t *K1plus, uint8_t *K2plus, uint8_t *K1minus);
+	std::vector<fileid_t> SearchServerPacked(uint8_t *K1, uint8_t *K2, uint8_t *K1plus, uint8_t *K2plus, uint8_t *K1minus);
+
+	// Client+server state
+	// This tells the client or server what version of the protocol to use,
+	// and what version the database uses.
+	int version; // enum Version
+
 	// Client state
 	uint8_t* key; // The master key. Only used by the client
 	uint8_t* kplus; // The master key for additions. Only used by the client

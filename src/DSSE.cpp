@@ -216,9 +216,24 @@ void print_bytes(FILE* fp, const char *title, std::string s) {
     print_bytes(fp, title, reinterpret_cast<const uint8_t*>(s.data()), s.size());
 }
 
+void Core::SetupClient(
+    std::vector<std::string> &tokens,
+    std::map<std::string, std::vector<fileid_t> > &fileids,
+    std::vector<SetupPair> &Loutput
+) {
+    if (this->version == Basic) {
+        this->SetupClientBasic(tokens, fileids, Loutput);
+    } else if (this->version == Packed) {
+        this->SetupClientPacked(tokens, fileids, Loutput);
+    } else {
+        fprintf(stderr, "error: unknown version %d\n", this->version);
+        exit(1);
+    }
+}
+
 // Setup creates an initial index from a list of tokens and a map of
 // file id => token list
-void Core::SetupClient(
+void Core::SetupClientPacked(
     std::vector<std::string> &tokens,
     std::map<std::string, std::vector<fileid_t> > &fileids,
     std::vector<SetupPair> &Loutput
@@ -288,6 +303,18 @@ void Core::SetupClient(
 }
 
 void Core::SetupServer(std::vector<SetupPair> &L) {
+    if (this->version == Basic) {
+        this->SetupServerBasic(L);
+    } else if (this->version == Packed) {
+        this->SetupServerPacked(L);
+    } else {
+        fprintf(stderr, "error: unknown version %d\n", this->version);
+        exit(1);
+    }
+}
+
+
+void Core::SetupServerPacked(std::vector<SetupPair> &L) {
     this->D.clear();
     this->Dplus.clear(); // page 17
 
@@ -299,6 +326,21 @@ void Core::SetupServer(std::vector<SetupPair> &L) {
 }
 
 void Core::SearchClient(std::string w,
+    key_t K1, key_t K2,
+    key_t K1plus, key_t K2plus,
+    key_t K1minus
+) {
+    if (this->version == Basic) {
+        this->SearchClientBasic(w, K1, K2, K1plus, K2plus, K1minus);
+    } else if (this->version == Packed) {
+        this->SearchClientPacked(w, K1, K2, K1plus, K2plus, K1minus);
+    } else {
+        fprintf(stderr, "error: unknown version %d\n", this->version);
+        exit(1);
+    }
+}
+
+void Core::SearchClientPacked(std::string w,
     key_t K1, key_t K2,
     key_t K1plus, key_t K2plus,
     key_t K1minus
@@ -317,8 +359,20 @@ void Core::SearchClient(std::string w,
     mac_key(this->kminus, '1', w.c_str(), K1minus);
 }
 
+
+std::vector<uint64_t> Core::SearchServer(key_t K1, key_t K2, key_t K1plus, key_t K2plus, key_t K1minus) {
+    if (this->version == Basic) {
+        return this->SearchServerBasic(K1, K2, K1plus, K2plus, K1minus);
+    } else if (this->version == Packed) {
+        return this->SearchServerPacked(K1, K2, K1plus, K2plus, K1minus);
+    } else {
+        fprintf(stderr, "error: unknown version %d\n", this->version);
+        exit(1);
+    }
+}
+
 // SearchServer performs the server side of searching the index for a given keyword.
-std::vector<uint64_t> Core::SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1plus[], uint8_t K2plus[], uint8_t K1minus[]) {
+std::vector<uint64_t> Core::SearchServerPacked(key_t K1, key_t K2, key_t K1plus, key_t K2plus, key_t K1minus) {
     uint64_t c = 0;
     std::vector<uint64_t> ids;
 
