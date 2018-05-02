@@ -8,11 +8,13 @@
 
 namespace DSSE {
 
+const int B = 5; // number of ids in a packed block
+
 // XXX we assume that KEYLEN and DIGESTLEN are equal
 const int DIGESTLEN = 256/8;
 
 // size of encrypted file id
-const int ENCRYPTLEN = sizeof(fileid_t) + 16; // 16 bytes for the IV
+const int ENCRYPTLEN = sizeof(fileid_t)*B + 16; // 16 bytes for the IV
 
 Core::Core() {
     this->key = new uint8_t[KEYLEN];
@@ -237,7 +239,7 @@ void Core::SetupClient(
         mac_key(this->key, '2', w.c_str(), K2);
         auto& fids = fileids.at(w);
         //print_bytes(stdout, "K1", K1, KEYLEN);
-        for (size_t c = 0; c < fids.size(); c++) {
+        for (size_t c = 0; c < ((fids.size()+(B-1))/B); c++) {
             uint8_t counter_bytes[8];
             counter_bytes[0] = c&0xff;
             counter_bytes[1] = (c>>8)&0xff;
@@ -248,20 +250,27 @@ void Core::SetupClient(
             counter_bytes[6] = (c>>48)&0xff;
             counter_bytes[7] = (c>>56)&0xff;
 
-            uint8_t fileid_bytes[8];
-            fileid_t fid = fids.at(c);
-            fileid_bytes[0] = fid&0xff;
-            fileid_bytes[1] = (fid>>8)&0xff;
-            fileid_bytes[2] = (fid>>16)&0xff;
-            fileid_bytes[3] = (fid>>24)&0xff;
-            fileid_bytes[4] = (fid>>32)&0xff;
-            fileid_bytes[5] = (fid>>40)&0xff;
-            fileid_bytes[6] = (fid>>48)&0xff;
-            fileid_bytes[7] = (fid>>56)&0xff;
+            // We want to make this contain up to 5 different file ids  
+            uint8_t fileid_bytes[B*sizeof(fileid_t)];
+            for(size_t fidc = 0; fidc < B; fidc++ ){
+                size_t offset = fidc * 8; 
+                if(c*B+fidc < fids.size()){
+                    fileid_t fid = fids.at(c*B+fidc);
+                    fileid_bytes[0 + offset] = fid&0xff;
+                    fileid_bytes[1 + offset] = (fid>>8)&0xff;
+                    fileid_bytes[2 + offset] = (fid>>16)&0xff;
+                    fileid_bytes[3 + offset] = (fid>>24)&0xff;
+                    fileid_bytes[4 + offset] = (fid>>32)&0xff;
+                    fileid_bytes[5 + offset] = (fid>>40)&0xff;
+                    fileid_bytes[6 + offset] = (fid>>48)&0xff;
+                    fileid_bytes[7 + offset] = (fid>>56)&0xff;
+                }
+                else { memset(fileid_bytes+offset, 0xff, 8); }
+            }
 
             token_pair p = {0};
             mac_counter(K1, counter_bytes, sizeof counter_bytes / 1, p.l);
-            encrypt_bytes(K2, fileid_bytes, sizeof fileid_bytes / 1, p.d);
+            encrypt_bytes(K2, fileid_bytes, sizeof fileid_bytes, p.d);
 
             L.push_back( p );
         }
@@ -325,18 +334,43 @@ std::vector<uint64_t> Core::SearchServer(uint8_t K1[], uint8_t K2[], uint8_t K1p
         } catch (std::out_of_range& e) {
             break;
         }
-        uint64_t id;
-        decrypt_long(K2, reinterpret_cast<const uint8_t*>(d.data()), id);
+        uint8_t retid[B*sizeof(fileid_t)];
+        decrypt_bytes(K2, reinterpret_cast<const uint8_t*>(d.data()),d.size(), retid);
 
-        // page 20
-        // check if id is on the revocation list
-        mac_long(K1minus, id, reinterpret_cast<uint8_t*>(&revid[0]));
-        if (this->Srev.count(revid) > 0) {
-            continue;
-        }
-
-        ids.push_back(id);
+        //Unpack retid
+        uint8_t checkid[8];
+        for(int i=0; i<B; i++){
+            // Gets fid out of retid
+            checkid[0] = retid[0 + (i*8)];
+            checkid[1] = retid[1 + (i*8)];
+            checkid[2] = retid[2 + (i*8)];
+            checkid[3] = retid[3 + (i*8)];
+            checkid[4] = retid[4 + (i*8)];
+            checkid[5] = retid[5 + (i*8)];
+            checkid[6] = retid[6 + (i*8)];
+            checkid[7] = retid[7 + (i*8)];
+            // Converts checkid to int
+            uint64_t retval = ((((uint64_t)checkid[0])<<0)
+                    |(((uint64_t)checkid[1])<<8)
+                    |(((uint64_t)checkid[2])<<16)
+                    |(((uint64_t)checkid[3])<<24)
+                    |(((uint64_t)checkid[4])<<32)
+                    |(((uint64_t)checkid[5])<<40)
+                    |(((uint64_t)checkid[6])<<48)
+                    |(((uint64_t)checkid[7])<<56));
+            // check that retval is valid
+            if (retval < 0xffffffffffffffff){
+                // page 20
+                // check if id is on the revocation list
+                mac_long(K1minus, retval, reinterpret_cast<uint8_t*>(&revid[0]));
+                if (this->Srev.count(revid) > 0) {
+                    continue;
+                }
+                 ids.push_back(retval);
+            }
+        }    
     }
+
 
     // page 18
     for (c = 0;; c++) {
