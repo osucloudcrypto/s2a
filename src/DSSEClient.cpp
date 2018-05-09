@@ -25,14 +25,14 @@ bool Client::Connect(std::string hostname, int port)
 
 bool Client::Setup(std::vector<std::string> &tokens, std::map<std::string, std::vector<fileid_t>> &fileids) {
 	std::vector<SetupPair> L;		//will map keyword to PTRblocks
-	std::std::vector<SetupPtr> M;	//will map pointers to FIDblocks
+	std::vector<SetupPtr> M;	//will map pointers to FIDblocks
 	this->core.SetupClient(tokens, fileids, L, M);
 	msg::Request req;
 	msg::Setup *msg = req.mutable_setup();
 	for (auto &p : L) {
 		msg::Setup_TokenPair *q = msg->add_l();
 		q->set_counter(p.Token);
-		q->set_fileid(p.FileID);
+		q->set_fileid(p.PtrBlock);
 	}
 
 	if (!send_message(this->sock, req)) {

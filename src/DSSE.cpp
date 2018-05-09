@@ -171,7 +171,7 @@ void decrypt_long(uint8_t key[], const uint8_t ctext[], uint64_t &out) {
 struct token_pair {
     std::string *w; // token
     uint8_t l[DIGESTLEN]; // hashed token
-    uint8_t d[ENCRYPTLEN]; // encrypted fileid
+    uint8_t d[ENCRYPTLEN]; // encrypted pointer block
     uint8_t r[DIGESTLEN]; // revocation token
 };
 
@@ -261,29 +261,53 @@ void Core::SetupClient(
             counter_bytes[6] = (c>>48)&0xff;
             counter_bytes[7] = (c>>56)&0xff;
 
-            // We want to make this contain up to 5 different file ids (edit: changed to be any set size)  
-            uint8_t fileid_bytes[B*sizeof(fileid_t)];
-            for(size_t fidc = 0; fidc < B; fidc++ ){
-                size_t offset = fidc * 8; 
-                if(c*B+fidc < fids.size()){
-                    fileid_t fid = fids.at(c*B+fidc);
-                    fileid_bytes[0 + offset] = fid&0xff;
-                    fileid_bytes[1 + offset] = (fid>>8)&0xff;
-                    fileid_bytes[2 + offset] = (fid>>16)&0xff;
-                    fileid_bytes[3 + offset] = (fid>>24)&0xff;
-                    fileid_bytes[4 + offset] = (fid>>32)&0xff;
-                    fileid_bytes[5 + offset] = (fid>>40)&0xff;
-                    fileid_bytes[6 + offset] = (fid>>48)&0xff;
-                    fileid_bytes[7 + offset] = (fid>>56)&0xff;
+            //Create pointer block 
+            uint8_t ptr_bytes[B*sizeof(uint8_t)];
+            uint64_t pid = 0;
+            for(size_t ptrc = 0; ptrc < P; ptrc++ ){
+                size_t ptr_offset = ptrc * 8;
+                if(1){  //Need to fix
+                    ptr_bytes[0 + ptr_offset] = pid&0xff;
+                    ptr_bytes[1 + ptr_offset] = (pid>>8)&0xff;
+                    ptr_bytes[2 + ptr_offset] = (pid>>16)&0xff;
+                    ptr_bytes[3 + ptr_offset] = (pid>>24)&0xff;
+                    ptr_bytes[4 + ptr_offset] = (pid>>32)&0xff;
+                    ptr_bytes[5 + ptr_offset] = (pid>>40)&0xff;
+                    ptr_bytes[6 + ptr_offset] = (pid>>48)&0xff;
+                    ptr_bytes[7 + ptr_offset] = (pid>>56)&0xff;
+                    pid++;
                 }
-                else { memset(fileid_bytes+offset, 0xff, 8); }
+                else { memset(ptr_bytes+ptr_offset, 0xff, 8); }
+            
+
+
+                // We want to make this contain up to 5 different file ids (edit: changed to be any set size)  
+                uint8_t fileid_bytes[B*sizeof(fileid_t)];
+                for(size_t fidc = 0; fidc < B; fidc++ ){
+                    size_t offset = fidc * 8;
+                    if(c*B+fidc < fids.size()){
+                        fileid_t fid = fids.at(c*B+fidc);
+                        fileid_bytes[0 + offset] = fid&0xff;
+                        fileid_bytes[1 + offset] = (fid>>8)&0xff;
+                        fileid_bytes[2 + offset] = (fid>>16)&0xff;
+                        fileid_bytes[3 + offset] = (fid>>24)&0xff;
+                        fileid_bytes[4 + offset] = (fid>>32)&0xff;
+                        fileid_bytes[5 + offset] = (fid>>40)&0xff;
+                        fileid_bytes[6 + offset] = (fid>>48)&0xff;
+                        fileid_bytes[7 + offset] = (fid>>56)&0xff;
+                    }
+                    else { memset(fileid_bytes+offset, 0xff, 8); }
+                }
+
+                token_pair p = {0};
+                ptr_pair q = {0};
+                mac_counter(K1, counter_bytes, sizeof counter_bytes / 1, p.l);
+                encrypt_bytes(K2, ptr_bytes, sizeof ptr_bytes, p.d);
+                encrypt_bytes(K2, fileid_bytes, sizeof fileid_bytes, q.enc_block);
+                q.index = pid;
+                M.push_back( q );
+                L.push_back( p );
             }
-
-            token_pair p = {0};
-            mac_counter(K1, counter_bytes, sizeof counter_bytes / 1, p.l);
-            encrypt_bytes(K2, fileid_bytes, sizeof fileid_bytes, p.d);
-
-            L.push_back( p );
         }
     }
 
@@ -298,12 +322,12 @@ void Core::SetupClient(
     }
 }
 
-void Core::SetupServer(std::vector<SetupPair> &L) {
+void Core::SetupServer(std::vector<SetupPair> &L, std::vector<SetupPtr> &M) {
     this->D.clear();
     this->Dplus.clear(); // page 17
 
     for (SetupPair& p : L) {
-        this->D[p.Token] = p.FileID;
+        this->D[p.Token] = p.PtrBlock;
         //print_bytes(stdout, "key", p.Token);
         //print_bytes(stdout, "value", p.FileID);
     }

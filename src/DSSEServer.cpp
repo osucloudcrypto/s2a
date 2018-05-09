@@ -33,7 +33,7 @@ void Server::HandleSetup(const msg::Setup &setup) {
 	for (auto &p : setup.l()) {
 		L.push_back(SetupPair{p.counter(), p.fileid()});
 	}
-	this->core.SetupServer(L);
+	this->core.SetupServer(L,M);
 	// send back and empty reply
 	// TODO: send back an "OK" message?
 	zmq::message_t response(0);
