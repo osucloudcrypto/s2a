@@ -13,7 +13,7 @@ void handle(Server* server, zmq::message_t&);
 void Server::HandleMessage(const msg::Request* req) {
 	if (req->has_setup()) {
 		std::cout << "Got a setup request\n";
-		this->HandleSetup(req->setup());
+		this->HandleSetup(*req);
 	} else if (req->has_search()) {
 		std::cout << "Got a search request\n";
 		this->HandleSearch(req->search());
@@ -28,12 +28,14 @@ void Server::HandleMessage(const msg::Request* req) {
 	}
 }
 
-void Server::HandleSetup(const msg::Setup &setup) {
+void Server::HandleSetup(const msg::Request &req) {
+	const msg::Setup &setup = req.setup();
 	std::vector<SetupPair> L;
 	for (auto &p : setup.l()) {
 		L.push_back(SetupPair{p.counter(), p.fileid()});
 	}
-	this->core.SetupServer(L);
+	int version = req.version();
+	this->core.SetupServer(version, L);
 	// send back and empty reply
 	// TODO: send back an "OK" message?
 	zmq::message_t response(0);

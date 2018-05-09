@@ -71,14 +71,14 @@ int main(int argc, char* argv[]) {
 			fidmap["is"].push_back(1);
 			fidmap["a"].push_back(1);
 			fidmap["test"].push_back(1);
-			client.Setup(all_tokens, fidmap);
+			client.Setup(DSSE::Basic, all_tokens, fidmap);
 		} else {
 			std::vector<std::string> filenames;
 			for (int i = 0; i < cmdargc; i++) {
 				std::string filename = cmdargv[i];
 				filenames.push_back(filename);
 			}
-			client.SetupFiles(filenames);
+			client.SetupFiles(DSSE::Basic, filenames);
 		}
 
 		std::cerr << "setup finished\n";
@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
 		while (getline(manifest, filename)) {
 			filenames.push_back(filename);
 		}
-		client.SetupFiles(filenames);
+		client.SetupFiles(DSSE::Basic, filenames);
 		std::cerr << "setup finished; added " << filenames.size() << " files\n";
 	} else {
 		if (client.Load("client-state")) {

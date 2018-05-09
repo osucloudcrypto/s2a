@@ -17,6 +17,7 @@ const int DIGESTLEN = 256/8;
 const int ENCRYPTLEN = sizeof(fileid_t)*B + 16; // 16 bytes for the IV
 
 Core::Core() {
+    this->version = Basic;
     this->key = new uint8_t[KEYLEN];
     this->kplus = new uint8_t[KEYLEN];
     this->kminus = new uint8_t[KEYLEN];
@@ -217,22 +218,84 @@ void print_bytes(FILE* fp, const char *title, std::string s) {
 }
 
 void Core::SetupClient(
+    int version,
     std::vector<std::string> &tokens,
     std::map<std::string, std::vector<fileid_t> > &fileids,
     std::vector<SetupPair> &Loutput
 ) {
-    if (this->version == Basic) {
+    if (version == Basic) {
         this->SetupClientBasic(tokens, fileids, Loutput);
-    } else if (this->version == Packed) {
+    } else if (version == Packed) {
         this->SetupClientPacked(tokens, fileids, Loutput);
     } else {
-        fprintf(stderr, "error: unknown version %d\n", this->version);
+        fprintf(stderr, "error: unknown version %d\n", version);
         exit(1);
+    }
+    this->version = version;
+}
+
+void Core::SetupClientBasic(
+    std::vector<std::string> &tokens,
+    std::map<std::string, std::vector<fileid_t> > &fileids,
+    std::vector<SetupPair> &Loutput
+) {
+    // XXX should setup take an entropy source?
+
+    // initialize client state
+    random_key(this->key); // Figure 5 (page 8)
+    random_key(this->kplus); // page 17
+    random_key(this->kminus); // page 19
+
+    // Figure 5 (page 8)
+    auto L = std::vector<token_pair>();
+
+    for (auto& w : tokens) {
+        uint8_t K1[DIGESTLEN], K2[DIGESTLEN];
+        mac_key(this->key, '1', w.c_str(), K1);
+        mac_key(this->key, '2', w.c_str(), K2);
+        auto& fids = fileids.at(w);
+        //print_bytes(stdout, "K1", K1, KEYLEN);
+        for (size_t c = 0; c < fids.size(); c++) {
+            uint8_t counter_bytes[8];
+            counter_bytes[0] = c&0xff;
+            counter_bytes[1] = (c>>8)&0xff;
+            counter_bytes[2] = (c>>16)&0xff;
+            counter_bytes[3] = (c>>24)&0xff;
+            counter_bytes[4] = (c>>32)&0xff;
+            counter_bytes[5] = (c>>40)&0xff;
+            counter_bytes[6] = (c>>48)&0xff;
+            counter_bytes[7] = (c>>56)&0xff;
+
+            uint8_t fileid_bytes[8];
+            fileid_t fid = fids.at(c);
+            fileid_bytes[0] = fid&0xff;
+            fileid_bytes[1] = (fid>>8)&0xff;
+            fileid_bytes[2] = (fid>>16)&0xff;
+            fileid_bytes[3] = (fid>>24)&0xff;
+            fileid_bytes[4] = (fid>>32)&0xff;
+            fileid_bytes[5] = (fid>>40)&0xff;
+            fileid_bytes[6] = (fid>>48)&0xff;
+            fileid_bytes[7] = (fid>>56)&0xff;
+
+            token_pair p = {0};
+            mac_counter(K1, counter_bytes, sizeof counter_bytes / 1, p.l);
+            encrypt_bytes(K2, fileid_bytes, sizeof fileid_bytes / 1, p.d);
+
+            L.push_back( p );
+        }
+    }
+
+    std::sort(L.begin(), L.end(), compare_token_pair);
+
+    // hand L off to the server
+    for (token_pair &p : L) {
+        Loutput.push_back(SetupPair{
+            std::string((char*)p.l, sizeof p.l),
+            std::string((char*)p.d, ENCRYPTEDLEN)
+        });
     }
 }
 
-// Setup creates an initial index from a list of tokens and a map of
-// file id => token list
 void Core::SetupClientPacked(
     std::vector<std::string> &tokens,
     std::map<std::string, std::vector<fileid_t> > &fileids,
@@ -302,17 +365,28 @@ void Core::SetupClientPacked(
     }
 }
 
-void Core::SetupServer(std::vector<SetupPair> &L) {
-    if (this->version == Basic) {
+void Core::SetupServer(int version, std::vector<SetupPair> &L) {
+    if (version == Basic) {
         this->SetupServerBasic(L);
-    } else if (this->version == Packed) {
+    } else if (version == Packed) {
         this->SetupServerPacked(L);
     } else {
-        fprintf(stderr, "error: unknown version %d\n", this->version);
+        fprintf(stderr, "error: unknown version %d\n", version);
         exit(1);
     }
+    this->version = version;
 }
 
+void Core::SetupServerBasic(std::vector<SetupPair> &L) {
+    this->D.clear();
+    this->Dplus.clear(); // page 17
+
+    for (SetupPair& p : L) {
+        this->D[p.Token] = p.FileID;
+        //print_bytes(stdout, "key", p.Token);
+        //print_bytes(stdout, "value", p.FileID);
+    }
+}
 
 void Core::SetupServerPacked(std::vector<SetupPair> &L) {
     this->D.clear();
@@ -330,22 +404,6 @@ void Core::SearchClient(std::string w,
     key_t K1plus, key_t K2plus,
     key_t K1minus
 ) {
-    if (this->version == Basic) {
-        this->SearchClientBasic(w, K1, K2, K1plus, K2plus, K1minus);
-    } else if (this->version == Packed) {
-        this->SearchClientPacked(w, K1, K2, K1plus, K2plus, K1minus);
-    } else {
-        fprintf(stderr, "error: unknown version %d\n", this->version);
-        exit(1);
-    }
-}
-
-void Core::SearchClientPacked(std::string w,
-    key_t K1, key_t K2,
-    key_t K1plus, key_t K2plus,
-    key_t K1minus
-) {
-
     // page  8
     mac_key(this->key, '1', w.c_str(), K1);
     mac_key(this->key, '2', w.c_str(), K2);
@@ -359,7 +417,6 @@ void Core::SearchClientPacked(std::string w,
     mac_key(this->kminus, '1', w.c_str(), K1minus);
 }
 
-
 std::vector<uint64_t> Core::SearchServer(key_t K1, key_t K2, key_t K1plus, key_t K2plus, key_t K1minus) {
     if (this->version == Basic) {
         return this->SearchServerBasic(K1, K2, K1plus, K2plus, K1minus);
@@ -370,6 +427,62 @@ std::vector<uint64_t> Core::SearchServer(key_t K1, key_t K2, key_t K1plus, key_t
         exit(1);
     }
 }
+
+
+std::vector<uint64_t> Core::SearchServerBasic(key_t K1, key_t K2, key_t K1plus, key_t K2plus, key_t K1minus) {
+    uint64_t c = 0;
+    std::vector<uint64_t> ids;
+
+    std::string revid(KEYLEN, '\0');
+    //print_bytes(stdout, "K1", K1, KEYLEN);
+    for (c = 0;; c++) {
+        uint8_t l[DIGESTLEN];
+        std::string d;
+        mac_long(K1, c, l);
+        //print_bytes(stdout, "key", l, sizeof l);
+        try {
+            d = this->D.at(std::string(reinterpret_cast<char*>(l), sizeof l / 1));
+        } catch (std::out_of_range& e) {
+            break;
+        }
+        uint64_t id;
+        decrypt_long(K2, reinterpret_cast<const uint8_t*>(d.data()), id);
+
+        // page 20
+        // check if id is on the revocation list
+        mac_long(K1minus, id, reinterpret_cast<uint8_t*>(&revid[0]));
+        if (this->Srev.count(revid) > 0) {
+            continue;
+        }
+
+        ids.push_back(id);
+    }
+
+    // page 18
+    for (c = 0;; c++) {
+        uint8_t l[DIGESTLEN];
+        std::string d;
+        mac_long(K1plus, c, l);
+        try {
+            d = this->Dplus.at(std::string(reinterpret_cast<char*>(l), sizeof l / 1));
+        } catch (std::out_of_range& e) {
+            break;
+        }
+        uint64_t id = 0;
+        decrypt_long(K2plus, reinterpret_cast<const uint8_t*>(d.data()), id);
+
+        // page 20
+        // check if id is on the revocation list
+        mac_long(K1minus, id, reinterpret_cast<uint8_t*>(&revid[0]));
+        if (this->Srev.count(revid) > 0) {
+            continue;
+        }
+
+        ids.push_back(id);
+    }
+    return ids;
+}
+
 
 // SearchServer performs the server side of searching the index for a given keyword.
 std::vector<uint64_t> Core::SearchServerPacked(key_t K1, key_t K2, key_t K1plus, key_t K2plus, key_t K1minus) {

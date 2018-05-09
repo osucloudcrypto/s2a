@@ -312,6 +312,36 @@ bool readFileid(std::string filename, fileid_t &fileid) {
 	return true;
 }
 
+bool writeInt(std::string filename, int value) {
+	std::ofstream out;
+	out.open(filename, std::ios::out | std::ios::binary);
+	if (!out) {
+		perror("open");
+		return false;
+	}
+	out << value;
+	if (!out) {
+		perror("write");
+		return false;
+	}
+	return true;
+}
+
+bool readInt(std::string filename, int &value) {
+	std::ifstream in;
+	in.open(filename);
+	if (!in) {
+		perror("open");
+		return false;
+	}
+	in >> value;
+	if (!in) {
+		perror("read");
+		return false;
+	}
+	return true;
+}
+
 bool SaveClientToStorage(DSSE::Core &core, std::string base) {
 	if (mkdir(base.c_str(), 0777) < 0) {
 		if (errno != EEXIST) {
@@ -320,6 +350,7 @@ bool SaveClientToStorage(DSSE::Core &core, std::string base) {
 		}
 	}
 
+	if (!writeInt(base+"/version", core.version)) { return false; }
 	if (!writeBytes(base+"/key", core.key, KEYLEN)) { std::cerr<<"uhoh\n"; return false; }
 	if (!writeBytes(base+"/kplus", core.kplus, KEYLEN)) { return false; }
 	if (!writeBytes(base+"/kminus", core.kminus, KEYLEN)) { return false; }
@@ -335,6 +366,8 @@ bool SaveServerToStorage(DSSE::Core &core, std::string base) {
 		}
 	}
 
+	if (!writeInt(base+"/version", core.version)) { return false; }
+	// TODO: only save D after Setup
 	if (!writeMap(base+"/D", core.D)) { return false; }
 	if (!writeMap(base+"/Dplus", core.Dplus)) { return false; }
 	if (!writeRevlist(base+"/Srev", core.Srev)) { return false; }
@@ -342,6 +375,7 @@ bool SaveServerToStorage(DSSE::Core &core, std::string base) {
 }
 
 bool LoadClientFromStorage(DSSE::Core &core, std::string base) {
+	if (!readInt(base+"/version", core.version)) { return false; }
 	if (!readBytes(base+"/key", core.key, KEYLEN)) { return false; }
 	if (!readBytes(base+"/kplus", core.kplus, KEYLEN)) { return false; }
 	if (!readBytes(base+"/kminus", core.kminus, KEYLEN)) { return false; }
@@ -350,6 +384,7 @@ bool LoadClientFromStorage(DSSE::Core &core, std::string base) {
 }
 
 bool LoadServerFromStorage(DSSE::Core &core, std::string base) {
+	if (!readInt(base+"/version", core.version)) { return false; }
 	if (!readMap(base+"/D", core.D)) { return false; }
 	if (!readMap(base+"/Dplus", core.Dplus)) { return false; }
 	if (!readRevlist(base+"/Srev", core.Srev)) { return false; }
