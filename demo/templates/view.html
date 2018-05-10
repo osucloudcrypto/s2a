@@ -3,7 +3,13 @@
 <title>{{ path }} - DSSE demo</title>
 {% include "header.html" %}
 
-<p>Contents of {{ path }}:</p>
+<p>Contents of <tt>{{ path }}</tt>:</p>
 
-<pre>{{ contents }}</pre>
+<pre>{% for chunk in chunks -%}
+  {%- if chunk == highlight -%}
+    <span>{{chunk}}</span>
+  {%- else -%}
+    {{ chunk }}
+  {%- endif -%}
+{%- endfor %}</pre>
 

@@ -8,6 +8,7 @@ import werkzeug.security
 
 import subprocess
 import os
+import re
 
 
 app = flask.Flask('dsse_demo')
@@ -34,17 +35,27 @@ def search():
         print(e.output)
         raise e
     results = [strip_prefix(x, DB_PATH) for x in results]
-    return flask.render_template("search.html", results=results)
+    return flask.render_template("search.html", results=results, query=query)
 
 @app.route("/view/<path:path>")
 def view(path):
-    return view_file(path)
+    highlight = flask.request.args.get("highlight", None)
+    return view_file(path, highlight)
 
-def view_file(webpath):
+def view_file(webpath, highlight=None):
     path = werkzeug.security.safe_join(DB_PATH, webpath.strip('/'))
     with open(path) as f:
         contents = f.read()
-    return flask.render_template("view.html", path=webpath, contents=contents)
+
+    if highlight:
+        chunks = split_word(contents, highlight)
+    else:
+        chunks = [contents]
+    return flask.render_template("view.html", path=webpath, contents=contents, chunks=chunks, highlight=highlight)
+
+def split_word(s, word):
+    chunks = re.split("("+re.escape(word)+")", s)
+    return chunks
 
 @app.route
 def update(query):
