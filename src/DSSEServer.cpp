@@ -8,17 +8,16 @@
 namespace DSSE {
 
 template <class T> bool send_message(zmq::socket_t& sock, T &msg);
-void handle(Server* server, zmq::message_t&);
 
 void Server::HandleMessage(const msg::Request* req) {
 	if (req->has_setup()) {
 		std::cout << "Got a setup request\n";
-		this->HandleSetup(req->setup());
+		this->HandleSetup(*req);
 	} else if (req->has_search()) {
 		std::cout << "Got a search request\n";
 		this->HandleSearch(req->search());
 	} else if (req->has_add()) {
-		std::cout << "Got an add request\n";
+		//std::cout << "Got an add request\n";
 		this->HandleAdd(req->add());
 	} else if (req->has_delete_()) {
 		std::cout << "Got a delete request\n";
@@ -28,12 +27,14 @@ void Server::HandleMessage(const msg::Request* req) {
 	}
 }
 
-void Server::HandleSetup(const msg::Setup &setup) {
+void Server::HandleSetup(const msg::Request &req) {
+	const msg::Setup &setup = req.setup();
 	std::vector<SetupPair> L;
 	for (auto &p : setup.l()) {
 		L.push_back(SetupPair{p.counter(), p.fileid()});
 	}
-	this->core.SetupServer(L);
+	int version = req.version();
+	this->core.SetupServer(version, L);
 	// send back and empty reply
 	// TODO: send back an "OK" message?
 	zmq::message_t response(0);
@@ -136,28 +137,28 @@ void Server::ListenAndServe(std::string hostname, int port) {
 		zmq::message_t zmsg;
 		if (this->sock.recv(&zmsg)) {
 			// TODO: handle in a separate thread?
-			handle(this, zmsg);
+
+			// TODO: eliminate this copy somehow?
+			std::string str((char*)zmsg.data(), zmsg.size());
+
+			msg::Request req;
+			if (!req.ParseFromString(str)) {
+				// FIXME: we have to send back an response
+				fprintf(stderr, "SERVER: error parsing message\n");
+				continue;
+			}
+
+			this->HandleMessage(&req);
 
 			// save state after every request
+			// except search requests (because they don't modify any data)
 			if (!this->saveDir.empty()) {
-				SaveServerToStorage(this->core, this->saveDir);
+				if (!req.has_search()) {
+					SaveServerToStorage(this->core, this->saveDir);
+				}
 			}
 		}
 	}
-}
-
-void handle(Server* server, zmq::message_t &zmsg) {
-	// TODO: eliminate this copy somehow?
-	std::string str((char*)zmsg.data(), zmsg.size());
-
-	msg::Request req;
-	if (!req.ParseFromString(str)) {
-		// FIXME: we have to send back an response
-		fprintf(stderr, "SERVER: error parsing message\n");
-		return;
-	}
-
-	server->HandleMessage(&req);
 }
 
 template <class T> bool send_message(zmq::socket_t& sock, T &msg) {

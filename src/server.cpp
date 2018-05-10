@@ -18,6 +18,10 @@ int main(int argc, char* argv[]) {
 		port = atoi(argv[1]);
 	}
 
+	if (argc > 2) {
+		saveDir = argv[2];
+	}
+
 	DSSE::Server server;
 	server.SetSaveDir(saveDir);
 	if (!server.Load()) {

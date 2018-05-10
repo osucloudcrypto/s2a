@@ -33,7 +33,7 @@ bool Client::Connect(std::string hostname, int port)
 	return true;
 }
 
-bool Client::SetupFiles(std::vector<std::string> &filenames) {
+bool Client::SetupFiles(int version, std::vector<std::string> &filenames) {
 	std::map<filename_t, fileid_t> filenameToFileid;
 	std::map<fileid_t, filename_t> fileidToFilename;
 	std::map<std::string, std::vector<fileid_t>> fileids;
@@ -64,7 +64,7 @@ bool Client::SetupFiles(std::vector<std::string> &filenames) {
 		}
 	}
 
-	if (!this->Setup(all_tokens, fileids)) {
+	if (!this->Setup(version, all_tokens, fileids)) {
 		return false;
 	}
 
@@ -94,11 +94,14 @@ bool Client::AddFileByName(std::string filename) {
 	return true;
 }
 
-bool Client::Setup(std::vector<std::string> &tokens, std::map<std::string, std::vector<fileid_t>> &fileids) {
+bool Client::Setup(int version, std::vector<std::string> &tokens, std::map<std::string, std::vector<fileid_t>> &fileids) {
 	std::vector<SetupPair> L;
-	this->core.SetupClient(tokens, fileids, L);
+	this->core.SetupClient(version, tokens, fileids, L);
 
 	msg::Request req;
+	// TODO: send version on every request, not just Setup
+	req.set_version(static_cast<msg::Version>(version));
+
 	msg::Setup *msg = req.mutable_setup();
 	for (auto &p : L) {
 		msg::Setup_TokenPair *q = msg->add_l();
