@@ -8,6 +8,7 @@
 
 #include <zmq.hpp>
 
+//im on piPack
 
 namespace DSSE {
 
@@ -33,6 +34,13 @@ struct AddPair {
 	std::string Token;
 	std::string FileID;
 	std::string RevID; // revocation id for token
+};
+
+enum Version {
+	Basic = 0,
+	Packed = 1,
+	Pointer = 2,
+	TwoLevelPointer = 3,
 };
 
 /**
@@ -70,6 +78,7 @@ public:
 	// Setup creates an initial index from a list of tokens and a map of
 	// file id => token list
 	void SetupClient(
+		int version,
 		std::vector<std::string> &tokens,
 		std::map<std::string, std::vector<fileid_t> > &fileids,
 		// Output
@@ -77,6 +86,7 @@ public:
 	);
 
 	void SetupServer(
+		int version,
 		std::vector<SetupPair> &L
 	);
 
@@ -130,6 +140,28 @@ public:
 	void DeleteServer(std::vector<std::string> L);
 
 private:
+	// Private Setup & Search methods for each variant
+	void SetupClientBasic(
+		std::vector<std::string> &tokens,
+		std::map<std::string, std::vector<fileid_t> > &fileids,
+		std::vector<SetupPair> &L
+	);
+	void SetupServerBasic(std::vector<SetupPair> &L);
+	std::vector<fileid_t> SearchServerBasic(uint8_t *K1, uint8_t *K2, uint8_t *K1plus, uint8_t *K2plus, uint8_t *K1minus);
+
+	void SetupClientPacked(
+		std::vector<std::string> &tokens,
+		std::map<std::string, std::vector<fileid_t> > &fileids,
+		std::vector<SetupPair> &L
+	);
+	void SetupServerPacked(std::vector<SetupPair> &L);
+	std::vector<fileid_t> SearchServerPacked(uint8_t *K1, uint8_t *K2, uint8_t *K1plus, uint8_t *K2plus, uint8_t *K1minus);
+
+	// Client+server state
+	// This tells the client or server what version of the protocol to use,
+	// and what version the database uses.
+	int version; // enum Version
+
 	// Client state
 	uint8_t* key; // The master key. Only used by the client
 	uint8_t* kplus; // The master key for additions. Only used by the client
@@ -171,13 +203,18 @@ public:
 		return true;
 	}
 
-	bool Setup(std::vector<std::string> &tokens, std::map<std::string, std::vector<fileid_t>> &fileids);
+	bool Setup(int version, std::vector<std::string> &tokens, std::map<std::string, std::vector<fileid_t>> &fileids);
+	// backwards compatibility
+	bool Setup(std::vector<std::string> &tokens, std::map<std::string, std::vector<fileid_t>> &fileids) {
+		return Setup(Basic, tokens, fileids);
+	}
+
 	std::vector<fileid_t> Search(std::string w);
 	bool Add(fileid_t fileid, std::vector<std::string> words);
 	bool Delete(fileid_t fileid, std::vector<std::string> words);
 
 	// Convenience methods
-	bool SetupFiles(std::vector<std::string> &filenames);
+	bool SetupFiles(int version, std::vector<std::string> &filenames);
 	bool AddFileByName(std::string filename);
 	//bool UpdateFile(std::string filename, std::string contents)
 	//bool DeleteFile(std::string filename)
@@ -228,7 +265,7 @@ public:
 	}
 
 private:
-	void HandleSetup(const msg::Setup& setup);
+	void HandleSetup(const msg::Request& req);
 	void HandleSearch(const msg::Search& search);
 	void HandleAdd(const msg::Add &add);
 	void HandleDelete(const msg::Delete &delete_msg);
