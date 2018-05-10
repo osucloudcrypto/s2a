@@ -14,7 +14,9 @@ const int B = 5; // number of ids in a packed block
 const int DIGESTLEN = 256/8;
 
 // size of encrypted file id
-const int ENCRYPTLEN = sizeof(fileid_t)*B + 16; // 16 bytes for the IV
+const int ENCRYPTED_FILEID_SIZE = sizeof(fileid_t) + 16; // 16 bytes for the IV
+const int BLOCK_SIZE = sizeof(fileid_t) * B; // block size in bytes
+const int ENCRYPTED_BLOCK_SIZE = sizeof(fileid_t)*B + 16; // 16 bytes for the IV
 
 Core::Core() {
     this->version = Basic;
@@ -157,7 +159,7 @@ void decrypt_bytes(uint8_t key[], const uint8_t ctext[], size_t ctextlen, uint8_
 
 void decrypt_long(uint8_t key[], const uint8_t ctext[], uint64_t &out) {
     uint8_t outbytes[8];
-    decrypt_bytes(key, ctext, ENCRYPTLEN, outbytes);
+    decrypt_bytes(key, ctext, ENCRYPTED_FILEID_SIZE, outbytes);
     out = ((((uint64_t)outbytes[0])<<0)
           |(((uint64_t)outbytes[1])<<8)
           |(((uint64_t)outbytes[2])<<16)
@@ -171,7 +173,7 @@ void decrypt_long(uint8_t key[], const uint8_t ctext[], uint64_t &out) {
 struct token_pair {
     std::string *w; // token
     uint8_t l[DIGESTLEN]; // hashed token
-    uint8_t d[ENCRYPTLEN]; // encrypted fileid
+    uint8_t d[ENCRYPTED_BLOCK_SIZE]; // encrypted fileid
     uint8_t r[DIGESTLEN]; // revocation token
 };
 
@@ -217,6 +219,8 @@ void print_bytes(FILE* fp, const char *title, std::string s) {
     print_bytes(fp, title, reinterpret_cast<const uint8_t*>(s.data()), s.size());
 }
 
+// Setup creates an initial index from a list of tokens and a map of
+// file id => token list
 void Core::SetupClient(
     int version,
     std::vector<std::string> &tokens,
@@ -291,7 +295,7 @@ void Core::SetupClientBasic(
     for (token_pair &p : L) {
         Loutput.push_back(SetupPair{
             std::string((char*)p.l, sizeof p.l),
-            std::string((char*)p.d, ENCRYPTEDLEN)
+            std::string((char*)p.d, ENCRYPTED_FILEID_SIZE)
         });
     }
 }
@@ -328,10 +332,10 @@ void Core::SetupClientPacked(
             counter_bytes[6] = (c>>48)&0xff;
             counter_bytes[7] = (c>>56)&0xff;
 
-            // We want to make this contain up to 5 different file ids  
-            uint8_t fileid_bytes[B*sizeof(fileid_t)];
+            // We want to make this contain up to 5 different file ids
+            uint8_t fileid_bytes[BLOCK_SIZE];
             for(size_t fidc = 0; fidc < B; fidc++ ){
-                size_t offset = fidc * 8; 
+                size_t offset = fidc * 8;
                 if(c*B+fidc < fids.size()){
                     fileid_t fid = fids.at(c*B+fidc);
                     fileid_bytes[0 + offset] = fid&0xff;
@@ -360,7 +364,7 @@ void Core::SetupClientPacked(
     for (token_pair &p : L) {
         Loutput.push_back(SetupPair{
             std::string((char*)p.l, sizeof p.l),
-            std::string((char*)p.d, sizeof p.d)
+            std::string((char*)p.d, ENCRYPTED_BLOCK_SIZE)
         });
     }
 }
@@ -501,7 +505,7 @@ std::vector<uint64_t> Core::SearchServerPacked(key_t K1, key_t K2, key_t K1plus,
         } catch (std::out_of_range& e) {
             break;
         }
-        uint8_t retid[B*sizeof(fileid_t)];
+        uint8_t retid[BLOCK_SIZE];
         decrypt_bytes(K2, reinterpret_cast<const uint8_t*>(d.data()),d.size(), retid);
 
         //Unpack retid
@@ -535,7 +539,7 @@ std::vector<uint64_t> Core::SearchServerPacked(key_t K1, key_t K2, key_t K1plus,
                 }
                  ids.push_back(retval);
             }
-        }    
+        }
     }
 
 
