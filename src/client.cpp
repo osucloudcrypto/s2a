@@ -29,10 +29,14 @@ int main(int argc, char* argv[]) {
 	// parse command-line arguments
 	int port = DSSE::DefaultPort;
 	int opt;
-	while ((opt = getopt(argc, argv, "p:")) != -1) {
+	int version = DSSE::Basic;
+	while ((opt = getopt(argc, argv, "Pp:")) != -1) {
 		switch (opt) {
 		case 'p':
 			port = atoi(optarg);
+			break;
+		case 'P':
+			version = DSSE::Packed;
 			break;
 		default: /* '?' */
 			usage();
@@ -41,6 +45,10 @@ int main(int argc, char* argv[]) {
 
 	if (argc < 1) {
 		usage();
+	}
+
+	if (version == DSSE::Packed) {
+		std::cerr << "info: using packed storage\n";
 	}
 
 	std::string command = argv[optind];
@@ -71,14 +79,14 @@ int main(int argc, char* argv[]) {
 			fidmap["is"].push_back(1);
 			fidmap["a"].push_back(1);
 			fidmap["test"].push_back(1);
-			client.Setup(DSSE::Basic, all_tokens, fidmap);
+			client.Setup(version, all_tokens, fidmap);
 		} else {
 			std::vector<std::string> filenames;
 			for (int i = 0; i < cmdargc; i++) {
 				std::string filename = cmdargv[i];
 				filenames.push_back(filename);
 			}
-			client.SetupFiles(DSSE::Basic, filenames);
+			client.SetupFiles(version, filenames);
 		}
 
 		std::cerr << "setup finished\n";
@@ -99,7 +107,7 @@ int main(int argc, char* argv[]) {
 		while (getline(manifest, filename)) {
 			filenames.push_back(filename);
 		}
-		client.SetupFiles(DSSE::Basic, filenames);
+		client.SetupFiles(version, filenames);
 		std::cerr << "setup finished; added " << filenames.size() << " files\n";
 	} else {
 		if (client.Load("client-state")) {
