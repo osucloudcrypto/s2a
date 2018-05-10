@@ -367,8 +367,11 @@ bool SaveServerToStorage(DSSE::Core &core, std::string base) {
 	}
 
 	if (!writeInt(base+"/version", core.version)) { return false; }
-	// TODO: only save D after Setup
-	if (!writeMap(base+"/D", core.D)) { return false; }
+	if (core.dirtyD) {
+		// Only write D after a Setup operation
+		if (!writeMap(base+"/D", core.D)) { return false; }
+		core.dirtyD = false;
+	}
 	if (!writeMap(base+"/Dplus", core.Dplus)) { return false; }
 	if (!writeRevlist(base+"/Srev", core.Srev)) { return false; }
 	return true;

@@ -20,6 +20,7 @@ const int ENCRYPTED_BLOCK_SIZE = sizeof(fileid_t)*B + 16; // 16 bytes for the IV
 
 Core::Core() {
     this->version = Basic;
+    this->dirtyD = false;
     this->key = new uint8_t[KEYLEN];
     this->kplus = new uint8_t[KEYLEN];
     this->kminus = new uint8_t[KEYLEN];
@@ -384,6 +385,7 @@ void Core::SetupServer(int version, std::vector<SetupPair> &L) {
 void Core::SetupServerBasic(std::vector<SetupPair> &L) {
     this->D.clear();
     this->Dplus.clear(); // page 17
+    this->dirtyD = true;
 
     for (SetupPair& p : L) {
         this->D[p.Token] = p.FileID;
@@ -395,6 +397,7 @@ void Core::SetupServerBasic(std::vector<SetupPair> &L) {
 void Core::SetupServerPacked(std::vector<SetupPair> &L) {
     this->D.clear();
     this->Dplus.clear(); // page 17
+    this->dirtyD = true;
 
     for (SetupPair& p : L) {
         this->D[p.Token] = p.FileID;

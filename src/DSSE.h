@@ -172,6 +172,7 @@ private:
 	std::map<std::string, std::string> D; // mac'd token id -> encrypted file id
 	std::map<std::string, std::string> Dplus; // mac'd token id -> encrypted file id
 	std::set<std::string> Srev; // set of revoked tokens
+	bool dirtyD; // whether D has changed
 };
 
 // forward-declare message types
