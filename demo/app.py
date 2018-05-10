@@ -4,13 +4,22 @@ from __future__ import unicode_literals
 
 import flask
 from flask import request
+import werkzeug.security
 
 import subprocess
+import os
+
 
 app = flask.Flask('dsse_demo')
 
+DB_PATH = os.path.expanduser("~/IM-DSSE/IM-DSSE/data/DB")
 CLIENT_PATH = "../src/client"
 CLIENT_DIR = "../src"
+
+def strip_prefix(s, prefix):
+    if s.startswith(prefix):
+        s = s[len(prefix):]
+    return s
 
 @app.route("/")
 def index():
@@ -24,7 +33,23 @@ def search():
     except subprocess.CalledProcessError as e:
         print(e.output)
         raise e
+    results = [strip_prefix(x, DB_PATH) for x in results]
     return flask.render_template("search.html", results=results)
+
+@app.route("/view/<path:path>")
+def view(path):
+    return view_file(path)
+
+def view_file(webpath):
+    path = werkzeug.security.safe_join(DB_PATH, webpath.strip('/'))
+    with open(path) as f:
+        contents = f.read()
+    return flask.render_template("view.html", path=webpath, contents=contents)
+
+@app.route
+def update(query):
+    """"""
+
 
 def run_client(query):
     """perform a search for the given query.
@@ -47,5 +72,6 @@ def run_client(query):
             results.append(filename)
     return results
 
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=18090)
