@@ -6,6 +6,7 @@ import flask
 from flask import request
 import werkzeug.security
 
+import errno
 import subprocess
 import os
 import re
@@ -13,7 +14,9 @@ import re
 
 app = flask.Flask('dsse_demo')
 
-DB_PATH = os.path.expanduser("~/IM-DSSE/IM-DSSE/data/DB")
+#DB_PATH = os.path.expanduser("~/IM-DSSE/IM-DSSE/data/DB")
+DB_PATH = os.path.expanduser("~/maildir")
+UPDATE_PATH = "./updates"
 CLIENT_PATH = "../src/client"
 CLIENT_DIR = "../src"
 
@@ -40,27 +43,94 @@ def search():
 @app.route("/view/<path:path>")
 def view(path):
     highlight = flask.request.args.get("highlight", None)
-    return view_file(path, highlight)
+    return view_or_edit_file(path, "view.html", highlight=highlight)
 
-def view_file(webpath, highlight=None):
-    path = werkzeug.security.safe_join(DB_PATH, webpath.strip('/'))
-    with open(path) as f:
-        contents = f.read()
-
-    if highlight:
-        chunks = split_word(contents, highlight)
-    else:
-        chunks = [contents]
-    return flask.render_template("view.html", path=webpath, contents=contents, chunks=chunks, highlight=highlight)
+@app.route("/edit/<path:path>", methods=["GET"])
+def edit_view(path):
+    return view_or_edit_file(path, "edit.html", highlight="")
 
 def split_word(s, word):
     chunks = re.split("("+re.escape(word)+")", s)
     return chunks
 
-@app.route
-def update(query):
-    """"""
+def view_or_edit_file(original_path, template, highlight):
+    webpath = original_path.strip('/')
 
+    # try to look up the file in the update ptah first
+    path = werkzeug.security.safe_join(UPDATE_PATH, webpath)
+    if not os.path.exists(path):
+        # otherwise fall back on the db path
+        path = werkzeug.security.safe_join(DB_PATH, webpath)
+
+    try:
+        with open(path) as f:
+            contents = f.read()
+    except IOError:
+        flask.abort(404)
+
+    if highlight:
+        chunks = split_word(contents, highlight)
+    else:
+        chunks = [contents]
+    return flask.render_template(template, path=original_path, contents=contents, chunks=chunks, highlight=highlight)
+
+@app.route("/update", methods=["POST"])
+def update():
+    webpath = flask.request.form['path']
+    newcontents = flask.request.form['contents']
+
+    oldpath = werkzeug.security.safe_join(DB_PATH, webpath)
+
+    # if file has not been edited
+    # -> need to add all new words and delete all old words
+
+    # if file has been edited before
+    # -> need to add all words which are in the new contents but not in the current contents
+    # -> need to delete all words which are in the new contents but not in the current contents
+
+    newpath = werkzeug.security.safe_join(UPDATE_PATH, webpath)
+    if not os.path.exists(newpath):
+        oldpath = werkzeug.security.safe_join(DB_PATH, webpath)
+    else:
+        oldpath = newpath
+
+    try:
+        with open(oldpath) as f:
+            oldcontents = ""
+    except IOError:
+        oldcontents = ""
+
+    added, deleted = worddifference(oldcontents, newcontents)
+
+    # run client add 42 added...
+    # run client delete 42 deleted...
+
+    try:
+        os.makedirs(os.path.dirname(newpath))
+    except OSError as e:
+        if e.errno == errno.EEXIST:
+            pass
+        else:
+            raise
+
+    with open(newpath, "w") as f:
+        f.write(newcontents)
+
+    return flask.redirect(flask.url_for("view", path=webpath))
+
+def worddifference(a, b):
+    """returns the set of added and delete words to go from string a to string b"""
+
+    a = set(a.split())
+    b = set(b.split())
+
+    added = b - a
+    deleted = a - b
+
+    added = sorted(added)
+    deleted = sorted(deleted)
+
+    return added, deleted
 
 def run_client(query):
     """perform a search for the given query.

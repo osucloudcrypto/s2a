@@ -1,0 +1,13 @@
+<!doctype html>
+
+<title>Editing {{ path }} - DSSE demo</title>
+{% include "header.html" %}
+
+<p>Editing <tt>{{ path }}</tt>:</p>
+
+<form action="{{url_for("update")}}" method="POST">
+    <input type="hidden" name="path" value="{{path}}">
+    <p><textarea name="contents" cols=130 rows=40>{% for chunk in chunks -%}{{ chunk }}{%- endfor %}</textarea></p>
+    <button>💾 Save</button>
+</form>
+
