@@ -102,9 +102,18 @@ def update():
 
     added, deleted = worddifference(oldcontents, newcontents)
 
-    # run client add 42 added...
-    # run client delete 42 deleted...
+    # update the search index
+    fileid = 42
+    try:
+        run_add(fileid, added)
+        run_delete(fileid, deleted)
+        # run client add 42 added...
+        # run client delete 42 deleted...
+    except subprocess.CalledProcessError as e:
+        print(e)
+        return "error"
 
+    # save the updated file
     try:
         os.makedirs(os.path.dirname(newpath))
     except OSError as e:
@@ -115,6 +124,9 @@ def update():
 
     with open(newpath, "w") as f:
         f.write(newcontents)
+
+    # FIXME: it is possible for add or delete to fail, which may leave us in an
+    # inconsistent state
 
     return flask.redirect(flask.url_for("view", path=webpath))
 
@@ -152,6 +164,40 @@ def run_client(query):
             filename = line.split(":", 1)[1].strip()
             results.append(filename)
     return results
+
+def run_fileid(filename):
+    """returns the fileid corresponding to a filename
+    raises subprocess.CalledProcessError on error, or if the filename is not found"""
+
+def run_add(fileid, words):
+    """perform add operation on fileid with a list of words
+    raises subprocess.CalledProcessError on error.
+    """
+    output = subprocess.check_call(
+        [
+            CLIENT_PATH,
+            "add",
+            str(fileid),
+        ]
+            + words
+        ,
+        cwd=CLIENT_DIR,
+    )
+
+def run_delete(fileid, words):
+    """perform add operation on fileid with a list of words
+    raises subprocess.CalledProcessError on error.
+    """
+    output = subprocess.check_call(
+        [
+            CLIENT_PATH,
+            "delete",
+            str(fileid),
+        ]
+            + words
+        ,
+        cwd=CLIENT_DIR,
+    )
 
 
 if __name__ == '__main__':
