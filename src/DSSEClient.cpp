@@ -14,10 +14,22 @@ template<class T> bool recv_response(zmq::socket_t &sock, T &msg);
 
 std::string Client::Filename(fileid_t fileid)
 {
-	if (this->fileidMap.count(fileid) >= 0) {
+	if (this->fileidMap.count(fileid) > 0) {
 		return this->fileidMap.at(fileid);
 	}
 	return "";
+}
+
+// Get id corresponding to a filename
+int64_t Client::Fileid(std::string filename) {
+	// dumb, slow method
+
+	for (auto &p : this->fileidMap) {
+		if (p.second == filename) {
+			return p.first;
+		}
+	}
+	return -1;
 }
 
 bool Client::Connect(std::string hostname, int port)

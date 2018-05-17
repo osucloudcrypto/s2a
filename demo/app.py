@@ -96,15 +96,18 @@ def update():
 
     try:
         with open(oldpath) as f:
-            oldcontents = ""
+            oldcontents = f.read()
     except IOError:
         oldcontents = ""
 
     added, deleted = worddifference(oldcontents, newcontents)
+    print("adding", added)
+    print("deleting", deleted)
 
     # update the search index
-    fileid = 42
+    filename = "./" + webpath
     try:
+        fileid = run_fileid(filename)
         run_add(fileid, added)
         run_delete(fileid, deleted)
         # run client add 42 added...
@@ -168,12 +171,22 @@ def run_client(query):
 def run_fileid(filename):
     """returns the fileid corresponding to a filename
     raises subprocess.CalledProcessError on error, or if the filename is not found"""
+    output = subprocess.check_output(
+        [
+            CLIENT_PATH,
+            "fileid",
+            filename,
+        ],
+        cwd=CLIENT_DIR,
+    )
+
+    return int(output)
 
 def run_add(fileid, words):
     """perform add operation on fileid with a list of words
     raises subprocess.CalledProcessError on error.
     """
-    output = subprocess.check_call(
+    subprocess.check_call(
         [
             CLIENT_PATH,
             "add",
@@ -188,7 +201,7 @@ def run_delete(fileid, words):
     """perform add operation on fileid with a list of words
     raises subprocess.CalledProcessError on error.
     """
-    output = subprocess.check_call(
+    subprocess.check_call(
         [
             CLIENT_PATH,
             "delete",

@@ -140,6 +140,16 @@ int main(int argc, char* argv[]) {
 		if (ids.size() == 0) {
 			std::cerr << "no results\n";
 		}
+	} else if (command == "fileid") {
+		if (cmdargc < 1) {
+			usage();
+		}
+		int64_t id = client.Fileid(cmdargv[0]);
+		if (id < 0) {
+			std::cerr << "not found\n";
+			exit(1);
+		}
+		std::cout << id;
 	} else if (command == "add") {
 		if (cmdargc < 1) {
 			usage();

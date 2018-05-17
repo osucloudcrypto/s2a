@@ -153,7 +153,7 @@ bool readMapCount(std::string filename, Dcountmap &map) {
 			goto error;
 		}
 
-		std::cerr << "debug: readMapCount: "<<token << ": " << v << '\n';
+		//std::cerr << "debug: readMapCount: "<<token << ": " << v << '\n';
 		map[token] = v;
 	}
 	return true;

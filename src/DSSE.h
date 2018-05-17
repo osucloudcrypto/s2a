@@ -223,6 +223,7 @@ public:
 	// Get the filename associated with a fileid,
 	// or the empty string if the filename is unknown.
 	std::string Filename(fileid_t fileid);
+	int64_t Fileid(std::string filename);
 
 	// Save saves the client state to the given directory
 	bool Save(std::string directory) {
