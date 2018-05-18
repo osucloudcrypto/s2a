@@ -13,3 +13,6 @@
   {%- endif -%}
 {%- endfor %}</pre>
 
+<form action="{{ url_for("edit_view", path=path) }}" method="GET">
+    <button>Edit</button>
+</form>
