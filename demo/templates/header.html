@@ -1,5 +1,21 @@
 <style>
   pre { background: #eee; border: 1px solid #444; border-radius: 1em; padding: 1em;  }
-  pre { max-width: 76em; }
+  pre { max-width: 76em; white-space: pre-wrap; }
   pre span { background: #ee0; }
+  h1, h2, h3 { font-family: sans-serif; }
+  header { text-align: center; }
+  .searchbox { width: 500px; margin: auto; position: relative; }
+  .searchbox { text-align: center; height: auto; }
+  .searchbox input { font-size: 30px; }
+  .searchbox button { font-size: 30px; }
+  .logo {
+    position: absolute;
+    top: -330px;
+    left: -200px;
+    z-index: -1;
+    width: 500px;
+    height: 500px;
+    background-repeat: no-repeat;
+    background-image: url({{url_for("static", filename="logo.png")}}) ;
+  }
 </style>
