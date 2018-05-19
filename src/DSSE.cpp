@@ -18,6 +18,9 @@ const int ENCRYPTED_FILEID_SIZE = sizeof(fileid_t) + 16; // 16 bytes for the IV
 const int BLOCK_SIZE = sizeof(fileid_t) * B; // block size in bytes
 const int ENCRYPTED_BLOCK_SIZE = sizeof(fileid_t)*B + 16; // 16 bytes for the IV
 
+// placeholder value for invalid fileids or pointers
+const uint64_t INVALID = 0xFFFFFFFFFFFFFFFFull;
+
 Core::Core() {
     this->version = Basic;
     this->dirtyD = false;
@@ -172,6 +175,11 @@ void decrypt_long(uint8_t key[], const uint8_t ctext[], uint64_t &out) {
     uint8_t outbytes[8];
     decrypt_bytes(key, ctext, ENCRYPTED_FILEID_SIZE, outbytes);
     out = getu64(outbytes);
+}
+
+// bstring constructs a std::string from bytes
+std::string bstring(uint8_t bytes[], size_t size) {
+    return std::string(reinterpret_cast<char*>(bytes), size);
 }
 
 struct token_pair {
@@ -346,6 +354,87 @@ void Core::SetupClientPacked(
     }
 }
 
+void Core::SetupClientPointer(
+    std::vector<std::string> &tokens,
+    std::map<std::string, std::vector<fileid_t> > &fileids,
+    std::vector<SetupPair> &Loutput,
+    std::vector<std::string> &Moutput
+) {
+    // initialize client state
+    random_key(this->key); // Figure 5 (page 8)
+    random_key(this->kplus); // page 17
+    random_key(this->kminus); // page 19
+
+    // Figure 5 (page 8)
+    auto L = std::vector<token_pair>();
+    auto M = std::vector<std::string>();
+
+
+    for (auto& w : tokens) {
+        uint8_t K1[DIGESTLEN], K2[DIGESTLEN];
+        mac_key(this->key, '1', w.c_str(), K1);
+        mac_key(this->key, '2', w.c_str(), K2);
+        auto& fids = fileids.at(w);
+        //print_bytes(stdout, "K1", K1, KEYLEN);
+
+        uint8_t buf[ENCRYPTED_BLOCK_SIZE];
+        uint8_t pointer_block[BLOCK_SIZE];
+        uint8_t fileid_block[BLOCK_SIZE];
+        size_t i = 0; // fileid index
+        for (uint64_t c = 0; i < fids.size(); c++) {
+            for (int j = 0; j < B; j++) {
+                // TODO: don't reuse B here for the pointer block length
+                for (int k = 0; k < B; k++) {
+                    fileid_t fid = fids.at(i);
+                    if (i < fids.size()) {
+                        putu64(fid, &fileid_block[k * sizeof(fileid_t)]);
+                    } else {
+                        putu64(INVALID, &fileid_block[k * sizeof(fileid_t)]);
+                    }
+                    i++;
+                }
+
+                // encrypt fileid block and add to M
+                // TODO: pick a random index instead of appending
+                encrypt_bytes(K2, fileid_block, sizeof fileid_block, buf);
+                M.push_back(bstring(buf, sizeof buf));
+
+                // add fileid index to pointer block
+                putu64(M.size()-1, &pointer_block[j * sizeof(uint64_t)]);
+
+                // if we're out of fileids,
+                // fill remaining pointers with INVALID
+                // and break
+                if (i >= fids.size()) {
+                    for (j = j+1; j < B; j++) {
+                        putu64(INVALID, &pointer_block[j * sizeof(uint64_t)]);
+                    }
+                    break;
+                }
+            }
+
+            // encrypt pointer block and add to L
+            token_pair p = {0};
+            uint8_t counter_bytes[8];
+            putu64(c, counter_bytes);
+            encrypt_bytes(K2, pointer_block, sizeof pointer_block, p.d);
+            mac_counter(K1, counter_bytes, sizeof counter_bytes / 1, p.l);
+            L.push_back(p);
+        }
+    }
+
+    std::sort(L.begin(), L.end(), compare_token_pair);
+
+    // hand L off to the server
+    for (token_pair &p : L) {
+        Loutput.push_back(SetupPair{
+            std::string((char*)p.l, sizeof p.l),
+            std::string((char*)p.d, ENCRYPTED_BLOCK_SIZE)
+        });
+    }
+    Moutput = M;
+}
+
 void Core::SetupServer(int version, std::vector<SetupPair> &L) {
     if (version == Basic) {
         this->SetupServerBasic(L);
@@ -380,6 +469,19 @@ void Core::SetupServerPacked(std::vector<SetupPair> &L) {
         //print_bytes(stdout, "key", p.Token);
         //print_bytes(stdout, "value", p.FileID);
     }
+}
+
+void Core::SetupServerPointer(std::vector<SetupPair> &L, std::vector<std::string> &A) {
+    this->D.clear();
+    this->A.clear();
+    this->Dplus.clear(); // page 17
+    this->dirtyD = true;
+
+    for (SetupPair& p : L) {
+        this->D[p.Token] = p.FileID;
+    }
+
+    this->A = M;
 }
 
 void Core::SearchClient(std::string w,
@@ -500,6 +602,83 @@ std::vector<uint64_t> Core::SearchServerPacked(key_t K1, key_t K2, key_t K1plus,
                     continue;
                 }
                 ids.push_back(retval);
+            }
+        }
+    }
+
+
+    // page 18
+    for (c = 0;; c++) {
+        uint8_t l[DIGESTLEN];
+        std::string d;
+        mac_long(K1plus, c, l);
+        try {
+            d = this->Dplus.at(std::string(reinterpret_cast<char*>(l), sizeof l / 1));
+        } catch (std::out_of_range& e) {
+            break;
+        }
+        uint64_t id = 0;
+        decrypt_long(K2plus, reinterpret_cast<const uint8_t*>(d.data()), id);
+
+        // page 20
+        // check if id is on the revocation list
+        mac_long(K1minus, id, reinterpret_cast<uint8_t*>(&revid[0]));
+        if (this->Srev.count(revid) > 0) {
+            continue;
+        }
+
+        ids.push_back(id);
+    }
+    return ids;
+}
+
+// SearchServer performs the server side of searching the index for a given keyword.
+std::vector<uint64_t> Core::SearchServerPointer(key_t K1, key_t K2, key_t K1plus, key_t K2plus, key_t K1minus) {
+    uint64_t c = 0;
+    std::vector<uint64_t> ids;
+
+    std::string revid(KEYLEN, '\0');
+    //print_bytes(stdout, "K1", K1, KEYLEN);
+    for (c = 0;; c++) {
+        uint8_t l[DIGESTLEN];
+        std::string d;
+        mac_long(K1, c, l);
+        //print_bytes(stdout, "key", l, sizeof l);
+        try {
+            d = this->D.at(std::string(reinterpret_cast<char*>(l), sizeof l / 1));
+        } catch (std::out_of_range& e) {
+            break;
+        }
+        uint8_t pointer_block[BLOCK_SIZE];
+        decrypt_bytes(K2, reinterpret_cast<const uint8_t*>(d.data()), d.size(), pointer_block);
+
+        for(int i = 0; i < B; i++) {
+            uint64_t index = getu64(&pointer_block[i*8]);
+
+            // check that index is valid
+            if (index == INVALID) {
+                break;
+            }
+
+            if (index >= this->A.size()) {
+                // this shouldn't happen
+                continue;
+            }
+
+            uint8_t fileid_block[BLOCK_SIZE];
+            std::string& encrypted_fileid_block = this->A.at(index);
+            decrypt_bytes(K2, reinterpret_cast<const uint8_t*>(encrypted_fileid_block.data()), encrypted_fileid_block.size(), fileid_block);
+            for (int j = 0; j < B; j++) {
+                uint64_t fileid = getu64(&fileid_block[i*8]);
+                if (fileid == INVALID) {
+                    continue;
+                }
+                // check if id is on the revocation list
+                mac_long(K1minus, fileid, reinterpret_cast<uint8_t*>(&revid[0]));
+                if (this->Srev.count(revid) >= 0) {
+                    continue;
+                }
+                ids.push_back(fileid);
             }
         }
     }
