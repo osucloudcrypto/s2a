@@ -30,11 +30,15 @@ void Server::HandleMessage(const msg::Request* req) {
 void Server::HandleSetup(const msg::Request &req) {
 	const msg::Setup &setup = req.setup();
 	std::vector<SetupPair> L;
+	std::vector<std::string> M;
 	for (auto &p : setup.l()) {
 		L.push_back(SetupPair{p.counter(), p.fileid()});
 	}
+	for (auto &block : setup.m()) {
+		M.push_back(block);
+	}
 	int version = req.version();
-	this->core.SetupServer(version, L);
+	this->core.SetupServer(version, L, M);
 	// send back and empty reply
 	// TODO: send back an "OK" message?
 	zmq::message_t response(0);

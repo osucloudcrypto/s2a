@@ -82,12 +82,14 @@ public:
 		std::vector<std::string> &tokens,
 		std::map<std::string, std::vector<fileid_t> > &fileids,
 		// Output
-		std::vector<SetupPair> &L
+		std::vector<SetupPair> &L,
+		std::vector<std::string> &M
 	);
 
 	void SetupServer(
 		int version,
-		std::vector<SetupPair> &L
+		std::vector<SetupPair> &L,
+		std::vector<std::string> &M
 	);
 
 	// SearchClient performs the client side of searching the index for a given keyword.

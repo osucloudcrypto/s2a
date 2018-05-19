@@ -96,7 +96,8 @@ bool Client::AddFileByName(std::string filename) {
 
 bool Client::Setup(int version, std::vector<std::string> &tokens, std::map<std::string, std::vector<fileid_t>> &fileids) {
 	std::vector<SetupPair> L;
-	this->core.SetupClient(version, tokens, fileids, L);
+	std::vector<std::string> M;
+	this->core.SetupClient(version, tokens, fileids, L, M);
 
 	msg::Request req;
 	// TODO: send version on every request, not just Setup
@@ -107,6 +108,9 @@ bool Client::Setup(int version, std::vector<std::string> &tokens, std::map<std::
 		msg::Setup_TokenPair *q = msg->add_l();
 		q->set_counter(p.Token);
 		q->set_fileid(p.FileID);
+	}
+	for (auto &block : M) {
+		msg->add_m(block);
 	}
 
 	if (!send_message(this->sock, req)) {

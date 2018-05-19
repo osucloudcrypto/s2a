@@ -2,6 +2,7 @@
 #include <utility> // pair
 #include <cstring> // memset
 #include <cstdio>
+#include <iostream>
 
 #include "DSSE.h"
 #include "tomcrypt.h"
@@ -237,12 +238,15 @@ void Core::SetupClient(
     int version,
     std::vector<std::string> &tokens,
     std::map<std::string, std::vector<fileid_t> > &fileids,
-    std::vector<SetupPair> &Loutput
+    std::vector<SetupPair> &Loutput,
+    std::vector<std::string> &Moutput
 ) {
     if (version == Basic) {
         this->SetupClientBasic(tokens, fileids, Loutput);
     } else if (version == Packed) {
         this->SetupClientPacked(tokens, fileids, Loutput);
+    } else if (version == Pointer) {
+        this->SetupClientPointer(tokens, fileids, Loutput, Moutput);
     } else {
         fprintf(stderr, "error: unknown version %d\n", version);
         exit(1);
@@ -385,13 +389,13 @@ void Core::SetupClientPointer(
             for (int j = 0; j < B; j++) {
                 // TODO: don't reuse B here for the pointer block length
                 for (int k = 0; k < B; k++) {
-                    fileid_t fid = fids.at(i);
                     if (i < fids.size()) {
+                        fileid_t fid = fids.at(i);
                         putu64(fid, &fileid_block[k * sizeof(fileid_t)]);
+                        i++;
                     } else {
                         putu64(INVALID, &fileid_block[k * sizeof(fileid_t)]);
                     }
-                    i++;
                 }
 
                 // encrypt fileid block and add to M
@@ -419,6 +423,7 @@ void Core::SetupClientPointer(
             putu64(c, counter_bytes);
             encrypt_bytes(K2, pointer_block, sizeof pointer_block, p.d);
             mac_counter(K1, counter_bytes, sizeof counter_bytes / 1, p.l);
+            //print_bytes(stdout, "key", p.l, sizeof p.l);
             L.push_back(p);
         }
     }
@@ -435,43 +440,7 @@ void Core::SetupClientPointer(
     Moutput = M;
 }
 
-void Core::SetupServer(int version, std::vector<SetupPair> &L) {
-    if (version == Basic) {
-        this->SetupServerBasic(L);
-    } else if (version == Packed) {
-        this->SetupServerPacked(L);
-    } else {
-        fprintf(stderr, "error: unknown version %d\n", version);
-        exit(1);
-    }
-    this->version = version;
-}
-
-void Core::SetupServerBasic(std::vector<SetupPair> &L) {
-    this->D.clear();
-    this->Dplus.clear(); // page 17
-    this->dirtyD = true;
-
-    for (SetupPair& p : L) {
-        this->D[p.Token] = p.FileID;
-        //print_bytes(stdout, "key", p.Token);
-        //print_bytes(stdout, "value", p.FileID);
-    }
-}
-
-void Core::SetupServerPacked(std::vector<SetupPair> &L) {
-    this->D.clear();
-    this->Dplus.clear(); // page 17
-    this->dirtyD = true;
-
-    for (SetupPair& p : L) {
-        this->D[p.Token] = p.FileID;
-        //print_bytes(stdout, "key", p.Token);
-        //print_bytes(stdout, "value", p.FileID);
-    }
-}
-
-void Core::SetupServerPointer(std::vector<SetupPair> &L, std::vector<std::string> &A) {
+void Core::SetupServer(int version, std::vector<SetupPair> &L, std::vector<std::string> &M) {
     this->D.clear();
     this->A.clear();
     this->Dplus.clear(); // page 17
@@ -479,9 +448,12 @@ void Core::SetupServerPointer(std::vector<SetupPair> &L, std::vector<std::string
 
     for (SetupPair& p : L) {
         this->D[p.Token] = p.FileID;
+        //print_bytes(stdout, "key", p.Token);
+        //print_bytes(stdout, "value", p.FileID);
     }
 
     this->A = M;
+    this->version = version;
 }
 
 void Core::SearchClient(std::string w,
@@ -507,6 +479,8 @@ std::vector<uint64_t> Core::SearchServer(key_t K1, key_t K2, key_t K1plus, key_t
         return this->SearchServerBasic(K1, K2, K1plus, K2plus, K1minus);
     } else if (this->version == Packed) {
         return this->SearchServerPacked(K1, K2, K1plus, K2plus, K1minus);
+    } else if (this->version == Pointer) {
+        return this->SearchServerPointer(K1, K2, K1plus, K2plus, K1minus);
     } else {
         fprintf(stderr, "error: unknown version %d\n", this->version);
         exit(1);
@@ -574,7 +548,7 @@ std::vector<uint64_t> Core::SearchServerPacked(key_t K1, key_t K2, key_t K1plus,
     uint64_t c = 0;
     std::vector<uint64_t> ids;
 
-    std::string revid(KEYLEN, '\0');
+    std::string revid(DIGESTLEN, '\0');
     //print_bytes(stdout, "K1", K1, KEYLEN);
     for (c = 0;; c++) {
         uint8_t l[DIGESTLEN];
@@ -637,7 +611,7 @@ std::vector<uint64_t> Core::SearchServerPointer(key_t K1, key_t K2, key_t K1plus
     uint64_t c = 0;
     std::vector<uint64_t> ids;
 
-    std::string revid(KEYLEN, '\0');
+    std::string revid(DIGESTLEN, '\0');
     //print_bytes(stdout, "K1", K1, KEYLEN);
     for (c = 0;; c++) {
         uint8_t l[DIGESTLEN];
@@ -653,7 +627,7 @@ std::vector<uint64_t> Core::SearchServerPointer(key_t K1, key_t K2, key_t K1plus
         decrypt_bytes(K2, reinterpret_cast<const uint8_t*>(d.data()), d.size(), pointer_block);
 
         for(int i = 0; i < B; i++) {
-            uint64_t index = getu64(&pointer_block[i*8]);
+            uint64_t index = getu64(&pointer_block[i*sizeof(uint64_t)]);
 
             // check that index is valid
             if (index == INVALID) {
@@ -662,6 +636,7 @@ std::vector<uint64_t> Core::SearchServerPointer(key_t K1, key_t K2, key_t K1plus
 
             if (index >= this->A.size()) {
                 // this shouldn't happen
+                std::cerr << "error: pointer out of range: "<<index<<" "<<this->A.size()<<"\n";
                 continue;
             }
 
@@ -669,13 +644,13 @@ std::vector<uint64_t> Core::SearchServerPointer(key_t K1, key_t K2, key_t K1plus
             std::string& encrypted_fileid_block = this->A.at(index);
             decrypt_bytes(K2, reinterpret_cast<const uint8_t*>(encrypted_fileid_block.data()), encrypted_fileid_block.size(), fileid_block);
             for (int j = 0; j < B; j++) {
-                uint64_t fileid = getu64(&fileid_block[i*8]);
+                uint64_t fileid = getu64(&fileid_block[j*8]);
                 if (fileid == INVALID) {
                     continue;
                 }
                 // check if id is on the revocation list
                 mac_long(K1minus, fileid, reinterpret_cast<uint8_t*>(&revid[0]));
-                if (this->Srev.count(revid) >= 0) {
+                if (this->Srev.count(revid) > 0) {
                     continue;
                 }
                 ids.push_back(fileid);

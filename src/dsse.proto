@@ -38,6 +38,7 @@ message Setup {
         optional bytes FileID = 3; // encrypted fileid
     }
     repeated TokenPair L = 1;
+    repeated bytes M = 4;
 }
 
 message SetupResult { }
