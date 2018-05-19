@@ -4,6 +4,12 @@
 {% include "header.html" %}
 
 <p>Contents of <tt>{{ path }}</tt>:</p>
+<p><a href="{{ url_for("index") }}">Home</a>
+    | <a href="javascript: window.history.go(-1);">Go back.</a></p>
+
+<form action="{{ url_for("edit_view", path=path) }}" method="GET">
+    <p><button>Edit</button></p>
+</form>
 
 <pre>{% for chunk in chunks -%}
   {%- if chunk == highlight -%}
@@ -13,6 +19,3 @@
   {%- endif -%}
 {%- endfor %}</pre>
 
-<form action="{{ url_for("edit_view", path=path) }}" method="GET">
-    <button>Edit</button>
-</form>
