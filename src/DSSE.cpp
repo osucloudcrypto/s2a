@@ -81,6 +81,30 @@ void mac_key(uint8_t key[], char keynum, const char* token, uint8_t out[]) {
     crypt_or_die(hmac_done(&hmac, out, &outlen));
 }
 
+// getu64 unpacks a little-endian 64-bit value from bytes
+uint64_t getu64(uint8_t bytes[]) {
+    return ((((uint64_t)bytes[0])<<0)
+           |(((uint64_t)bytes[1])<<8)
+           |(((uint64_t)bytes[2])<<16)
+           |(((uint64_t)bytes[3])<<24)
+           |(((uint64_t)bytes[4])<<32)
+           |(((uint64_t)bytes[5])<<40)
+           |(((uint64_t)bytes[6])<<48)
+           |(((uint64_t)bytes[7])<<56));
+}
+
+// putu64 packs a 64-bit value as a sequence of little-endian bytes
+void putu64(uint64_t value, uint8_t bytes[]) {
+    bytes[0] = value&0xff;
+    bytes[1] = (value>>8)&0xff;
+    bytes[2] = (value>>16)&0xff;
+    bytes[3] = (value>>24)&0xff;
+    bytes[4] = (value>>32)&0xff;
+    bytes[5] = (value>>40)&0xff;
+    bytes[6] = (value>>48)&0xff;
+    bytes[7] = (value>>56)&0xff;
+}
+
 /**
  * mac_counter uses a per-token key to derive a hashed id value
  */
@@ -102,14 +126,7 @@ void mac_long(uint8_t key[], uint64_t counter, uint8_t out[]) {
     int hash = find_hash("sha256");
     crypt_or_die(hmac_init(&hmac, hash, key, KEYLEN));
     uint8_t buf[8];
-    buf[0] = counter&0xff;
-    buf[1] = (counter>>8)&0xff;
-    buf[2] = (counter>>16)&0xff;
-    buf[3] = (counter>>24)&0xff;
-    buf[4] = (counter>>32)&0xff;
-    buf[5] = (counter>>40)&0xff;
-    buf[6] = (counter>>48)&0xff;
-    buf[7] = (counter>>56)&0xff;
+    putu64(counter, buf);
     crypt_or_die(hmac_process(&hmac, buf, sizeof buf / 1));
     unsigned long outlen = DIGESTLEN;
     crypt_or_die(hmac_done(&hmac, out, &outlen));
@@ -136,14 +153,7 @@ void encrypt_bytes(uint8_t key[], uint8_t msg[], size_t msglen, uint8_t out[]){
 
 void encrypt_long(uint8_t key[], uint64_t value, uint8_t out[]) {
     uint8_t bytes[8];
-    bytes[0] = value&0xff;
-    bytes[1] = (value>>8)&0xff;
-    bytes[2] = (value>>16)&0xff;
-    bytes[3] = (value>>24)&0xff;
-    bytes[4] = (value>>32)&0xff;
-    bytes[5] = (value>>40)&0xff;
-    bytes[6] = (value>>48)&0xff;
-    bytes[7] = (value>>56)&0xff;
+    putu64(value, bytes);
     encrypt_bytes(key, bytes, 8, out);
 }
 
@@ -161,14 +171,7 @@ void decrypt_bytes(uint8_t key[], const uint8_t ctext[], size_t ctextlen, uint8_
 void decrypt_long(uint8_t key[], const uint8_t ctext[], uint64_t &out) {
     uint8_t outbytes[8];
     decrypt_bytes(key, ctext, ENCRYPTED_FILEID_SIZE, outbytes);
-    out = ((((uint64_t)outbytes[0])<<0)
-          |(((uint64_t)outbytes[1])<<8)
-          |(((uint64_t)outbytes[2])<<16)
-          |(((uint64_t)outbytes[3])<<24)
-          |(((uint64_t)outbytes[4])<<32)
-          |(((uint64_t)outbytes[5])<<40)
-          |(((uint64_t)outbytes[6])<<48)
-          |(((uint64_t)outbytes[7])<<56));
+    out = getu64(outbytes);
 }
 
 struct token_pair {
@@ -262,25 +265,11 @@ void Core::SetupClientBasic(
         //print_bytes(stdout, "K1", K1, KEYLEN);
         for (size_t c = 0; c < fids.size(); c++) {
             uint8_t counter_bytes[8];
-            counter_bytes[0] = c&0xff;
-            counter_bytes[1] = (c>>8)&0xff;
-            counter_bytes[2] = (c>>16)&0xff;
-            counter_bytes[3] = (c>>24)&0xff;
-            counter_bytes[4] = (c>>32)&0xff;
-            counter_bytes[5] = (c>>40)&0xff;
-            counter_bytes[6] = (c>>48)&0xff;
-            counter_bytes[7] = (c>>56)&0xff;
+            putu64(c, counter_bytes);
 
             uint8_t fileid_bytes[8];
             fileid_t fid = fids.at(c);
-            fileid_bytes[0] = fid&0xff;
-            fileid_bytes[1] = (fid>>8)&0xff;
-            fileid_bytes[2] = (fid>>16)&0xff;
-            fileid_bytes[3] = (fid>>24)&0xff;
-            fileid_bytes[4] = (fid>>32)&0xff;
-            fileid_bytes[5] = (fid>>40)&0xff;
-            fileid_bytes[6] = (fid>>48)&0xff;
-            fileid_bytes[7] = (fid>>56)&0xff;
+            putu64(fid, fileid_bytes);
 
             token_pair p = {0};
             mac_counter(K1, counter_bytes, sizeof counter_bytes / 1, p.l);
@@ -324,31 +313,18 @@ void Core::SetupClientPacked(
         //print_bytes(stdout, "K1", K1, KEYLEN);
         for (size_t c = 0; c < ((fids.size()+(B-1))/B); c++) {
             uint8_t counter_bytes[8];
-            counter_bytes[0] = c&0xff;
-            counter_bytes[1] = (c>>8)&0xff;
-            counter_bytes[2] = (c>>16)&0xff;
-            counter_bytes[3] = (c>>24)&0xff;
-            counter_bytes[4] = (c>>32)&0xff;
-            counter_bytes[5] = (c>>40)&0xff;
-            counter_bytes[6] = (c>>48)&0xff;
-            counter_bytes[7] = (c>>56)&0xff;
+            putu64(c, counter_bytes);
 
             // We want to make this contain up to 5 different file ids
             uint8_t fileid_bytes[BLOCK_SIZE];
-            for(size_t fidc = 0; fidc < B; fidc++ ){
+            for (size_t fidc = 0; fidc < B; fidc++) {
                 size_t offset = fidc * 8;
-                if(c*B+fidc < fids.size()){
+                if (c*B+fidc < fids.size()) {
                     fileid_t fid = fids.at(c*B+fidc);
-                    fileid_bytes[0 + offset] = fid&0xff;
-                    fileid_bytes[1 + offset] = (fid>>8)&0xff;
-                    fileid_bytes[2 + offset] = (fid>>16)&0xff;
-                    fileid_bytes[3 + offset] = (fid>>24)&0xff;
-                    fileid_bytes[4 + offset] = (fid>>32)&0xff;
-                    fileid_bytes[5 + offset] = (fid>>40)&0xff;
-                    fileid_bytes[6 + offset] = (fid>>48)&0xff;
-                    fileid_bytes[7 + offset] = (fid>>56)&0xff;
+                    putu64(fid, &fileid_bytes[offset]);
+                } else {
+                    memset(fileid_bytes+offset, 0xff, 8);
                 }
-                else { memset(fileid_bytes+offset, 0xff, 8); }
             }
 
             token_pair p = {0};
@@ -512,26 +488,9 @@ std::vector<uint64_t> Core::SearchServerPacked(key_t K1, key_t K2, key_t K1plus,
         decrypt_bytes(K2, reinterpret_cast<const uint8_t*>(d.data()),d.size(), retid);
 
         //Unpack retid
-        uint8_t checkid[8];
         for(int i=0; i<B; i++){
-            // Gets fid out of retid
-            checkid[0] = retid[0 + (i*8)];
-            checkid[1] = retid[1 + (i*8)];
-            checkid[2] = retid[2 + (i*8)];
-            checkid[3] = retid[3 + (i*8)];
-            checkid[4] = retid[4 + (i*8)];
-            checkid[5] = retid[5 + (i*8)];
-            checkid[6] = retid[6 + (i*8)];
-            checkid[7] = retid[7 + (i*8)];
-            // Converts checkid to int
-            uint64_t retval = ((((uint64_t)checkid[0])<<0)
-                    |(((uint64_t)checkid[1])<<8)
-                    |(((uint64_t)checkid[2])<<16)
-                    |(((uint64_t)checkid[3])<<24)
-                    |(((uint64_t)checkid[4])<<32)
-                    |(((uint64_t)checkid[5])<<40)
-                    |(((uint64_t)checkid[6])<<48)
-                    |(((uint64_t)checkid[7])<<56));
+            // Gets fid out of retid and converts to int
+            uint64_t retval = getu64(&retid[i*8]);
             // check that retval is valid
             if (retval < 0xffffffffffffffff){
                 // page 20
@@ -540,7 +499,7 @@ std::vector<uint64_t> Core::SearchServerPacked(key_t K1, key_t K2, key_t K1plus,
                 if (this->Srev.count(revid) > 0) {
                     continue;
                 }
-                 ids.push_back(retval);
+                ids.push_back(retval);
             }
         }
     }
