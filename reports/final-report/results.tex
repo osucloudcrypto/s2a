@@ -1,0 +1,36 @@
+\subsection{Results}
+
+% What did we learn?
+% DSSE is very complex
+% Benchmarking takes time
+% In-memory data structures are fast but have limits
+
+% Benchmark table
+Our benchmark data showed that the scheme is very fast and can easily handle databases of over 40k files, which should suffice to store a normal user's emails or documents. We were unable to test larger databases because our test system ran out of memory --- one limitation of the current code is that it loads all data into memory before searching. We also transfer the entire database to the server in one message, which doesn't scale to large databases.
+
+Interestingly, our benchmarks for $\Pi_\mathrm{pack}$ did not show much of a performance increase. There are a few possible explanations: maybe the block size we tested with was too small; maybe the optimization doesn't matter for an in-memory data structure; maybe the effect was swamped by the network overhead. We aren't sure. This deserves more attention.
+
+We built a small demo web app for expo. This was a simple web frontend for the DSSE client which allowed people to search files in the database, and even to edit files. This was not strictly part of our project requirements, but it helped people see our project in action, and it aligned well with the spirit of our project, which was to show how privacy-preserving searchable encryption could be applied to the real world.
+
+\subsubsection{Future work}
+
+This section highlights some further areas of research. 
+Searchable encryption is a relatively young field and so there is still a lot to discover.
+
+\begin{itemize}
+\item \textbf{Use a database.} In order to handle very large datasets that do not fit in main memory, the code would have to be modified to use an on-disk data structure. Some of the optimizations described in \cite{cash14}, particularly $\Pi_{\mathrm{ptr}}$ and $\Pi_{\mathrm{2lev}}$ seem like they are aimed at this use-case. Efficient on-disk data structures are a complex topic, but they are already well-studied. This is basically what databases are. We would be interested to see what would happen if you implemented $\Pi_{\mathrm{bas}}$ on top of an existing database library like \texttt{sqlite3} \cite{sqlite3}. We expect performance would be competitive without resorting to special tricks like $\Pi_{\mathrm{ptr}}$.
+
+\item \textbf{Email integration.} One of our stretch goals was to build a daemon which periodically fetched emails and added them to the search index, to demonstrate a simple real-world use of DSSE. We didn't get to this, but it would still be an interesting experiment.
+
+\item \textbf{Cloud platform integration.} Another stretch goal was to integrate with a cloud platform like Dropbox. This would require some rethinking of the DSSE scheme because we wouldn't be able to execute code on the server side, so the client would either have to fetch the whole encrypted index or the index would have to be broken up in some way.
+
+\item \textbf{Storage-only server.} In the Cash-DSSE algorithm as described in the paper, the server performs the final decryption step, decrypting the file ids before handing them off to the client. This leaks a little information to the server over time. It would be better if the client performed all the decryption operations;  however, the Cash-DSSE scheme requires that the server to know the file ids it is returning in order to check the revocation set. To move decryption to the client would require an extra round-trip request. This needs further investigation.
+
+
+\end{itemize}
+
+\subsubsection{Conclusion}
+
+We created an open-source implementation of the DSSE scheme described in \cite{cash14}
+and were able to partially replicate the results.
+Our benchmark data showed that the scheme is very fast and can easily handle databases of over 40k files, and we believe that with improvements to the code it should be able to handle even greater numbers.

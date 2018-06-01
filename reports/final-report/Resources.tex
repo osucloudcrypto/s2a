@@ -1,0 +1,96 @@
+% A compilation of our individual blog posts for the year
+
+% 1. Fill in these details
+\def \CapstoneTeamName{		The Secret Bunny Team}
+\def \CapstoneTeamNumber{		38}
+\def \GroupMemberOne{			Andrew Ekstedt}
+\def \GroupMemberTwo{			Scott Merrill}
+\def \GroupMemberThree{			Scott Russell}
+\def \CapstoneProjectName{		Privacy Preserving Cloud, Email, and Password Systems}
+\def \CapstoneSponsorCompany{	OSU}
+\def \CapstoneSponsorPerson{		Attila Yavuz}
+
+% 2. Uncomment the appropriate line below so that the document type works
+\def \DocType{	%	Problem Statement
+				%Technology Review
+				%Design Document
+				%Progress Report
+                Resources to Learn More
+				}
+% 3. If the document is not to be signed, uncomment the RENEWcommand below
+\renewcommand{\NameSigPair}[1]{#1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{titlepage}
+    \pagenumbering{gobble}
+    \begin{singlespace}
+        %\includegraphics[height=4cm]{coe_v_spot1}
+        \hfill 
+        % 4. If you have a logo, use this includegraphics command to put it on the coversheet.
+        %\includegraphics[height=4cm]{CompanyLogo}   
+        \par\vspace{.2in}
+        \centering
+        \scshape{
+            \huge CS Capstone \DocType \par
+            {\large\today}\par
+            \vspace{.5in}
+            \textbf{\Huge\CapstoneProjectName}\par
+            \vfill
+            {\large Prepared for}\par
+            \Huge \CapstoneSponsorCompany\par
+            \vspace{5pt}
+            {\Large\NameSigPair{\CapstoneSponsorPerson}\par}
+            {\large Prepared by }\par
+            Group\CapstoneTeamNumber\par
+            % 5. comment out the line below this one if you do not wish to name your team
+            \CapstoneTeamName\par 
+            \vspace{5pt}
+            {\Large
+                \NameSigPair{\GroupMemberOne}\par
+                \NameSigPair{\GroupMemberTwo}\par
+                \NameSigPair{\GroupMemberThree}\par           
+            }
+            \vspace{20pt}
+        }
+        \begin{abstract}
+        % 6. Fill in your abstract       	
+            \centering{ Document explains relevant papers, github repositories and resources used throughout the project.}          
+        \end{abstract}     
+    \end{singlespace}
+\end{titlepage}
+
+\clearpage
+
+% Group Member 1
+\section{ What web sites were Helpful? (Listed in Order of Helpfulness)}
+
+\subsection{David Cash Paper}
+1. http://wp.internetsociety.org/ndss/wp-content/uploads/sites/25/2017/09/07_4_1.pdf
+The most important resource that we used was that of the David Cash paper outlying the Dynamic Searchable Encryption algorithm. This was the basis for the entire project. Although previous version of David Cash’s scheme has been implemented none had been done so as an open source implementation. Therefore, this was the purpose of the project. This paper details the specifics of the algorithm and how it can obtain better searchable speeds relative to our comparison algorithm of IM-DSSE. We wanted to prove that the theoretical speed increases translated to a practical implementation of a real-world client-server system.
+
+\subsection{Thang Hoang IM-DSSE Implementation}
+2. https://github.com/thanghoang/IM-DSSE
+
+Another extremely helpful resource to our specific implementation and testing was the Github repo provided by Thang Hoang. This implementation was used not only as a basis for benchmark comparison but also as a helpful template of client/server workings in a c++ environment. Working with these algorithms was difficult to set up and being able to talk one on one directly with the creator vastly improved our ability to quickly understand and test the benchmarking in comparison against our implementation of David Cash’s algorithm.
+
+\subsection{Attila Yavuz Research Paper's}
+3. http://web.engr.oregonstate.edu/~yavuza/
+
+Finally we were given a link to our client Attila’s research paper catalog. This gave us a deep understanding of the types and styles of benchmarking that he wanted us to complete for his presentation. Not only are these benchmarking style guidelines important for our specific project but also to translate to other research endeavors. The data collected and analyzed is very important to finding proper correlations and results.
+
+\subsection{Additonal Resources}
+4. Listed below are additional resources for libraries that we used: Tomcrypt, Zeromq and Protobuf.
+
+https://developers.google.com/protocol-buffers/
+
+https://github.com/libtom/libtomcrypt
+
+http://zeromq.org/
+ 
+\section {Were there any people on campus that were helpful?}
+\subsection{Attila Yavuz}
+Our client Attila is extremely knowledgeable about the aspects of our specific project. As the sponsor for the project he wanted to give us a taste for real world research and understanding a basic level of the process that he goes through with his graduate students. We found him very responsive and flexible to our capstone specific needs and being able to understand what we needed to succeed with our implementation of the project.
+
+\subsection{Thang Hoang}
+Thang is a graduate student and a research assistant to Attila. He worked with us specifically on providing us the IM-DSSE Github repo as a baseline template for our client/server implementation as well as meeting with us on a weekly basis as needed to answer questions related to his implementation and understanding of the specific problem at hand. We found him extremely helpful in understanding the problem and being able to complete tasks in a timely matter to stay on track to complete base requirements for our capstone project.

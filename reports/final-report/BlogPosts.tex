@@ -1,0 +1,617 @@
+% A compilation of our individual blog posts for the year
+
+% 1. Fill in these details
+\def \CapstoneTeamName{		The Secret Bunny Team}
+\def \CapstoneTeamNumber{		38}
+\def \GroupMemberOne{			Andrew Ekstedt}
+\def \GroupMemberTwo{			Scott Merrill}
+\def \GroupMemberThree{			Scott Russell}
+\def \CapstoneProjectName{		Privacy Preserving Cloud, Email, and Password Systems}
+\def \CapstoneSponsorCompany{	OSU}
+\def \CapstoneSponsorPerson{		Attila Yavuz}
+
+% 2. Uncomment the appropriate line below so that the document type works
+\def \DocType{	%	Problem Statement
+				%Technology Review
+				%Design Document
+				%Progress Report
+                Individual Blog Posts
+				}
+% 3. If the document is not to be signed, uncomment the RENEWcommand below
+\renewcommand{\NameSigPair}[1]{#1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{titlepage}
+    \pagenumbering{gobble}
+    \begin{singlespace}
+        %\includegraphics[height=4cm]{coe_v_spot1}
+        \hfill 
+        % 4. If you have a logo, use this includegraphics command to put it on the coversheet.
+        %\includegraphics[height=4cm]{CompanyLogo}   
+        \par\vspace{.2in}
+        \centering
+        \scshape{
+            \huge CS Capstone \DocType \par
+            {\large\today}\par
+            \vspace{.5in}
+            \textbf{\Huge\CapstoneProjectName}\par
+            \vfill
+            {\large Prepared for}\par
+            \Huge \CapstoneSponsorCompany\par
+            \vspace{5pt}
+            {\Large\NameSigPair{\CapstoneSponsorPerson}\par}
+            {\large Prepared by }\par
+            Group\CapstoneTeamNumber\par
+            % 5. comment out the line below this one if you do not wish to name your team
+            \CapstoneTeamName\par 
+            \vspace{5pt}
+            {\Large
+                \NameSigPair{\GroupMemberOne}\par
+                \NameSigPair{\GroupMemberTwo}\par
+                \NameSigPair{\GroupMemberThree}\par           
+            }
+            \vspace{20pt}
+        }
+        \begin{abstract}
+        % 6. Fill in your abstract       	
+            \centering{ document share a compilation of each member's blog posts throughout the year}          
+        \end{abstract}     
+    \end{singlespace}
+\end{titlepage}
+
+\clearpage
+
+% Group Member 1
+\section{ Scott Russell Blog Posts}
+
+\subsection{Fall Weeks 1-10}
+
+\subsubsection{Week 1}
+Week one of Capstone was focused on researching and selecting a top five list of projects that aligned with our interests. In addition we also used this week to set up our OneNote for weekly Blog Posts. Finally we submitted a fake resume to understand proper formatting and content in a professional environment.
+
+\subsubsection{Week 2}
+During week two we were assigned our project. We meet with our team for the first time to share communication info. We had a conversation with out client, Attila, to discuss how our more research-focused project fits into the capstone design along with his expectations for implementation. We set up a Signal group to communicate securely and initialized a Github for work. Attila provided us with papers and slides to review searchable encryption. We also started on the Problem Statement Document. A lot of this week's work was focused on communicating and understanding the specifics of the project with our client.
+
+\subsubsection{Week 3}
+During week 3 our team had a meeting with Thang, the graduate student of our client Attila, to give a high-level overview of our project. Specifically we focused on David Cash's Algorithm. Our client has three primary projects in mind, which to us seemed outside the range of what we could implement in the time frame provided. We planned to meet with Attila next week to discuss our concerns with work load for capstone. For capstone this week we worked on the requirements document, which serves as an outline for how we will be graded at the end of the term. More information about balancing a research and implementation project will be discussed in future weeks.
+
+
+\subsubsection{Week 4}
+Most of week 4 was spent working on the problem statement. Meetings with McGrath and Attila proved to reduce the initial scope that Attila had in mind to correlate to the capstone structure. Originally Attila envisioned a larger scale project but accounting for the time spent on capstone specific items he realized that the scope was too large for our knowledge and time constraints. Work over this week included looking over Thang's Bit Matrix implementation of DSSE, IM-DSSE, which will serve as a starting reference point going forward with the implementation next term. We also met with our Capstone TA, Andrew Emmott, for the first time and discussed his expectations from us. 
+
+\subsection{Week 5}
+
+We met with our client to discuss the project requirements. McGrath was able to talk to Attila and explain the capstone project schedule, which relieved some of the pressure we were feeling about the scope of the project being too large.
+
+We continued to look at IM-DSSE to get a feel for the project. The first requirement of project is to implement a similar proof-of-concept program, so seeing how IM-DSSE worked was helpful. All members of the team were able to get it to compile and run.
+
+A team member wrote a prototype of David Cash's SSE in Python in order to get a better feel for how it worked.
+
+Progress was hindered slightly by one of the team members getting sick and being out of commission for the latter half of the week.
+
+\subsection{Week 6}
+
+We continued to work on the requirements document. Our client was at a conference all week so they were unable to give feedback on the requirements document. We submitted our final draft anyway and requested extra time for client approval, which was granted.
+
+We started thinking about how to split up the project components for the tech review. We decided loosely that I would tackle optimizations to the DSSE; SR would tackle email integration; and SM would tackle cloud integration, although this ended up changing later as we got a more clear understanding of the project.
+
+We attended the class session on research-focused projects, which was helpful for understanding how our project fit into capstone, and how we would be documenting; the gist was that a project, we would be designing a roadmap for the problem we were researching and how we were going to tackle it.
+
+\subsection{Week 7} 
+
+Our client returned from their travel and gave us feedback on the requirements doc. Aside from that, we mainly worked on planning the technology review this week. We had a little trouble coming up with enough tech review topics, but after talking to the instructors we were able to identify more. We also did a literature review as part of our tech review, because our project is a research project.
+
+
+\subsection{Week 8}
+%SM 
+This week our meeting with Tang addressed question we had pertaining to the Tech Review and how to break down the project into 9 meaningful components. During class we did a peer review of a rough draft of the tech review and covered components aspects, such as cost, that were not good rationale when making our choices. 
+
+\subsection{Week 9}
+After meeting with our TA we were able to finalize our Tech review document and submit it. Our next assignment, the Design document was assigned. This assignment was for us to go into detail about the specifics of what we were going to be implementing as well as what we expected to discover from our research. Thanksgiving was also this week which cause a lull in progress as everyone too few days off to visit family and celebrate the holiday. 
+
+
+
+\subsection{Week 10}
+This week we finished up our design document and began looking over our next assignment, the Progress report. The Progress report would consist of two parts: 1) a written account of the term including what went well and challenges we faced. 2) a slide show presentation with voice overlay discussion the progress of the term based heavily on what we wrote. In class we discussed the specific for that was expected in the recording, including advice on common mistakes to avoid. We also had our final meeting of the term with our client. In this meeting we talked about the progress report and what we plan to do moving forward. 
+
+
+\subsection{Winter Weeks 1-5}
+
+\subsubsection{Current Status}
+This term has been focused on the implementation of our DSSE Algorithm. During the first week we initiated emails to our Client and TA to touch base on progress for the term. It turned out that our Client was sick on the day we planned to meet, and our TA did not respond until week 5. This delayed our planning for the term. While we were waiting to talk to our client in person we worked on the implementation of David Cash’s DSSE Scheme. 
+
+Personally, my focus so far this term has been on the Email side of the project. First with the research and implementation of an open source C++ POP3 library. In our midterm report presentation, I demoed the basic functionality of this server and explain the setup process creating a test email hosted by Gmail. Email is an important functionality to this project since it allows for this conceptual idea of a DSSE Scheme to be put into a real-world application. I went through 5 different libraries until I ended up with the one we are currently using. (Mailio) It was chosen for its simplicity, lightweight interface and being coded in C++.
+
+Relative to the Capstone side of things we all worked together on creating this report, individual sections, and presentation where we demoed the basics of our algorithm and email capabilities. I also personally created the rough draft of our Expo Poster. I wanted our design to stand out. After talking to our TA Andrew about hard requirements we are awaiting feedback from McGrath to adjust the style, depth, and visual clarity of our poster.
+
+
+
+\subsubsection{What’s left to do} 
+My focus for the rest of the term is to incorporate Email and aid in implementation of core DSSE elements. Starting with the POP3 protocol by adding its functionality in place of our demo code for adding/updating to the local database. After talking to our client, we understand that our primary focus should be on this core DSSE algorithm. Implementation of Cloud and Email platforms are not the key components of our project but are real-world applications that help to ground this research project. The final, and arguably most important section, is that of optimization and benchmarking. To create an accurate representation of our DSSE algorithm we are going to compare it side by side to that of our client Attila Yavuz’s Bit Matrix Algorithm and another implementation of the DSSE Clusion coded in Java. These benchmarks will act as the analysis and conclusion to our poster and give us specific results that we can show at expo.
+
+\subsubsection{Problems impeding progress/Solutions:}       
+The biggest problem this term has been communication with our client and TA. Not being able to meet with them until later in the term it has impaired our ability to gain feedback and understanding of project requirements. We still our initial Gantt Chart to compare progress too and used that until meeting with our client. Another problem that I’ve experienced this term is a lack of hard deadlines. In the fall term we’ve had deadlines for every document. From requirements to specifications these have all been created for our capstone portfolio. However, in this term there has been a very hands-off approach from the capstone team. This is the first time I have worked on such a style of project. It is very realistic to how real-world companies divvying out tasks, so I am grateful that we can practice these self-motivational skills in a less stressful environment when our jobs are not on the line.
+
+In additional, being a research project, it is harder to put into words the progress that we’ve made outside of project code. For those teams focused on a more implementation heavy projects it is easier to show progress week by week. For example, one week I spent hours looking over and comparing POP3 algorithms against one another to find one that works well without specific implementation. I have listed these in my OneNote as progress, but it is hard to put into ‘progress’ without code pushes on GitHub. It is directly relevant to our project and vital to the overall success of meeting our client’s specifications.
+
+
+\subsubsection{Looking back and looking ahead:} 
+Overall, I feel that this term has been slower in terms of progress than our original Gantt Chart intended. We will continue to work on the core implementation throughout the rest of the term to have a working state that we can start doing benchmarks against other algorithms. We had a shaky start to the term missing our direct contact with client and TA. We are hopeful that we will can complete all requirements by our client and start the spring term with a satisfactory product that we can improve upon by creating real-world applications to test on for expo.
+
+With implementation of the core DSSE next term should be focused specifically on preparing for expo. Practicing pitches to different audiences, revising the poster within regulation, exploring ways of demoing our research project to appease a general audience and implementing Email and Cloud integration as time permits. This project has been successful this term and our group hopes to finish strong to be able to deliver the product that our client expects of us.
+
+\subsection{Winter Weeks 6-10}
+\subsubsection {Week 6}
+- Create Poster Template (PowerPoint)
+- Midterm Review + PowerPoint
+- POP3 Implementation
+- Class Meeting to Discuss progress.
+- Overleaf Document (Midterm)
+
+\subsubsection {Week 7}
+- Meeting with Attila (Adjust focus of project)
+- Meeting with TA
+- Shift Focus Away from Email to Core Integration --> 
+- Start on Benchmarking
+\subsubsection {Week 8}
+- Benchmark DSSE Bit Matrix Scheme
+- Meeting with TA
+- Continue work on Level 2 Pointer
+\subsubsection {Week 9}
+- Meeting with TA
+- Finish DSSE-Scheme Benchmarking (100,000 small database)
+- 100 instance run comparison
+- Begin Looking at Building/Running Clusion Scheme
+\subsubsection {Week 10}
+- Continue Working on Benchmarking Clusion
+- Discuss time to meet up to do Midterm Progress Report
+Final Term TA Meeting (TA canceled Meeting)
+\subsection {Spring Weeks 1-5}
+
+\subsubsection{Week 1}
+- Set up meetings with TA
+
+- Figure out group teammate schedule
+
+- Plan out work flow for the term (Benchmarking/Optimization)
+
+- Revise Expo Poster with correct formatting
+
+\subsubsection{Week 2}
+- Research Attila Benchmarking Scheme
+
+- Different Benchmarking Sizes (Small/Medium/Large)
+
+- Level 2 pointer Implementation (other group members)
+
+\subsubsection{Week 3}
+- Successful implementation and transfer of Elron Data set
+
+- Benchmark Test Enron (Medium size set) on IM-DSSE and C++ Implementation
+
+- Complete Writeup report for WIRED
+
+\subsubsection{Week 4}
+- Had problems with using Cygwin for IM-DSSE benchmarking (Switching to CodeLite IDE)
+
+- Medium/Large Data Base Size Testing
+
+- Basic/2 Level Pointer.
+
+- Turn in Final Poster
+
+- Turn in Model Release Form
+\subsubsection{Week 5}
+- Encrypted Index Benchmarking
+
+- Midterm Report
+
+- Midterm Presentation
+
+- Midterm Submission
+
+- TA meeting
+\subsection {Spring Weeks 6-10}
+\subsubsection{Week 6}
+- In class meeting on Wednesday
+
+- TA meeting (Ask about Presentation to Board?)
+
+- Continue working on expo pitches.
+
+- Schedule meeting with Client for final approval of product.
+
+\subsubsection{Week 7 EXPO WEEK}
+- Prepare For Expo
+
+- Get Code running on multiple systems (in case of student missing)
+
+- Start combining Code into Final Report
+
+- Optional Meeting on Wednesday
+
+- Go to expo (800-1600)
+\subsubsection{Week 8}
+- In class Meeting on Wednesday
+
+- Weekly Group Meeting (start on Final Paper)
+
+- Final Paper and Presentation will be the rest of the term including a code demo with our client.
+
+\subsubsection{Week 9}
+- Reserve Meeting Room for doing Final Presentation
+
+- Continue Work on Final Report (including this section)
+
+- Schedule Meeting with Client for Code Hand-Off
+
+\subsubsection{Week 10}
+- Final Handoff with Client
+
+- Finish Final Presentation and Poster
+
+- CAPSTONE DONE!
+
+% Group Member 2
+\section{ Scott Merrill Blog Posts }
+
+% Group Member 3
+\section{ Andrew Ekstedt Blog Posts }
+
+\subsection{Spring}
+
+\subsection{Winter}
+\subsubsection{Overview}
+
+
+I started the term by jumping in and coding stuff, which I was itching to do after all the planning last term.
+In the second half of the term I pulled back a bit and concentrated more on project management and making sure
+Scott Russell and Scott Merrill weren't being impeded and understood the code base well enough to work on it.
+I also worked on some improvements to the command-line interface.
+
+The first half of the term for me was mostly about implementing the core DSSE methods, and the client and server communication. I was able to get three of the four methods implemented in the first half, and then finished up the implementation during the second half of the term.  I was aided by a little Python prototype of the DSSE that I wrote in Fall term to help understand the protocol, which was super helpful when it came to implementing the C++ version this term.
+
+We had a little trouble getting in touch with our TA and client initially, but we got that settled around week 5 and thereafter met weekly with out TA and sporadically our client, subject to our client's availability.
+
+\subsubsection{Week 1} 
+
+\noindent \textbf{Progress}:
+
+Start of the term!
+This week was mostly about getting back into the swing of school after Winter Break, getting back up to speed with what we had done last term, and planning meetings with our group, our client, and our TA.
+
+We scheduled some group meeting times in week 2 (and have continued to meet at the same time throughout the rest of the term). We reached out to our client to schedule a meeting, but the first time he could meet was week 3.
+
+\noindent \textbf{Problems}:
+\begin{itemize}
+\item Capstone is at 8 in the morning, but fortunately it doesn't meet often
+\end{itemize}
+
+\subsubsection{Week 2}
+
+\noindent \textbf{Progress}:
+
+The task this week was to start working on the core DSSE implementation. I decided to dive in and stub out the code, and got a simple program compiled and running. The DSSE is factored into Core, Client, and Server classes. The core class is responsible for all the cryptography, and the Client and Server classes are responsible for the network layer communication. I wrote out some header files for each of these classes, and implemented the Setup and Search methods of the core DSSE.
+
+I made a decision early on to vendor all our third-party dependencies into our source repository. The advantage of doing this is that the program can be built out-of-the-box with a single command, without the user having to mess around with compiling and installing a bunch of libraries. This was borne out of direct experience last term with trying to get IM-DSSE to compile. (IM-DSSE is an implementation of another DSSE algorithm that our client had written last year.)
+
+I also helped Scott Russell debug some problems with the mailio library.
+
+\noindent \textbf{Problems}:
+\begin{itemize}
+  \item Bootstrapping/designing a library from scratch is a lot of work 
+  \item It's hard finding time to work on stuff between classes 
+  \item Haven't heard from our TA yet
+\end{itemize}
+
+\subsubsection{Week 3}
+
+\noindent \textbf{Progress}:
+
+We met with our client for the first time this week, sort of. Attila had to cancel at the last minute because he was sick, so we met with his grad student Thang Hoang.
+
+I continued to work on core DSSE code. I implemented most of the core Add method, and started implementing some of the networking code for the Client and Server classes. In the DSSE paper \cite{cash14}, the Add and Delete operations are merged into a single Update operation for some reason, even though they are mostly unrelated. I decided to separate them in our implementation.
+
+%I think we should be able to get these into a working-enough state that we can start the other parts of our project by the end of next week. 
+
+\noindent \textbf{Problems}:
+\begin{itemize}
+  \item Client was out sick, so we met with his grad student
+  \item Still haven't heard from TA
+  \item Had some problems getting libraries to build with our project
+\end{itemize}
+
+\noindent \textbf{Summary}:
+
+Made some solid progress on the implementation of the core DSSE and the client/server components.
+
+\subsubsection{Week 4} 
+
+\noindent \textbf{Plans}:
+
+The plan this week was to get DSSE into a good enough state that we can start building the other stuff. Our original schedule called for us to concentrate on the DSSE implementation for the first two or three weeks of Winter term, after which we would split into working on separate projects.
+
+After talking with Thang last week, it sounds like we want to implement Add as well as Setup and Search.
+
+\noindent \textbf{Progress}: 
+
+Vendored the ZeroMQ socket library, which allowed me to rip out all my ad-hoc socket-handling code from week 3 and replace it with much more solid ZeroMQ-based sockets.
+ 
+I implemented the Add method for the core DSSE and the client / server classes.
+ 
+I also worked with Scott Russell to figure out configure Gmail to deliver the same messages repeatedly over POP3, for testing purposes. 
+
+\noindent \textbf{Summary}:
+
+Pretty productive week for me: got client \& server communication working with zero MQ and implemented the Add method. DSSE is in a pretty good state, just needs persistence.
+
+\subsubsection{Week 5}
+
+\noindent \textbf{Summary}:
+
+Met with our client, Attila, this week for the first time this term. He seemed satisfied with our progress so far. It seems he is most interested in getting the DSSE written and all the optimizations from the paper implemented, so that we can get some useful benchmark data. 
+
+We also met with our TA, Andrew Emmott, this week for the first time.
+He said it sounds like we are making good progress on our project.
+
+\noindent \textbf{Progress}:
+
+I didn't get a whole lot done code-wise. This was due to a combination of having a bunch of work to do for other classes, and having to work on the midterm report for this class.
+
+We worked on our project poster draft, midterm report, and presentation.
+
+\noindent \textbf{Problems}:
+
+\begin{itemize}
+\item Commitments to other classes made it hard to find time for capstone this week. Thing should hopefully calm down soon.
+\end{itemize}
+
+
+\subsubsection{Week 6}
+
+\noindent \textbf{Summary}:
+
+Spent most of the week working on midterm progress report :( 
+
+I did manage write a few lines of code for persistent storage, though. I'll have to finish that up this weekend. 
+
+ There was a last minute email sent out about the midterm report being partly an individual assignment, so we had to make some changes to our report.  
+
+
+\subsubsection{Week 7}
+
+\noindent \textbf{Plans}:
+\begin{itemize}
+\item Get some preliminary measurements 
+\item Start level 2 pointer implementation 
+\item Add persistence 
+\end{itemize}
+
+\noindent \textbf{Progress}:
+\begin{itemize}
+\item Added basic persistence 
+\item Talked with Scott Merrill about level 2 pointers 
+\item Met with client \& TA 
+\end{itemize}
+
+\noindent \textbf{Problems}:
+(none)
+
+\noindent \textbf{Summary}: 
+
+Back to work! After spending the last week or so on our progress report, it feels good to get back to writing code. I added persistent storage to the DSSE code. Scott Russell started collecting benchmark data. Our goal is to have the 2-level pointer scheme working on a large dataset to demo for Attila in a couple weeks. 
+
+
+\subsubsection{Week 8}
+
+\noindent \textbf{Plans}:
+\begin{itemize}
+\item Finish delete support 
+\item Implement level 2 pointer optimizations 
+\item Tokenization code 
+\end{itemize}
+ 
+
+\noindent \textbf{Progress}: 
+\begin{itemize}
+\item Finished delete support 
+\item Added a real command-line interface for the client program 
+\item Integrated tokenization with the setup command in the client program 
+\end{itemize}
+ 
+\noindent \textbf{Problems}: 
+\begin{itemize}
+\item Ran into a mysterious segfault which ended up being because of a bad comparison function causing sort to read out of bounds. 
+\end{itemize}
+
+\noindent \textbf{Summary}: 
+
+Some progress. We have a real command-line interface now which should help development and testing. Delete support is in, which completes the basic DSSE scheme work (modulo any bugs). I had hoped that we would have the 2-level pointer optimizations in by now, but Scott Merrill is working on those and it doesn't seem like he has made much progress towards that, at least code-wise. We've talked last week and it does seem like he has been re-reading the paper and has a fairly good understanding of what needs to be done. 
+
+
+\subsubsection{Week 9}
+
+\noindent \textbf{Plans}:
+\begin{itemize}
+\item Want to get 2-level pointer implementation so we can demo to attila 
+\end{itemize}
+
+\noindent \textbf{Progress}:
+\begin{itemize}
+\item Did a bit of code cleanup 
+\item Talked with Scott Merrill a lot about 2-level pointer stuff so that he can move forward with that 
+\item Started working on final progress report 
+\item Met with TA and got some feedback on our midterm report 
+\end{itemize}
+
+\noindent \textbf{Problems}:
+(none)
+
+\noindent \textbf{Summary}:
+
+As always, slow but steady progress. No major blockers. Getting ready for the end of the term. 
+
+
+
+\subsubsection{Week 10}
+
+\noindent \textbf{Plans}:
+\begin{itemize}
+\item Book recording room; maybe record this week 
+\item Check in with Scott Merrill about state of his 2-level pointer work 
+\item Adjust requirements document 
+\item Send updated reqs to atilla 
+\end{itemize}
+
+\noindent \textbf{Progress}:
+
+\begin{itemize}
+\item Adjusted the requirements docs \& sent a copy to attila 
+\item Booked recording room for Tuesday, March 20th @ 3:30-6:30pm 
+\item I worked on cleaning up the some of the code and improving the user interface  
+\end{itemize}
+
+\noindent \textbf{Problems}:
+
+\begin{itemize}
+\item We need to get approval from McGrath as well 
+\item I didn't hear any news regarding the 2-level pointer code from Scott Merrill, or see any code for it committed to the repo, until he contacted me Saturday night asking for help. We met remotely on Saturday to work on the code. We were supposed to demo to Attila the next day, so this was a bit last-minute.
+\end{itemize}
+
+\subsection{Spring}
+\subsubsection{Week 1}
+
+\noindent \textbf{Plans}:
+
+\begin{itemize}
+\item Start the term off 
+\end{itemize}
+
+\noindent \textbf{Progress}:
+
+\begin{itemize}
+\item Went to capstone class 
+\item Emailed TA to set up meeting time 
+\item Set up weekly meetings with team members 
+\item SR signed us up for expo 
+\end{itemize}
+
+\noindent \textbf{Summary}:
+
+Welcome to week 1 of spring term. I spent this week getting settled into my other classes and touching base with my teammates to plan the rest of the term. 
+
+\subsubsection{Week 2}
+
+\noindent \textbf{Plans: }
+
+\begin{itemize}
+\item     Work with Scott Merrill to finish 2-level pointer implementation
+\item     Finish filename tracking
+\end{itemize}
+
+\noindent \textbf{Progress: }
+
+\begin{itemize}
+\item     Added filename stuff to Setup and Add and Searc
+\end{itemize}
+
+\noindent \textbf{Problems: }
+
+\begin{itemize}
+\item     Scott Merrill has drill this weekend and will not be available
+\item     Still no response from TA
+\end{itemize}
+
+\noindent \textbf{Summary: }
+
+We've got regular meeting times set up now as a team. I finished up some UI work (remembering filenames and displaying them in search results instead of just the file ids). In the next couple weeks we really need to get the last DSSE optimizations in place so that we can benchmark them so that we can have a pretty graph for our poster, which is due May 1st.
+
+
+\subsubsection{Week 3}
+
+\noindent \textbf{Plans: }
+
+\begin{itemize}
+\item     Work with Scott Merrill to finish 2-level pointer implementation
+\item     Finish filename tracking
+\end{itemize}
+
+\noindent \textbf{Progress: }
+
+\begin{itemize}
+\item     Merged filenames branch from last week
+
+\item     Added a mode to the setup command for adding a large number of files, to help with SR's benchmarking work
+
+\item     Started working on a simple demo app for expo
+\end{itemize}
+
+\noindent \textbf{Problems: }
+
+\begin{itemize}
+\item     SR tried to build IM-DSSE on windows, and we got most of the way there but the linker is segfaulting. He's going to reach out to Thang to see if he can help, and whether he can fix the bug we ran into before with the .AppleDouble directories.
+\end{itemize}
+
+\noindent \textbf{Summary: }
+
+I'm trying to get ready for expo. The major priority at this point is to get the last optimizations implemented so that we can benchmark them so that we can put a nice graph on the poster, which is due May 1st. I'm not sure we're going to make it (the work is held up by SM), but I guess worst case we just use the results we already have, and if we have newer results by expo we just print out a new plot and tape it onto the poster :)
+
+
+\subsubsection{Week 4}
+
+\noindent \textbf{Plans: }
+
+\noindent \textbf{Progress: }
+
+\begin{itemize}
+\item     Finished my WIRED article
+
+\item     Made some edits to the poster, mostly focusing on trimming down the word count
+
+\item     Did some benchmarking for Scott Russell
+\end{itemize}
+
+\noindent \textbf{Problems: }
+
+\noindent \textbf{Summary: }
+Not much to add. See progress above.
+
+
+\subsubsection{Week 5}
+\noindent \textbf{Plans: }
+
+\begin{itemize}
+\item     Work on midterm progress report
+\end{itemize}
+
+
+
+\noindent \textbf{Progress: }
+
+\begin{itemize}
+\item     Recorded video presentation
+
+\item     Started on written report
+\end{itemize}
+
+\noindent \textbf{Problems: }
+
+
+\noindent \textbf{Summary: }
+
+This week has mostly been about getting ready for expo and fulfulling capstone project requirements. The only major piece missing from our project is the final optimized variant of the DSSE, but that's squarely in Scott Merrill's corner and there doesn't seem to be much I can do to speed that up. I worked a little on cleaning up the code and integrating the various optimized versions into one branch. 
+
+\subsubsection{Week 6}
+
+\noindent \textbf{Summary: }
+
+\begin{itemize}
+\item     Getting ready for expo
+
+\item     Worked on demo app a bit
+
+\item     Touched base with Attila briefly to discuss expo
+\end{itemize}
+
+
