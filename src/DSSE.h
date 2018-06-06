@@ -82,12 +82,14 @@ public:
 		std::vector<std::string> &tokens,
 		std::map<std::string, std::vector<fileid_t> > &fileids,
 		// Output
-		std::vector<SetupPair> &L
+		std::vector<SetupPair> &L,
+		std::vector<std::string> &M
 	);
 
 	void SetupServer(
 		int version,
-		std::vector<SetupPair> &L
+		std::vector<SetupPair> &L,
+		std::vector<std::string> &M
 	);
 
 	// SearchClient performs the client side of searching the index for a given keyword.
@@ -157,6 +159,15 @@ private:
 	void SetupServerPacked(std::vector<SetupPair> &L);
 	std::vector<fileid_t> SearchServerPacked(uint8_t *K1, uint8_t *K2, uint8_t *K1plus, uint8_t *K2plus, uint8_t *K1minus);
 
+	void SetupClientPointer(
+		std::vector<std::string> &tokens,
+		std::map<std::string, std::vector<fileid_t> > &fileids,
+		std::vector<SetupPair> &Loutput,
+		std::vector<std::string> &Moutput
+	);
+	void SetupServerPointer(std::vector<SetupPair> &L, std::vector<std::string> &M);
+	std::vector<fileid_t> SearchServerPointer(uint8_t *K1, uint8_t *K2, uint8_t *K1plus, uint8_t *K2plus, uint8_t *K1minus);
+
 	// Client+server state
 	// This tells the client or server what version of the protocol to use,
 	// and what version the database uses.
@@ -169,10 +180,11 @@ private:
 	std::map<std::string, uint64_t> Dcount;
 
 	// Server state;
-	std::map<std::string, std::string> D; // mac'd token id -> encrypted file id
+	std::map<std::string, std::string> D; // mac'd token id -> encrypted file id or index blocks
+	std::vector<std::string> A; // encrypted blocks. TODO: used mmap-ed file instead?
 	std::map<std::string, std::string> Dplus; // mac'd token id -> encrypted file id
 	std::set<std::string> Srev; // set of revoked tokens
-	bool dirtyD; // whether D has changed
+	bool dirtyD; // whether D (and A) have changed
 };
 
 // forward-declare message types

@@ -2,6 +2,7 @@
 #include <utility> // pair
 #include <cstring> // memset
 #include <cstdio>
+#include <iostream>
 
 #include "DSSE.h"
 #include "tomcrypt.h"
@@ -17,6 +18,9 @@ const int DIGESTLEN = 256/8;
 const int ENCRYPTED_FILEID_SIZE = sizeof(fileid_t) + 16; // 16 bytes for the IV
 const int BLOCK_SIZE = sizeof(fileid_t) * B; // block size in bytes
 const int ENCRYPTED_BLOCK_SIZE = sizeof(fileid_t)*B + 16; // 16 bytes for the IV
+
+// placeholder value for invalid fileids or pointers
+const uint64_t INVALID = 0xFFFFFFFFFFFFFFFFull;
 
 Core::Core() {
     this->version = Basic;
@@ -81,6 +85,30 @@ void mac_key(uint8_t key[], char keynum, const char* token, uint8_t out[]) {
     crypt_or_die(hmac_done(&hmac, out, &outlen));
 }
 
+// getu64 unpacks a little-endian 64-bit value from bytes
+uint64_t getu64(uint8_t bytes[]) {
+    return ((((uint64_t)bytes[0])<<0)
+           |(((uint64_t)bytes[1])<<8)
+           |(((uint64_t)bytes[2])<<16)
+           |(((uint64_t)bytes[3])<<24)
+           |(((uint64_t)bytes[4])<<32)
+           |(((uint64_t)bytes[5])<<40)
+           |(((uint64_t)bytes[6])<<48)
+           |(((uint64_t)bytes[7])<<56));
+}
+
+// putu64 packs a 64-bit value as a sequence of little-endian bytes
+void putu64(uint64_t value, uint8_t bytes[]) {
+    bytes[0] = value&0xff;
+    bytes[1] = (value>>8)&0xff;
+    bytes[2] = (value>>16)&0xff;
+    bytes[3] = (value>>24)&0xff;
+    bytes[4] = (value>>32)&0xff;
+    bytes[5] = (value>>40)&0xff;
+    bytes[6] = (value>>48)&0xff;
+    bytes[7] = (value>>56)&0xff;
+}
+
 /**
  * mac_counter uses a per-token key to derive a hashed id value
  */
@@ -102,14 +130,7 @@ void mac_long(uint8_t key[], uint64_t counter, uint8_t out[]) {
     int hash = find_hash("sha256");
     crypt_or_die(hmac_init(&hmac, hash, key, KEYLEN));
     uint8_t buf[8];
-    buf[0] = counter&0xff;
-    buf[1] = (counter>>8)&0xff;
-    buf[2] = (counter>>16)&0xff;
-    buf[3] = (counter>>24)&0xff;
-    buf[4] = (counter>>32)&0xff;
-    buf[5] = (counter>>40)&0xff;
-    buf[6] = (counter>>48)&0xff;
-    buf[7] = (counter>>56)&0xff;
+    putu64(counter, buf);
     crypt_or_die(hmac_process(&hmac, buf, sizeof buf / 1));
     unsigned long outlen = DIGESTLEN;
     crypt_or_die(hmac_done(&hmac, out, &outlen));
@@ -136,14 +157,7 @@ void encrypt_bytes(uint8_t key[], uint8_t msg[], size_t msglen, uint8_t out[]){
 
 void encrypt_long(uint8_t key[], uint64_t value, uint8_t out[]) {
     uint8_t bytes[8];
-    bytes[0] = value&0xff;
-    bytes[1] = (value>>8)&0xff;
-    bytes[2] = (value>>16)&0xff;
-    bytes[3] = (value>>24)&0xff;
-    bytes[4] = (value>>32)&0xff;
-    bytes[5] = (value>>40)&0xff;
-    bytes[6] = (value>>48)&0xff;
-    bytes[7] = (value>>56)&0xff;
+    putu64(value, bytes);
     encrypt_bytes(key, bytes, 8, out);
 }
 
@@ -161,14 +175,12 @@ void decrypt_bytes(uint8_t key[], const uint8_t ctext[], size_t ctextlen, uint8_
 void decrypt_long(uint8_t key[], const uint8_t ctext[], uint64_t &out) {
     uint8_t outbytes[8];
     decrypt_bytes(key, ctext, ENCRYPTED_FILEID_SIZE, outbytes);
-    out = ((((uint64_t)outbytes[0])<<0)
-          |(((uint64_t)outbytes[1])<<8)
-          |(((uint64_t)outbytes[2])<<16)
-          |(((uint64_t)outbytes[3])<<24)
-          |(((uint64_t)outbytes[4])<<32)
-          |(((uint64_t)outbytes[5])<<40)
-          |(((uint64_t)outbytes[6])<<48)
-          |(((uint64_t)outbytes[7])<<56));
+    out = getu64(outbytes);
+}
+
+// bstring constructs a std::string from bytes
+std::string bstring(uint8_t bytes[], size_t size) {
+    return std::string(reinterpret_cast<char*>(bytes), size);
 }
 
 struct token_pair {
@@ -226,12 +238,15 @@ void Core::SetupClient(
     int version,
     std::vector<std::string> &tokens,
     std::map<std::string, std::vector<fileid_t> > &fileids,
-    std::vector<SetupPair> &Loutput
+    std::vector<SetupPair> &Loutput,
+    std::vector<std::string> &Moutput
 ) {
     if (version == Basic) {
         this->SetupClientBasic(tokens, fileids, Loutput);
     } else if (version == Packed) {
         this->SetupClientPacked(tokens, fileids, Loutput);
+    } else if (version == Pointer) {
+        this->SetupClientPointer(tokens, fileids, Loutput, Moutput);
     } else {
         fprintf(stderr, "error: unknown version %d\n", version);
         exit(1);
@@ -262,25 +277,11 @@ void Core::SetupClientBasic(
         //print_bytes(stdout, "K1", K1, KEYLEN);
         for (size_t c = 0; c < fids.size(); c++) {
             uint8_t counter_bytes[8];
-            counter_bytes[0] = c&0xff;
-            counter_bytes[1] = (c>>8)&0xff;
-            counter_bytes[2] = (c>>16)&0xff;
-            counter_bytes[3] = (c>>24)&0xff;
-            counter_bytes[4] = (c>>32)&0xff;
-            counter_bytes[5] = (c>>40)&0xff;
-            counter_bytes[6] = (c>>48)&0xff;
-            counter_bytes[7] = (c>>56)&0xff;
+            putu64(c, counter_bytes);
 
             uint8_t fileid_bytes[8];
             fileid_t fid = fids.at(c);
-            fileid_bytes[0] = fid&0xff;
-            fileid_bytes[1] = (fid>>8)&0xff;
-            fileid_bytes[2] = (fid>>16)&0xff;
-            fileid_bytes[3] = (fid>>24)&0xff;
-            fileid_bytes[4] = (fid>>32)&0xff;
-            fileid_bytes[5] = (fid>>40)&0xff;
-            fileid_bytes[6] = (fid>>48)&0xff;
-            fileid_bytes[7] = (fid>>56)&0xff;
+            putu64(fid, fileid_bytes);
 
             token_pair p = {0};
             mac_counter(K1, counter_bytes, sizeof counter_bytes / 1, p.l);
@@ -324,31 +325,18 @@ void Core::SetupClientPacked(
         //print_bytes(stdout, "K1", K1, KEYLEN);
         for (size_t c = 0; c < ((fids.size()+(B-1))/B); c++) {
             uint8_t counter_bytes[8];
-            counter_bytes[0] = c&0xff;
-            counter_bytes[1] = (c>>8)&0xff;
-            counter_bytes[2] = (c>>16)&0xff;
-            counter_bytes[3] = (c>>24)&0xff;
-            counter_bytes[4] = (c>>32)&0xff;
-            counter_bytes[5] = (c>>40)&0xff;
-            counter_bytes[6] = (c>>48)&0xff;
-            counter_bytes[7] = (c>>56)&0xff;
+            putu64(c, counter_bytes);
 
             // We want to make this contain up to 5 different file ids
             uint8_t fileid_bytes[BLOCK_SIZE];
-            for(size_t fidc = 0; fidc < B; fidc++ ){
+            for (size_t fidc = 0; fidc < B; fidc++) {
                 size_t offset = fidc * 8;
-                if(c*B+fidc < fids.size()){
+                if (c*B+fidc < fids.size()) {
                     fileid_t fid = fids.at(c*B+fidc);
-                    fileid_bytes[0 + offset] = fid&0xff;
-                    fileid_bytes[1 + offset] = (fid>>8)&0xff;
-                    fileid_bytes[2 + offset] = (fid>>16)&0xff;
-                    fileid_bytes[3 + offset] = (fid>>24)&0xff;
-                    fileid_bytes[4 + offset] = (fid>>32)&0xff;
-                    fileid_bytes[5 + offset] = (fid>>40)&0xff;
-                    fileid_bytes[6 + offset] = (fid>>48)&0xff;
-                    fileid_bytes[7 + offset] = (fid>>56)&0xff;
+                    putu64(fid, &fileid_bytes[offset]);
+                } else {
+                    memset(fileid_bytes+offset, 0xff, 8);
                 }
-                else { memset(fileid_bytes+offset, 0xff, 8); }
             }
 
             token_pair p = {0};
@@ -370,40 +358,102 @@ void Core::SetupClientPacked(
     }
 }
 
-void Core::SetupServer(int version, std::vector<SetupPair> &L) {
-    if (version == Basic) {
-        this->SetupServerBasic(L);
-    } else if (version == Packed) {
-        this->SetupServerPacked(L);
-    } else {
-        fprintf(stderr, "error: unknown version %d\n", version);
-        exit(1);
+void Core::SetupClientPointer(
+    std::vector<std::string> &tokens,
+    std::map<std::string, std::vector<fileid_t> > &fileids,
+    std::vector<SetupPair> &Loutput,
+    std::vector<std::string> &Moutput
+) {
+    // initialize client state
+    random_key(this->key); // Figure 5 (page 8)
+    random_key(this->kplus); // page 17
+    random_key(this->kminus); // page 19
+
+    // Figure 5 (page 8)
+    auto L = std::vector<token_pair>();
+    auto M = std::vector<std::string>();
+
+
+    for (auto& w : tokens) {
+        uint8_t K1[DIGESTLEN], K2[DIGESTLEN];
+        mac_key(this->key, '1', w.c_str(), K1);
+        mac_key(this->key, '2', w.c_str(), K2);
+        auto& fids = fileids.at(w);
+        //print_bytes(stdout, "K1", K1, KEYLEN);
+
+        uint8_t buf[ENCRYPTED_BLOCK_SIZE];
+        uint8_t pointer_block[BLOCK_SIZE];
+        uint8_t fileid_block[BLOCK_SIZE];
+        size_t i = 0; // fileid index
+        for (uint64_t c = 0; i < fids.size(); c++) {
+            for (int j = 0; j < B; j++) {
+                // TODO: don't reuse B here for the pointer block length
+                for (int k = 0; k < B; k++) {
+                    if (i < fids.size()) {
+                        fileid_t fid = fids.at(i);
+                        putu64(fid, &fileid_block[k * sizeof(fileid_t)]);
+                        i++;
+                    } else {
+                        putu64(INVALID, &fileid_block[k * sizeof(fileid_t)]);
+                    }
+                }
+
+                // encrypt fileid block and add to M
+                // TODO: pick a random index instead of appending
+                encrypt_bytes(K2, fileid_block, sizeof fileid_block, buf);
+                M.push_back(bstring(buf, sizeof buf));
+
+                // add fileid index to pointer block
+                putu64(M.size()-1, &pointer_block[j * sizeof(uint64_t)]);
+
+                // if we're out of fileids,
+                // fill remaining pointers with INVALID
+                // and break
+                if (i >= fids.size()) {
+                    for (j = j+1; j < B; j++) {
+                        putu64(INVALID, &pointer_block[j * sizeof(uint64_t)]);
+                    }
+                    break;
+                }
+            }
+
+            // encrypt pointer block and add to L
+            token_pair p = {0};
+            uint8_t counter_bytes[8];
+            putu64(c, counter_bytes);
+            encrypt_bytes(K2, pointer_block, sizeof pointer_block, p.d);
+            mac_counter(K1, counter_bytes, sizeof counter_bytes / 1, p.l);
+            //print_bytes(stdout, "key", p.l, sizeof p.l);
+            L.push_back(p);
+        }
     }
+
+    std::sort(L.begin(), L.end(), compare_token_pair);
+
+    // hand L off to the server
+    for (token_pair &p : L) {
+        Loutput.push_back(SetupPair{
+            std::string((char*)p.l, sizeof p.l),
+            std::string((char*)p.d, ENCRYPTED_BLOCK_SIZE)
+        });
+    }
+    Moutput = M;
+}
+
+void Core::SetupServer(int version, std::vector<SetupPair> &L, std::vector<std::string> &M) {
+    this->D.clear();
+    this->A.clear();
+    this->Dplus.clear(); // page 17
+    this->dirtyD = true;
+
+    for (SetupPair& p : L) {
+        this->D[p.Token] = p.FileID;
+        //print_bytes(stdout, "key", p.Token);
+        //print_bytes(stdout, "value", p.FileID);
+    }
+
+    this->A = M;
     this->version = version;
-}
-
-void Core::SetupServerBasic(std::vector<SetupPair> &L) {
-    this->D.clear();
-    this->Dplus.clear(); // page 17
-    this->dirtyD = true;
-
-    for (SetupPair& p : L) {
-        this->D[p.Token] = p.FileID;
-        //print_bytes(stdout, "key", p.Token);
-        //print_bytes(stdout, "value", p.FileID);
-    }
-}
-
-void Core::SetupServerPacked(std::vector<SetupPair> &L) {
-    this->D.clear();
-    this->Dplus.clear(); // page 17
-    this->dirtyD = true;
-
-    for (SetupPair& p : L) {
-        this->D[p.Token] = p.FileID;
-        //print_bytes(stdout, "key", p.Token);
-        //print_bytes(stdout, "value", p.FileID);
-    }
 }
 
 void Core::SearchClient(std::string w,
@@ -429,6 +479,8 @@ std::vector<uint64_t> Core::SearchServer(key_t K1, key_t K2, key_t K1plus, key_t
         return this->SearchServerBasic(K1, K2, K1plus, K2plus, K1minus);
     } else if (this->version == Packed) {
         return this->SearchServerPacked(K1, K2, K1plus, K2plus, K1minus);
+    } else if (this->version == Pointer) {
+        return this->SearchServerPointer(K1, K2, K1plus, K2plus, K1minus);
     } else {
         fprintf(stderr, "error: unknown version %d\n", this->version);
         exit(1);
@@ -496,7 +548,7 @@ std::vector<uint64_t> Core::SearchServerPacked(key_t K1, key_t K2, key_t K1plus,
     uint64_t c = 0;
     std::vector<uint64_t> ids;
 
-    std::string revid(KEYLEN, '\0');
+    std::string revid(DIGESTLEN, '\0');
     //print_bytes(stdout, "K1", K1, KEYLEN);
     for (c = 0;; c++) {
         uint8_t l[DIGESTLEN];
@@ -512,26 +564,9 @@ std::vector<uint64_t> Core::SearchServerPacked(key_t K1, key_t K2, key_t K1plus,
         decrypt_bytes(K2, reinterpret_cast<const uint8_t*>(d.data()),d.size(), retid);
 
         //Unpack retid
-        uint8_t checkid[8];
         for(int i=0; i<B; i++){
-            // Gets fid out of retid
-            checkid[0] = retid[0 + (i*8)];
-            checkid[1] = retid[1 + (i*8)];
-            checkid[2] = retid[2 + (i*8)];
-            checkid[3] = retid[3 + (i*8)];
-            checkid[4] = retid[4 + (i*8)];
-            checkid[5] = retid[5 + (i*8)];
-            checkid[6] = retid[6 + (i*8)];
-            checkid[7] = retid[7 + (i*8)];
-            // Converts checkid to int
-            uint64_t retval = ((((uint64_t)checkid[0])<<0)
-                    |(((uint64_t)checkid[1])<<8)
-                    |(((uint64_t)checkid[2])<<16)
-                    |(((uint64_t)checkid[3])<<24)
-                    |(((uint64_t)checkid[4])<<32)
-                    |(((uint64_t)checkid[5])<<40)
-                    |(((uint64_t)checkid[6])<<48)
-                    |(((uint64_t)checkid[7])<<56));
+            // Gets fid out of retid and converts to int
+            uint64_t retval = getu64(&retid[i*8]);
             // check that retval is valid
             if (retval < 0xffffffffffffffff){
                 // page 20
@@ -540,7 +575,85 @@ std::vector<uint64_t> Core::SearchServerPacked(key_t K1, key_t K2, key_t K1plus,
                 if (this->Srev.count(revid) > 0) {
                     continue;
                 }
-                 ids.push_back(retval);
+                ids.push_back(retval);
+            }
+        }
+    }
+
+
+    // page 18
+    for (c = 0;; c++) {
+        uint8_t l[DIGESTLEN];
+        std::string d;
+        mac_long(K1plus, c, l);
+        try {
+            d = this->Dplus.at(std::string(reinterpret_cast<char*>(l), sizeof l / 1));
+        } catch (std::out_of_range& e) {
+            break;
+        }
+        uint64_t id = 0;
+        decrypt_long(K2plus, reinterpret_cast<const uint8_t*>(d.data()), id);
+
+        // page 20
+        // check if id is on the revocation list
+        mac_long(K1minus, id, reinterpret_cast<uint8_t*>(&revid[0]));
+        if (this->Srev.count(revid) > 0) {
+            continue;
+        }
+
+        ids.push_back(id);
+    }
+    return ids;
+}
+
+// SearchServer performs the server side of searching the index for a given keyword.
+std::vector<uint64_t> Core::SearchServerPointer(key_t K1, key_t K2, key_t K1plus, key_t K2plus, key_t K1minus) {
+    uint64_t c = 0;
+    std::vector<uint64_t> ids;
+
+    std::string revid(DIGESTLEN, '\0');
+    //print_bytes(stdout, "K1", K1, KEYLEN);
+    for (c = 0;; c++) {
+        uint8_t l[DIGESTLEN];
+        std::string d;
+        mac_long(K1, c, l);
+        //print_bytes(stdout, "key", l, sizeof l);
+        try {
+            d = this->D.at(std::string(reinterpret_cast<char*>(l), sizeof l / 1));
+        } catch (std::out_of_range& e) {
+            break;
+        }
+        uint8_t pointer_block[BLOCK_SIZE];
+        decrypt_bytes(K2, reinterpret_cast<const uint8_t*>(d.data()), d.size(), pointer_block);
+
+        for(int i = 0; i < B; i++) {
+            uint64_t index = getu64(&pointer_block[i*sizeof(uint64_t)]);
+
+            // check that index is valid
+            if (index == INVALID) {
+                break;
+            }
+
+            if (index >= this->A.size()) {
+                // this shouldn't happen
+                std::cerr << "error: pointer out of range: "<<index<<" "<<this->A.size()<<"\n";
+                continue;
+            }
+
+            uint8_t fileid_block[BLOCK_SIZE];
+            std::string& encrypted_fileid_block = this->A.at(index);
+            decrypt_bytes(K2, reinterpret_cast<const uint8_t*>(encrypted_fileid_block.data()), encrypted_fileid_block.size(), fileid_block);
+            for (int j = 0; j < B; j++) {
+                uint64_t fileid = getu64(&fileid_block[j*8]);
+                if (fileid == INVALID) {
+                    continue;
+                }
+                // check if id is on the revocation list
+                mac_long(K1minus, fileid, reinterpret_cast<uint8_t*>(&revid[0]));
+                if (this->Srev.count(revid) > 0) {
+                    continue;
+                }
+                ids.push_back(fileid);
             }
         }
     }

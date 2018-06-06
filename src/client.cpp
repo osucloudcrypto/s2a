@@ -36,7 +36,9 @@ int main(int argc, char* argv[]) {
 			port = atoi(optarg);
 			break;
 		case 'P':
-			version = DSSE::Packed;
+			if (version < DSSE::Pointer) {
+				version++;
+			}
 			break;
 		default: /* '?' */
 			usage();
@@ -49,6 +51,8 @@ int main(int argc, char* argv[]) {
 
 	if (version == DSSE::Packed) {
 		std::cerr << "info: using packed storage\n";
+	} else if (version == DSSE::Pointer) {
+		std::cerr << "info: using pointer storage\n";
 	}
 
 	std::string command = argv[optind];

@@ -342,6 +342,51 @@ bool readInt(std::string filename, int &value) {
 	return true;
 }
 
+bool writeBlocks(std::string filename, const std::vector<std::string> &A) {
+	std::ofstream out;
+	out.open(filename, std::ios::binary);
+	if (!out) {
+		perror("open");
+		return false;
+	}
+	for (size_t i = 0; i < A.size(); i++) {
+		writeString(out, A[i]);
+	}
+	if (!out) {
+		perror("write");
+		return false;
+	}
+	return true;
+}
+
+bool readBlocks(std::string filename, std::vector<std::string> &A) {
+	std::ifstream in;
+	in.open(filename, std::ios::binary);
+	if (!in) {
+		perror("open");
+		return false;
+	}
+	for (size_t i = 0;; i++) {
+		A.push_back("");
+		if (!readString(in, A[i])) {
+			goto error;
+		}
+		if (in.eof()) {
+			break;
+		}
+	}
+	return true;
+
+error:
+	if (in.bad()) {
+		std::cerr << "I/O error when reading A\n";
+		perror("read");
+	} else {
+		std::cerr << "syntax error in A\n";
+	}
+	return false;
+}
+
 bool SaveClientToStorage(DSSE::Core &core, std::string base) {
 	if (mkdir(base.c_str(), 0777) < 0) {
 		if (errno != EEXIST) {
@@ -370,6 +415,7 @@ bool SaveServerToStorage(DSSE::Core &core, std::string base) {
 	if (core.dirtyD) {
 		// Only write D after a Setup operation
 		if (!writeMap(base+"/D", core.D)) { return false; }
+		if (!writeBlocks(base+"/A", core.A)) { return false; }
 		core.dirtyD = false;
 	}
 	if (!writeMap(base+"/Dplus", core.Dplus)) { return false; }
@@ -391,6 +437,7 @@ bool LoadServerFromStorage(DSSE::Core &core, std::string base) {
 	if (!readMap(base+"/D", core.D)) { return false; }
 	if (!readMap(base+"/Dplus", core.Dplus)) { return false; }
 	if (!readRevlist(base+"/Srev", core.Srev)) { return false; }
+	if (!readBlocks(base+"/A", core.A)) { return false; }
 	return true;
 }
 
