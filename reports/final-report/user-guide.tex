@@ -76,7 +76,7 @@ Commands:
 For any of these commands to work, the server must already be running.
 If the server is not running, the client will hang until the server is started.
 
-\subsubsubsection{Setup}
+\noindent\textbf{Setup}
 
 The setup command creates an encrypted search index
 
@@ -105,7 +105,7 @@ ls *.cpp >filelist
 This does the same thing as the previous setup command, but can be used even if
 the number of files is too large to fit on the command line.
 
-\subsubsubsection{Search}
+\noindent\textbf{Search}
 
 The search command searches for a keyword in the encrypted index.
 It prints out a list of matching files.
@@ -133,7 +133,7 @@ int: speed.cpp
 int: storage.cpp
 \end{lstlisting}
 
-\subsubsubsection{Add}
+\noindent\textbf{Add}
 
 The add command adds one or more keywords to a file.
 To use the add command, you need to know the id of the file you want to modify.
@@ -164,7 +164,7 @@ The addfile command adds an entire new file to the search index.
 \% ./client addfile DSSE.h
 \end{lstlisting}
 
-\subsubsubsection{Delete}
+\noindent\textbf{Delete}
 
 The delete command deletes one or more keywords from a file.
 It works similarly to the add command.
@@ -182,7 +182,7 @@ For example,
 
 \subsection{Demo app}
 
-The demo app lives in the \texttt{demo_app} branch.
+The demo app lives in the \texttt{demo\_app} branch.
 It is not part of the main code base.
 
 % TODO
@@ -193,13 +193,13 @@ The top level of the repository is layed out as follows.
 
 \begin{tabular}{ll}
     Benchmarks/         & benchmark results \\
-    Meeting_Notes/      & meeting notes throughout the term \\
+    Meeting\_Notes/      & meeting notes throughout the term \\
     Poster/             & our expo poster \\
-    Term_PowerPoints/   & powerpoint slides from our progress reports \\
-    demo/               & (demo_app branch only) this is where the demo app lives \\
+    Term\_PowerPoints/   & powerpoint slides from our progress reports \\
+    demo/               & (demo\_app branch only) this is where the demo app lives \\
     reports/            & capstone reports and other documents \\
     src/                & the main source code \\
-    third_party/        & copies of third-party libraries that we depend on \\
+    third\_party/        & copies of third-party libraries that we depend on \\
 \end{tabular}
 
 
