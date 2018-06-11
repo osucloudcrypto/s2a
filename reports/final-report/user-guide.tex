@@ -20,14 +20,18 @@ All the source code and supporting documents can be found on Github \cite{Github
 
 To build for the first time, run make.sh in the top-level directory.
 
-    ./make.sh
+\begin{lstlisting}
+./make.sh
+\end{lstlisting}
 
 This will build all the third party libraries as well as our code.
 
-For subsequent builds, simply run `make` in the `src` directory.
+For subsequent builds, simply run \texttt{make} in the \texttt{src} directory.
 
-    cd src
-    make
+\begin{lstlisting}
+cd src
+make
+\end{lstlisting}
 
 \section{Usage}
 
@@ -39,29 +43,35 @@ The program is split into two halves: a client and a server.
 
 To run the server, simply run
 
-    ./server
+\begin{lstlisting}
+./server
+\end{lstlisting}
 
 It will sit in the foreground and listen for requests from the client.
 By default, the server listens on port 24992.
 To listen on another port, pass the port number as the first argument to the server.
 
-    ./server 8000
+\begin{lstlisting}
+./server 8000
+\end{lstlisting}
 
 \subsubsection{Client}
 
 The client is a little more interesting.
 It has a number of subcommands;
-to see the full list, give it the `-h` option (or any other invalid option
+to see the full list, give it the \texttt{-h} option (or any other invalid option
 
-    \% ./client -h
-    ./client: invalid option -- 'h'
-    Usage: client [-p port] <command> [args]
-    Commands:
-        client setup [files...]
-        client search <word>
-        client add <fileid> [words...]
-        client addfile <filename>
-        client delete <fileid> [words...]
+\begin{lstlisting}
+\% ./client -h
+./client: invalid option -- 'h'
+Usage: client [-p port] <command> [args]
+Commands:
+    client setup [files...]
+    client search <word>
+    client add <fileid> [words...]
+    client addfile <filename>
+    client delete <fileid> [words...]
+\end{lstlisting}
 
 For any of these commands to work, the server must already be running.
 If the server is not running, the client will hang until the server is started.
@@ -70,22 +80,27 @@ If the server is not running, the client will hang until the server is started.
 
 The setup command creates an encrypted search index
 
-    client setup [files...]
+\begin{lstlisting}
+client setup [files...]
+\end{lstlisting}
 
 For example,
 
-    ./client setup *.cpp
+\begin{lstlisting}
+./client setup *.cpp
+\end{lstlisting}
 
 will initialize the search index with all cpp files in the current directory.
-If
 
-There is also a hidden `setuplist` command, which reads the list of files from another file
+There is also a hidden \texttt{setuplist} command, which reads the list of files from another file
 instead of the command line.
 
 For example,
 
-    ls *.cpp >filelist
-    ./client setuplist filelist
+\begin{lstlisting}
+ls *.cpp >filelist
+./client setuplist filelist
+\end{lstlisting}
 
 This does the same thing as the previous setup command, but can be used even if
 the number of files is too large to fit on the command line.
@@ -95,47 +110,59 @@ the number of files is too large to fit on the command line.
 The search command searches for a keyword in the encrypted index.
 It prints out a list of matching files.
 
-    client search [keyword]
+\begin{lstlisting}
+client search [keyword]
+\end{lstlisting}
 
 For example,
 
-    \% ./client search int
-    info: loaded client state
-    got response
-    int: bench.cpp
-    int: client.cpp
-    int: client_test.cpp
-    int: DSSEClient.cpp
-    int: DSSE.cpp
-    int: DSSEServer.cpp
-    int: fail.cpp
-    int: merged-client.cpp
-    int: server.cpp
-    int: speed.cpp
-    int: storage.cpp
+\begin{lstlisting}
+\% ./client search int
+info: loaded client state
+got response
+int: bench.cpp
+int: client.cpp
+int: client_test.cpp
+int: DSSEClient.cpp
+int: DSSE.cpp
+int: DSSEServer.cpp
+int: fail.cpp
+int: merged-client.cpp
+int: server.cpp
+int: speed.cpp
+int: storage.cpp
+\end{lstlisting}
 
 \subsubsubsection{Add}
 
 The add command adds one or more keywords to a file.
 To use the add command, you need to know the id of the file you want to modify.
 
-    client add <fileid> [keywords]
+\begin{lstlisting}
+client add <fileid> [keywords]
+\end{lstlisting}
 
 For example,
 
-    ./client add 1 hello
+\begin{lstlisting}
+./client add 1 hello
+\end{lstlisting}
 
 Now searching for `hello' will return the file with id number 1.
 
-    \% ./client search hello
-    info: loaded client state
-    got response
-    hello: bench.cpp
+\begin{lstlisting}
+\% ./client search hello
+info: loaded client state
+got response
+hello: bench.cpp
+\end{lstlisting}
 
 There is also a variant of the add command called addfile.
 The addfile command adds an entire new file to the search index.
 
-    \% ./client addfile DSSE.h
+\begin{lstlisting}
+\% ./client addfile DSSE.h
+\end{lstlisting}
 
 \subsubsubsection{Delete}
 
@@ -143,30 +170,37 @@ The delete command deletes one or more keywords from a file.
 It works similarly to the add command.
 To use the delete command, you need to know the id of the file you want to modify.
 
-    client delete <fileid> [keywords]
+\begin{lstlisting}
+client delete <fileid> [keywords]
+\end{lstlisting}
 
 For example,
 
-    ./client delete 1 hello
+\begin{lstlisting}
+./client delete 1 hello
+\end{lstlisting}
 
 \subsection{Demo app}
 
-The demo app lives in the `demo_app` branch.
+The demo app lives in the \texttt{demo_app} branch.
 It is not part of the main code base.
 
-
+% TODO
 
 \section{Hacking}
 
 The top level of the repository is layed out as follows.
 
-    Benchmarks/         benchmark results
-    Meeting_Notes/      meeting notes throughout the term
-    Poster/             our expo poster
-    Term_PowerPoints/   powerpoint slides from our progress reports
-    demo/               (demo_app branch only) this is where the demo app lives
-    reports/            capstone reports and other documents
-    src/                the main source code
-    third_party/        copies of third-party libraries that we depend on
+\begin{tabular}{ll}
+    Benchmarks/         & benchmark results \\
+    Meeting_Notes/      & meeting notes throughout the term \\
+    Poster/             & our expo poster \\
+    Term_PowerPoints/   & powerpoint slides from our progress reports \\
+    demo/               & (demo_app branch only) this is where the demo app lives \\
+    reports/            & capstone reports and other documents \\
+    src/                & the main source code \\
+    third_party/        & copies of third-party libraries that we depend on \\
+\end{tabular}
 
 
+% TOGO

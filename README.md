@@ -73,7 +73,6 @@ For example,
     ./client setup *.cpp
 
 will initialize the search index with all cpp files in the current directory.
-If
 
 There is also a hidden `setuplist` command, which reads the list of files from another file
 instead of the command line.
@@ -121,7 +120,7 @@ For example,
 
     ./client add 1 hello
 
-Now searching for `hello' will return the file with id number 1.
+Now searching for 'hello' will return the file with id number 1.
 
     % ./client search hello
     info: loaded client state
