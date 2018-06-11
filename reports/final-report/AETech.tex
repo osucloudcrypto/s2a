@@ -1,75 +1,6 @@
+% We review technical choices for the Privacy Cloud project, including research into searchable encryption algorithms, choices for encryption schemes, and choices for cloud storage providers.
 
-
-% 1. Fill in these details
-\def \CapstoneTeamName{		The Secret Bunny Team}
-\def \CapstoneTeamNumber{		38}
-\def \GroupMemberOne{			Andrew Ekstedt}
-\def \GroupMemberTwo{			Scott Merrill}
-\def \GroupMemberThree{			Scott Russell}
-\def \CapstoneProjectName{		Privacy Preserving Cloud, Email, and Password Systems}
-\def \CapstoneSponsorCompany{	OSU}
-\def \CapstoneSponsorPerson{		Attila Yavuz}
-
-% 2. Uncomment the appropriate line below so that the document type works
-\def \DocType{	%Problem Statement
-				%Requirements Document
-				Technology Review
-				%Design Document
-				%Progress Report
-				}
-			
-% 3. If the document is not to be signed, uncomment the RENEWcommand below
-\renewcommand{\NameSigPair}[1]{#1}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{titlepage}
-    \pagenumbering{gobble}
-    \begin{singlespace}
-        %\includegraphics[height=4cm]{coe_v_spot1}
-        \hfill 
-        % 4. If you have a logo, use this includegraphics command to put it on the coversheet.
-        %\includegraphics[height=4cm]{CompanyLogo}   
-        \par\vspace{.2in}
-        \centering
-        \scshape{
-            \huge CS Capstone \DocType \par
-            {\large\today}\par
-            \vspace{.5in}
-            \textbf{\Huge\CapstoneProjectName}\par
-            \vfill
-            {\large Prepared for}\par
-            \Huge \CapstoneSponsorCompany\par
-            \vspace{5pt}
-            {\Large\NameSigPair{\CapstoneSponsorPerson}\par}
-            {\large Prepared by }\par
-            Group\CapstoneTeamNumber\par
-            % 5. comment out the line below this one if you do not wish to name your team
-            \CapstoneTeamName\par 
-            \vspace{5pt}
-            {\Large
-                \NameSigPair{\GroupMemberOne}\par
-                %\NameSigPair{\GroupMemberTwo}\par
-                %\NameSigPair{\GroupMemberThree}\par
-            }
-            \vspace{20pt}
-        }
-        \begin{abstract}
-        % 6. Fill in your abstract    
-        	
-            We review technical choices for the Privacy Cloud project, including research into searchable encryption algorithms, choices for encryption schemes, and choices for cloud storage providers.
-            
-        \end{abstract}     
-    \end{singlespace}
-\end{titlepage}
-\newpage
-\pagenumbering{arabic}
-%\tableofcontents
-% 7. uncomment this (if applicable). Consider adding a page break.
-%\listoffigures
-%\listoftables
-%\clearpage
-
+\chapter{Technology Review - Andrew Ekstedt}
 
 \section{ Introduction }
 
@@ -82,9 +13,56 @@ The purpose of this document is to outline the technical choices for our project
 
 At the heart of our project is the searchable symmetric encryption algorithm (SSE).
 Our goal is to implement the scheme described by David Cash et al. in \cite{cash14}. As part of this tech review we have made an annotated bibliography of some papers about searchable encryption:
-\cite{yavuz15}
-\cite{cash14}
-\cite{song00}
+
+
+\subsection{Song et al., 2000}
+
+\cite{song00} \bibentry{song00}
+
+The original searchable encryption paper.
+The authors introduce the concept of searchable encryption and define the essential properties of a searchable encryption scheme:
+that the server should not be able to learn anything about the plaintext;
+that the server should not be able to learn which keywords the user is searching for;
+and that the server cannot perform a search without the user's permission.
+
+They do not rigorously define what operations a searchable encryption scheme supports. They mention dynamic schemes only in passing.
+
+They also present a basic scheme and prove its security. Remarkably, the scheme they present does not use a search index(!); rather, it performs a linear scan over the encrypted documents.
+They briefly discuss a scheme which uses an index at the end, but do not go into detail.
+
+Basically, the scheme works by encrypting the list of tokens and xoring each encrypted token with a pair of values (L,R) such that L and R are related, but in a way that can only be detected if the server knows the keyword.
+
+To search, the client provides the server with the encrypted keyword and the server performs a linear search over the encrypted document, xoring each block with the encrypted keyword and checking if the property holds.
+
+Notably, this search method is probabilistic(!) because it can have false positives.
+
+The scheme leaks information about where tokens appear in files.
+
+Search runs in $\mathcal{O}(n)$ time, where $n$ is the \textit{size of all the documents to be searched}. The paper claims that this is efficient.
+
+\subsection{Cash et al., 2014}
+
+\cite{cash14} \bibentry{cash14}
+
+The authors describe a dynamic symmetric searchable encryption scheme in which the encrypted index is stored as a hash table. The keys derived from the search token, and the values are the encrypted file index.
+Collisions are avoided by running a per-token counter through a MAC
+--- in essence, using an open addressing hash table.
+The main search index is actually static --- updates are performed by storing added keywords in a separate hash table of added keywords, and deleted keywords in a separate set of deleted keywords. The search index should be periodically reconstructed to take these modifications into account.
+
+They also describe several variants of the basic scheme which have better methods for reducing the size of the state.
+
+Search time is $\mathcal{O}(r)$ (which is optimal), update time is not given, and index size is $\mathcal{O}(N)$, where r is the number of files which match a given query and N is the number of keyword-file pairs in the index.
+The algorithm is parallelizable.
+
+\subsection{Yavuz et al., 2015}
+
+\cite{yavuz15} \bibentry{yavuz15}
+
+The authors describe a dynamic searchable encryption scheme in which the search index is stored as an adjacency matrix where the rows correspond to keywords. Each row is encrypted with a stream cipher using a per-row key.
+Updates are performed by replacing the relevant column.
+They claim better security than all previous schemes and competitive performance.
+
+Search is $\mathcal{O}(m)$, update is $\mathcal{O}(m)$, server state size is $\mathcal{O}(mn)$, and client state size is $\mathcal{O}(n+m)$ where $m$ is the number of keywords and $n$ is the number of files. The algorithm is parallelizable.
 
 %https://eprint.iacr.org/2006/210 ?
 %the original SSE paper?
@@ -258,8 +236,8 @@ We reject Dropbox because they offer the least amount of free storage of the 3 o
 
 \newpage
 
-\bibliographystyle{IEEEannot}
-\bibliography{main}{}
+%\bibliographystyle{IEEEannot}
+%\bibliography{main}{}
 
-\nocite{*}
+%\nocite{*}
 

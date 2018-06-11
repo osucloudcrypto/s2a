@@ -1,69 +1,10 @@
 % A compilation of our individual blog posts for the year
 
-% 1. Fill in these details
-\def \CapstoneTeamName{		The Secret Bunny Team}
-\def \CapstoneTeamNumber{		38}
-\def \GroupMemberOne{			Andrew Ekstedt}
-\def \GroupMemberTwo{			Scott Merrill}
-\def \GroupMemberThree{			Scott Russell}
-\def \CapstoneProjectName{		Privacy Preserving Cloud, Email, and Password Systems}
-\def \CapstoneSponsorCompany{	OSU}
-\def \CapstoneSponsorPerson{		Attila Yavuz}
-
-% 2. Uncomment the appropriate line below so that the document type works
-\def \DocType{	%	Problem Statement
-				%Technology Review
-				%Design Document
-				%Progress Report
-                Individual Blog Posts
-				}
-% 3. If the document is not to be signed, uncomment the RENEWcommand below
-\renewcommand{\NameSigPair}[1]{#1}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{titlepage}
-    \pagenumbering{gobble}
-    \begin{singlespace}
-        %\includegraphics[height=4cm]{coe_v_spot1}
-        \hfill 
-        % 4. If you have a logo, use this includegraphics command to put it on the coversheet.
-        %\includegraphics[height=4cm]{CompanyLogo}   
-        \par\vspace{.2in}
-        \centering
-        \scshape{
-            \huge CS Capstone \DocType \par
-            {\large\today}\par
-            \vspace{.5in}
-            \textbf{\Huge\CapstoneProjectName}\par
-            \vfill
-            {\large Prepared for}\par
-            \Huge \CapstoneSponsorCompany\par
-            \vspace{5pt}
-            {\Large\NameSigPair{\CapstoneSponsorPerson}\par}
-            {\large Prepared by }\par
-            Group\CapstoneTeamNumber\par
-            % 5. comment out the line below this one if you do not wish to name your team
-            \CapstoneTeamName\par 
-            \vspace{5pt}
-            {\Large
-                \NameSigPair{\GroupMemberOne}\par
-                \NameSigPair{\GroupMemberTwo}\par
-                \NameSigPair{\GroupMemberThree}\par           
-            }
-            \vspace{20pt}
-        }
-        \begin{abstract}
-        % 6. Fill in your abstract       	
-            \centering{ document share a compilation of each member's blog posts throughout the year}          
-        \end{abstract}     
-    \end{singlespace}
-\end{titlepage}
-
-\clearpage
+\chapter{Individual Blog Posts}
+%\section{Weekly Blog Posts}
 
 % Group Member 1
-\section{ Scott Russell Blog Posts}
+\section{Scott Russell Blog Posts}
 
 \subsection{Fall Weeks 1-10}
 
@@ -255,15 +196,180 @@ Final Term TA Meeting (TA canceled Meeting)
 
 % Group Member 2
 \section{ Scott Merrill Blog Posts }
-
+\subsection{Fall}
+\subsubsection{Week 1}
+This week is the first week so there isn't much to report about. We had class and are going to be selecting the projects that we would like to work on.
+\subsubsection{Week 2}
+This week we were assigned groups, met with our client and went over the project. Additionally we have set up times to meet with our TA every week on Tuesday from 4-5pm.
+Project proposals are due on Monday in latex form. My project proposal is complete using Word and needs to be converted to latex.
+\subsubsection{Week 3}
+We met with Thang to discuss the overview of our project. We are going to be working on a research document for a DSSE scheme written by David Cash.
+\subsubsection{Week 4}
+This week we worked on the problem statement which is due. It has become clear that the scope of this project is going to be smaller than originally described. This week we also met with TA Andrew, which is our first meeting, to discuss his requirements.
+\subsubsection{Week 5}
+This week we met with Attila and covered our requirements for the requirements document we need to turn in. As a group we are still working on a high level understanding of how DSSE works. This is particularly difficult as I have not taken some of the crypto-classes that cover this material yet.
+\subsubsection{Week 6}
+This week Attila gone at a conference. We are finalizing the requirements document and determining how best to approach implementation. As a group we agree that we all need to understand the core functionality of the project, but individual areas will be assigned to fit each others strengths.
+\subsubsection{Week 7}
+Attila has returned from his time at the conference and we were able to meet with him as a group. This week capstone has assigned yet another writing assignment: tech review.
+\subsubsection{Week 8}
+This week we are wrapping up the individual tech reviews. We met with grad student Thang who helped us come up with more to add to this document.
+\subsubsection{Week 9}
+This week we met to finalize our tech review for submission and are already looking towards our next assignment: Design Document. With all of these writing assignments and closing in on finals I am looking forward to this term being over.
+\subsubsection{Week 10}
+This week we finalized our design document. There is yet another assignment due this term which is the Progress report. This report is a bit different as we are required to recored a presentation about the project so far.
+\subsection{Winter}
+\subsubsection{Week 1}
+This week is the first week back from winter break. We are taking a look at how much progress we have made and determine that direction we need to head in. We have decided to break up the project into different areas with each group member working on their own section.
+\subsubsection{Week 2}
+This week we are meeting regularly to work on our project in the capstone room. Each group member has their own part. One of my first resposibilites is to create the tokenization for the core dsse scheme.
+\subsubsection{Week 3}
+This week we are looking at how we can use single sign on (SSO) and dropbox as a feature for our project. This is a bit different than what we are expecting and I hope that we have take this change of direction well.
+\subsubsection{Week 4}
+This week I was able to finish the tokenization and along with what andrew has been working on with the core dsse scheme I think we are making good progress. I still need to integrate the tokenization into his codebase.
+\subsubsection{Week 5}
+This week we met with Attila to discuss our overall progress and take a look at what we how to implement hard disk storage into our project. we are going to focus more on the implementation of not just basic but the dynamic schemes as well. This optimization will be the primary focus for me.
+\subsubsection{Week 6}
+This week we met with out TA about the poster, which is was due later that day. We also discussed the possibility of refactoring our goals and our requirements document. This is necessary as we have change focus, with out clients guidance, since when we wrote that document last term.
+\subsubsection{Week 7}
+This week we met with Attila and talked about how we could scale our benchmarks to match what the research paper had to say. Not a whole lot of work was done on the project itself as we all were pretty bogged down with midterms in other classes.
+\subsubsection{Week 8}
+This week I continued to work on the optimizations for the DSSE scheme. This is slow going as I have had a steep learning curve to understand what is going on. The Cryptology class I am currently taking has helped a lot in increasing my understanding and my ability to read the notation in the paper. The next thing I need to do is understand the code Andrew has written so I can find where to make the optimization changes.
+\subsubsection{Week 9}
+This week we had a meeting with out TA through WebX. We discussed the upcoming end of term presentation and what we need to do for the demo. Updates to the requirements document are also required before the end of the term.
+\subsubsection{Week 10}
+Refactoring the requirements document: We need to change the requirements document to better fit what out project is trying to accomplish. To do this we are going to move some of the requirement objectives to stretch goals. Parallelization to be moved as a stretch goal.Remove cloud integration. This is a "nice" feature which does not really add to the what the project is trying to do overall. Since this is a research focused document we will instead be focusing on the benchmarking much more. Schedule a time to meet with Attila for a demo of our project
+\subsection{Spring}
+\subsubsection{Week 1}
+Plans:Attend class and learn about spring expectations.Short term goals for finishing up our project. Start planning expo presentation
+Set meeting times both group and TA.
+\subsubsection{Week 2}
+This week I plan Attended this weeks class, Finalize piPack so that I can start to work on the ptr branch, which is the next optimization laid out in the research paper and continue planning expo presentation. Additionally we need to set meeting times both group and TA.
+\subsubsection{Week 3}
+This week I had been gone for National Guard training, which put be behind in all my classes, including this one. I am working on getting the ptr implementation to work so we can move on to the lvl2 pointer optimization before expo.
+\subsubsection{Week 4}
+This week we met with out TA and talked about how the project is going. We can tell that we are pretty close to being done with all of our requirements and all the is left is the lvl2 optimization. I am a bit concerned that we will not get this done in time. I have been struggling to figure out how to modify the code base as each change seems to have a never ending waterfall effect of errors.
+\subsubsection{Week 5}
+This week we met with our client Attila. This is the first meeting we have had with him this term. We talked about how he would like to see the benchmarking done for the basic scheme as well as the optimizations made for disc access. We may not see significant results with this as we run the project in RAM which is much faster.
+\subsubsection{Week 6}
+This week we had to pause most of our work on the project in leu of the mid term progress report that required. This seems to be a waste of time, but we have to do it anyways.
+\subsubsection{Week 7}
+This week we have Expo. This means we have a code freeze and we need to focus on having all of our material available for presentation. Expo went well and I think our presentation was good. Many people liked to check out our search engine.
+\subsubsection{Week 8}
+This week we start to work on the final report by compiling all documentation into one source. This is one of the last things we need to do for this class and is a requirement to pass.
+\subsubsection{Week 9}
+We reserved a room for our final presentation and finished the recording. This week we are also working on getting the report finished up.
+\subsubsection{Week 10}
+This week we had our final code hand off which was sent through email with a link to out github repo. Final presentation are finished as well as our report and that concluded Capstone.
 % Group Member 3
 \section{ Andrew Ekstedt Blog Posts }
 
-\subsection{Spring}
+\subsection{Fall}
+
+\subsubsection{Week 1}
+
+\noindent \textbf{Plans:}
+\begin{itemize}
+\item Preferences due by Thursday night.
+\end{itemize}
+
+\noindent \textbf{Summary:}
+
+Updated resume. Wrote imaginary bio.
+Submitted project preferences.
+
+\subsubsection{Week 2}
+
+\noindent \textbf{Plans:}
+\begin{itemize}
+\item Meet with Attila, write problem statement
+\item Problem statement draft due Oct 10.
+\end{itemize}
+
+\noindent \textbf{Progress:}
+\begin{itemize}
+\item Met with Attila
+\end{itemize}
+
+\noindent \textbf{Summary:}
+
+Projects were announced; I got my top choice – yay! Our group got together and met with the client, Attila Yavuz, to talk about what the project was. There was a little confusion about the overall capstone schedule, since this is a research-oriented project unlike most of the capstone projects, but we're going to meet with Kevin next week to talk about how that will work for us. I set up a Signal group for the three of us so we can communicate securely, and created a github org for us to use when we eventually get to the point of writing code. Overall, I'm excited to work on this project!
+
+\subsubsection{Week 3}
+
+\noindent \textbf{Plans:}
+\begin{itemize}
+\item Problem statement due Oct 20
+\item Bring problem statement printout to class on Tuesday
+\end{itemize}
+
+\noindent \textbf{Summary:}
+
+We met with Thang on Tuesday and he gave us a high-level explanation of David Cash's algorithm, which will provide helpful context when we read the paper. Long story short, it basically just an open-address hash table where the keys are cryptographically hashed and the values are encrypted. We briefly touched on the capstone project structure – it seems like Attila has three projects in mind, and  he was expecting us to work on one each term, which doesn't match my understanding of capstone. Meeting with Attila next week, and hopefully McGrath too.
+
+Our TA finally contacted us. We weren't able to make a meeting work this week (he was basically only on campus on Wednesday, at a time when not all three of us were available). Will probably meet next week, probably remotely. I guess I need to get a headset?
+
+The Github repository is up, and invitations have been sent out to group members/TA/instructors, but so far only one person has accepted.
+
+\subsubsection{Week 4}
+
+\noindent \textbf{Summary:}
+
+We spent the week writing our problem statement and working with our client and McGrath to try and nail down the scope of the project. From the meeting with Attila yesterday, it sounds like he's a little more understanding of the capstone structure, and is okay with downgrading the password manager project to a stretch goal. Our task between now and next week is to take a look at the code that Thang wrote for their previous project—compile and run it to get a feel for what we're expected to build.
+
+\subsubsection{Week 5}
+
+We met with our client to discuss the project requirements. McGrath was able to talk to Attila and explain the capstone project schedule, which relieved some of the pressure we were feeling about the scope of the project being too large.
+
+We continued to look at IM-DSSE to get a feel for the project. The first requirement of project is to implement a similar proof-of-concept program, so seeing how IM-DSSE worked was helpful. All members of the team were able to get it to compile and run.
+
+I wrote a prototype of David Cash's SSE in Python in order to get a better feel for how it worked. I also got sick and was out of commission for the latter half of the week.
+
+\subsubsection{Week 6}
+
+This week we worked mainly on the requirements document. Our client is out of town, so we didn't have any meetings with them, and they were unable to provide any feedback on the requirements doc. SR emailed the instructors to ask for more time; I also talked with McGrath after class on Thursday and he verbally confirmed that we could have more time. Plans for next week are to work on the Tech Review. We talked as a group after class on Thursday about how we want to break up the requirements. We decided loosely that I would tackle optimizations to the DSSE; SR would tackle email integration; and SM would tackle cloud integration. Will figure out more specifics as we go. I also think we should each do a small literature review of searchable encryption.
+
+\subsubsection{Week 7}
+
+This week was spent figuring out what to do for our tech review. Because our project is partly research-focused, we are going to do a literature review for part of our tech review. After talking with the instructors, I think we've figured out a good way to spit up our project into  review tasks. My tasks are to do a lit review of the searchable encryption algorithms, do a tech review of encryption primitives, and check out some cloud providers.
+
+We also got some feedback from Attila about our requirements doc. There was only one sentence he was concerned about, which we'll probably just remove. Scott Russell said he would take care of updating the document, although he doesn't seem to have done so yet
+
+Personal note: OSU was closed Friday this week for Veteran's day; I pretty much ended up taking Thursday and Friday off, so I'm working on school stuff on the weekend.
+
+\subsubsection{Week 8}
+
+\noindent \textbf{Summary:}
+
+Not much news this week. Worked on my tech review at the beginning of the week and did peer review in class; need to finish that up this weekend.
+
+I got some good feedback from Marie on my tech review.
+
+\subsubsection{Week 9}
+
+\noindent \textbf{Summary:}
+
+This week I finished up my tech review, met with our client to talk about design, and started outlining the design doc. I'd really like to get a draft done to send to Winters, but we'll see. It's Thanksgiving week and my other group members are going to be busy spending time with their families until the weekend, which I can't really fault them for. The design doc is going to be the last piece of significant documentation we have to write for a while; I'm super ready to get started on the implementation.
+
+\subsubsection{Week 10}
+
+\noindent \textbf{Plans:}
+\begin{itemize}
+\item Design document due Dec 1
+\item End of term progress report due Dec 4th @ noon
+\end{itemize}
+
+\noindent \textbf{Progress:}
+
+\begin{itemize}
+\item Got feedback from Kirsten and McGrath about design doc
+\item Worked on design doc a lot
+\item Submitted our design doc
+\item Started progress report
+\end{itemize}
 
 \subsection{Winter}
 \subsubsection{Overview}
-
 
 I started the term by jumping in and coding stuff, which I was itching to do after all the planning last term.
 In the second half of the term I pulled back a bit and concentrated more on project management and making sure
@@ -560,23 +666,13 @@ I'm trying to get ready for expo. The major priority at this point is to get the
 
 \subsubsection{Week 4}
 
-\noindent \textbf{Plans: }
-
 \noindent \textbf{Progress: }
 
 \begin{itemize}
 \item     Finished my WIRED article
-
 \item     Made some edits to the poster, mostly focusing on trimming down the word count
-
 \item     Did some benchmarking for Scott Russell
 \end{itemize}
-
-\noindent \textbf{Problems: }
-
-\noindent \textbf{Summary: }
-Not much to add. See progress above.
-
 
 \subsubsection{Week 5}
 \noindent \textbf{Plans: }
@@ -585,17 +681,12 @@ Not much to add. See progress above.
 \item     Work on midterm progress report
 \end{itemize}
 
-
-
 \noindent \textbf{Progress: }
 
 \begin{itemize}
 \item     Recorded video presentation
-
 \item     Started on written report
 \end{itemize}
-
-\noindent \textbf{Problems: }
 
 
 \noindent \textbf{Summary: }
@@ -614,4 +705,78 @@ This week has mostly been about getting ready for expo and fulfulling capstone p
 \item     Touched base with Attila briefly to discuss expo
 \end{itemize}
 
+\subsubsection{Week 7}
 
+\noindent \textbf{Plans:}
+\begin{itemize}
+\item
+\end{itemize}
+
+\noindent \textbf{Progress:}
+\begin{itemize}
+\item
+\end{itemize}
+
+\noindent \textbf{Problems:}
+\begin{itemize}
+\item
+\end{itemize}
+
+\noindent \textbf{Summary:}
+
+\subsubsection{Week 8}
+
+\noindent \textbf{Plans:}
+\begin{itemize}
+\item
+\end{itemize}
+
+\noindent \textbf{Progress:}
+\begin{itemize}
+\item
+\end{itemize}
+
+\noindent \textbf{Problems:}
+\begin{itemize}
+\item
+\end{itemize}
+
+\noindent \textbf{Summary:}
+
+\subsubsection{Week 9}
+
+\noindent \textbf{Plans:}
+\begin{itemize}
+\item
+\end{itemize}
+
+\noindent \textbf{Progress:}
+\begin{itemize}
+\item
+\end{itemize}
+
+\noindent \textbf{Problems:}
+\begin{itemize}
+\item
+\end{itemize}
+
+\noindent \textbf{Summary:}
+
+\subsubsection{Week 10}
+
+\noindent \textbf{Plans:}
+\begin{itemize}
+\item
+\end{itemize}
+
+\noindent \textbf{Progress:}
+\begin{itemize}
+\item
+\end{itemize}
+
+\noindent \textbf{Problems:}
+\begin{itemize}
+\item
+\end{itemize}
+
+\noindent \textbf{Summary:}

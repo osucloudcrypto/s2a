@@ -1,252 +1,119 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Project Description}
 
-% 1. Fill in these details
-\def \CapstoneTeamName{		The Secret Bunny Team}
-\def \CapstoneTeamNumber{		38}
-\def \GroupMemberOne{			Andrew Ekstedt}
-\def \GroupMemberTwo{			Scott Merrill}
-\def \GroupMemberThree{			Scott Russell}
-\def \CapstoneProjectName{		Privacy Preserving Cloud, Email, and Password Systems}
-\def \CapstoneSponsorCompany{	OSU}
-\def \CapstoneSponsorPerson{		Attila Yavuz}
+\section{Introduction}
+\subsection{What is it?}
 
-% 2. Uncomment the appropriate line below so that the document type works
-\def \DocType{  Problem Statement
-				%Final Report
-				%Technology Review
-				%Design Document
-				%Progress Report
-				}
+Our project is "Privacy-Preserving Cloud, Email and Password Systems", sponsored by OSU professor Attila Yavuz and his grad-student Thang Hoang.  As stated in the project posting, the motivation for this project is:
 
-% 3. If the document is not to be signed, uncomment the RENEWcommand below
-\renewcommand{\NameSigPair}[1]{#1}
+\begin{quote}
+Storage service offered by cloud providers bring vast benefits to human society. However, this service also brings privacy concerns to the users. While the data privacy can be preserved by using standard encryption, it also prevents the user from querying the data on the cloud and thereby, invalidating the benefit of using cloud services. Thus, there is a need to develop a new cryptographic primitive that allows the user to query data outsourced to the cloud, while preserving its privacy.
+\end{quote}
 
-\begin{titlepage}
-    \pagenumbering{gobble}
-    \begin{singlespace}
-        %\includegraphics[height=4cm]{coe_v_spot1}
-        \hfill 
-        % 4. If you have a logo, use this includegraphics command to put it on the coversheet.
-        %\includegraphics[height=4cm]{CompanyLogo}   
-        \par\vspace{.2in}
-        \centering
-        \scshape{
-            \huge CS Capstone \DocType \par
-            \vspace{.5in}
-            \textbf{\Huge\CapstoneProjectName}\par
-            \vfill
-            {\large Prepared for}\par
-            \Huge \CapstoneSponsorCompany\par
-            \vspace{5pt}
-            {\Large\NameSigPair{\CapstoneSponsorPerson}\par}
-            {\large Prepared by }\par
-            Group\CapstoneTeamNumber\par
-            % 5. comment out the line below this one if you do not wish to name your team
-            \CapstoneTeamName\par 
-            \vspace{5pt}
-            {\Large
-                \NameSigPair{\GroupMemberOne}\par
-                \NameSigPair{\GroupMemberTwo}\par
-                \NameSigPair{\GroupMemberThree}\par
-            }
-            \vspace{20pt}
-        }
-        \begin{abstract}
-        % 6. Fill in your abstract    
-        	
-            This document contains all content of the process of our capstone project. This includes all documents, reports, benchmarks, weekly progress, and 
-            
-            
-        \end{abstract}
-    \end{singlespace}
-\end{titlepage}
-\newpage
-\pagenumbering{arabic}
-%\setcounter{tocdepth}{3}
-%\tableofcontents
-% 7. uncomment this (if applicable). Consider adding a page break.
-%\listoffigures
-%\listoftables
-%\clearpage
+The goal of this project was to implement a DSSE scheme as a proof of concept to gather research information to better understand the strengths and limitation of these cryptographic primitives. Each member of our group was responsible for conceptually understanding the core of the DSSE scheme and were given individual areas to focus on during implementation: Andrew Ekstedt (Core implementation, Usability, and Troubleshoot), Scott Russell (Benchmarking, Communications), Scott Merrill (Optimizations, Codebreaker).
+The role of our sponsor/client, Attila and Thang, was to oversee operations and provide advice and resources when needed. As a team we meet bi-weekly with out client to provide progress updates and to receive direction when possible issues arose.
 
 
-% Feedback from winters:
-% - add Gantt chart
-% - add abstract
-% - reduce the amount of prose, tighten
-        
-% IEEE Std 830-1998, subsection 4.1:
-% The basic issues that the SRS writer(s) shall address are the following:
-%  a)Functionality. What is the software supposed to do?
-%  b)External interfaces. How does the software interact with people, the system's hardware, other hard-ware, and other software?
-%  c)Performance. What is the speed, availability, response time, recovery time of various software functions, etc.?
-%  d)Attributes. What are the portability, correctness, maintainability, security, etc. considerations?
-%  e) Design constraints imposed on an implementation. Are there any required standards in effect, implementation language, policies for database integrity, resource limits, operating environment(s) etc.?
-      
-% subsection headings from IEEE Std 830-1998, figure 1
+% Definition and description of the problem you are trying to solve; be sure to
+% write this problem definition for a general but educated audience
+\section{Motivation}
 
-\subsection{ Introduction }
-\subsubsection{ Purpose }
-The purpose of this document is to outline the project requirements for the "Privacy Preserving Cloud, Email and Password Manager" Capstone project \cite{capstone}. It will illustrate the purpose and complete declaration for the development of system. It will also explain system constraints, interface and interactions with other external applications. This document is primarily intended to be presented at OSU's Spring 2018 Engineering Expo as a proof of concept and a reference for developing the first version of this specific DSSE scheme.
-\subsubsection{ Scope }
-The "Privacy Preserving Cloud, Email and Password Manager" Capstone project is a research-oriented project that aims to find a way to implement the DSSE scheme proposed in the paper "Dynamic Searchable Encryption in Very-Large Databases" \cite{cash14}.\\
-This implementation will be executed through command line prompts and hosted on OSU's engineering servers. A user can use this system with a client-server model to perform actions, such as search or update, on a "cloud-based" database. User interface is not considered a priority as this project is not intended to be used in any commercial capacity. 
+    % Want to build tools that help protect privacy and fight mass surveillance
 
-\subsubsection{ Definitions, acronyms, and abbreviations }
-	%Creates a table used for definitions
-    \begin{tabular}{| p{3.5cm} | p{12.5cm} |}
-    \hline
-	\textbf{Term} & \textbf{Definition} \\ \hline
-    User & Someone who interacts with the system \\ \hline 
-    Encryption & The process of encoding a message or information in such a way that only authorized parties can access it. \\ \hline
-    SSE (Searchable Symmetric Encryption) & Allows a client to encrypt its data in such a way that this data can still be searched.  \\ \hline 
-    DSSE (Dynamic Searchable Symmetric Encryption) & A SSE scheme where documents and keywords can be incrementally added and deleted after the fact, without completely rebuilding the encrypted search index  \\ \hline
-    Cash-DSSE & A DSSE scheme described by Cash et al. in \cite{cash14} \\ \hline
-    Client & A computer application, such as a web browser, that runs on a user's local computer or workstation and connects to a server as 		necessary \\ \hline
-    Server &  A software program, such as a web server, that runs on a remote server, reachable from a user's local computer or workstation. \\ \hline 
-    SFTP & Secure File Transfer Protocol \\ \hline      
-    \end{tabular}
+In today's technological world privacy is of key importance.
+Faced with the growing public panic over mass surveillance,
+companies have caught onto the significance of security and are creating products with strong encryption built in.
+Web browser makers like Chrome and Mozilla are pushing for a secure-by-default world where every website has an SSL certificate, marking those without as untrusted.
+Apple is positioning themselves as a privacy-conscious company by building strong encryption features into recent iPhone models.
+Billions of users are flocking to secure chat apps like Signal and WhatsApp.
 
-    
-    
-\subsubsection{ Overview }
-The rest of the document will include two more subsection. subsection 2 will be overview of the project system, giving a product perspective, defining the functions of the system, listing user characteristics,  describing system constraints, explaining what assumptions and dependencies we are making in regards to the implementation of this system. \\
-subsection 3 will include the requirements for the project. This will be the most detailed subsection describing the specific objectives and required functionality of the system. 
+Despite these advances, there are many areas where security is lacking.
+There is currently limited research into encrypted emails.
+You can use GPG to encrypt messages, but then you lose the ability to quickly search your messages.
+This problem can be addressed by giving your email provider a copy of your decryption keys, but now they have the ability to read all your email, defeating the purpose of encryption.
+A similar problem exists for cloud storage systems: Google Drive will transparently encrypt your files for you, but Google necessarily hangs onto a copy of the encryption keys, which means that Google has the ability to decrypt your files any time they want.
+
+    % No open-source implementation of searchable encryption
+
+There has been some research into searchable encryption, but no open-source implementations of the algorithms that have been developed.
+The need for a fast and efficient open-source implementation of dynamic searchable encryption is the basis for our research.
+
+    % There's one that Cash did(?) but it's tied up in IP rights at IBM(?) and isn't available
 
 
-\subsection{ Overall description }
-\subsubsection{ Product perspective }
+\section{Goals}
+% Proposed solution
 
-The main purpose of the project is to investigate ways to integrate SSE with common internet applications.
-Specifically, we will investigate ways to apply SSE to cloud storage and email.
+% Primary goal is to demonstrate a practical implementation of searchable encryption
 
-The system will have three main components: basic SSE implementation, cloud storage integration, and email integration. The basic SSE implementation will be split into client and server programs. The server will provide access to the encrypted search index, and the client will allow the user to perform searches on the server. Cloud and email integration will take the form of additional client programs which download documents or emails from a remote server and upload them to the SSE server.
+Our primary goal is to demonstrate a practical, open-source implementation of searchable encryption on a cloud provider.
 
-The primary goal of our project is to implement and benchmark the SSE scheme.
-Further research into optimizing the scheme, and applications of the scheme, are stretch goals that we may or may not get to given our time constraints.
+    %Primary purpose is as a research project (proof of concept) rather than a polished product
+    %Command-line interface is fine; we don't need a flashy ui, although that's a good stretch goal.
+    %Also nice to have: mobile app
 
-\subsubsection{ Product functions }
+    %Attila and Thang have done published a research paper and done a preliminary implementation of a particular searchable encryption algorithm
 
-The central SSE module will be an implementation of \cite{cash14}. It will provide functions to create an encrypted search index, perform search queries, add documents, and delete documents.
+    %Connect it to a cloud service like Amazon
 
-An intended research topic is to attempt to speed up the SSE by parallelizing certain operations. 
-%TODO: what operations?
-Another intended research topic is to find ways to reduce the storage space used by the encrypted index.
-We intend ultimately to compare the performance with \cite{yavuz15}.
-% Hypothesis: ours will be faster because it has better asymptotics
+%To convincingly demonstrate that searchable encryption is practical, it needs to work over a network.
+Attila's research group has previously developed and implemented an algorithm for searchable encryption \cite{yavuz15},
+however there is another scheme which was developed by David Cash which is asymptotically more efficient \cite{cash14}
+in some areas; for example, the size of the encrypted index is smaller.
+The source code for David Cash's implementation is not publicly available, so
+our first project will be to build an open-source implementation of David Cash's scheme,
+and to demonstrate that it works by building a client-server system that runs on Amazon EC2.
 
-The cloud storage module will download files from a cloud storage provider like Dropbox and add them to the encrypted search index.
+    %Need to figure out optimal data structure for actually using it? Says there are 10s of options publshed – need to get familiar with those
+    %Will lean heavily on research by David Cash
 
-The email module will download emails from a mail provider like Google Mail and add them to the encrypted search index. We will first implement a batch mode program and then investigate building a daemon which downloads emails in the background.
-
-
-\subsubsection{ User characteristics }
-
-The primary audience for this software system is technical users who are interested in a proof-of-concept implementation of SSE. It is not a goal of this project to target non-technical users.
-
-\subsubsection{ Constraints }
-
-Our client has requested that we implement the software in C++, which limits the choice of libraries we can use.
-
-\subsubsection{ Assumptions and dependencies }
-
-We assume that we can find a cloud provider which offers a sufficiently open API for accessing documents, and that there is a good C++ library available. 
-
-Completing the cloud storage and email modules will depend on having a basic SSE module in place first. Once the basic SSE functionality is built, we can work on optimizing it in parallel with the work on cloud integration and email integration.
-
-See \ref{fig:1} for a Gantt chart showing the dependencies.
-
-\begin{figure}[t]
-\begin{center}
-\begin{ganttchart}{1}{15}
-%tasks
-\ganttbar[name=dsse]{Cash-DSSE}{1}{4} \\
-\ganttbar[name=par]{Parallelization}{8}{15} \\
-\ganttbar[name=size]{Size optimization}{8}{15} \\
-\ganttbar[name=cloud]{Cloud Integration}{8}{15} \\
-\ganttbar[name=email]{Email Integration}{8}{15}
-%relations 
-\ganttlink{dsse}{cloud} 
-\ganttlink{dsse}{email} 
-\ganttlink{dsse}{par} 
-\ganttlink{dsse}{size} 
-\end{ganttchart}
-\caption{Gantt chart of the project dependencies}
-\label{fig:1}
-\end{center}
-\end{figure}
+%Part of the project will be to create a more efficient data structure, building on work by David Cash.
+%One of the problems with the current solution is that the size of the index it stores is $\mathcal{O}(kf)$, where $k$ is the number of keywords, and $f$ is the number of documents.
+%Which is huge.
+%Since search indices are usually sparse, this wastes a ton of space.
 
 
-\subsection{ Specific requirements } % (See 5.3.1 through 5.3.8 for explanations of possible specific requirements. See also Annex A for several different ways of organizing this subsection of the SRS.)
+    % Once that's working, want to hook it up to a database of emails
+
+The second project is to apply our searchable encryption program to the problem of encrypted email.
+This will probably involve writing a daemon which downloads messages from an email provider like gmail
+and adds them to an encrypted database.
+Presumably we would want to throw some email-specific UI and search functionality on top.
+This part of the project is TBD and we expect to learn more about what is possible after we complete the first part of the project, and as we start working on this part.
+
+    % Attila doesn't think this will be very difficult to set up once the first \^ project is done. I'm skeptical. Need to find out more details about what he has in mind.
 
 
-\subsubsection{ User interfaces }
+% ORAM password manager
+% (maybe)
 
-The primary user interface to the SSE system will be a pair of client-server programs.
-\begin{itemize}
-\item A user will be able to launch the server from the command line.
-\item The user will be able to query the server using the client from the command line. 
-%\item This initially will be done in an offline self contained client on a single computer. It will then be adapted to a Client Server system and finally an email system. 
-\end{itemize}
-
-From the basic client program, a user will be able to:
-
-\begin{itemize}
-\item search the document store by a single keyword, and receive a list of a all documents containing that keyword. 
-\item add a file to the search database.
-\item delete a document from the search database.
-\end{itemize}
-
-This is the main functionality of an SSE system.
-
-%\item The Client will still be able to Search, Update, and Delete data on the cloud just as the offline client does.
-
-\subsubsection{ Software interfaces }
-
-The implementation of SSE will be take the form of a C++ API which can be used by the rest of the system. 
-Our client has provided a software implementation of \cite{yavuz15}, which we will use as a base for our work.
-
-\begin{itemize}
-\item Atilla's implementation will be used as a template for many of the server/client connection calls. 
-
-\item Since the algorithm itself is completely different it will allow the team to focus more coding on the process of research and implementation of David Cash's algorithm.
-
-\item Asymptotically David Cash's algorithm has a faster runtime complexity. This will be tested by running 100 calls to Search, Update, and Delete on both Atilla's Bit Matrix and our David Cash implementation and comparing the aggregated data of those calls.
-\end{itemize}
-
-\subsubsection{ Streatch Goals }
-We also have several streach goals to work towards, time permiting.
-
-\begin{enumerate}
-\item Parallelization
-\item Cloud Integration
-\item Email Integration
-\end{enumerate}
+A third project is to implement a password manager using ORAM (oblivious RAM),
+which is a random-access data structure that hides memory access patterns from observers.
+Current searchable encryption schemes leak some access patterns whenever you search,
+so a password manager service implemented with such a scheme could learn for example that you always access a site at a certain time of day.
+By obscuring the access patterns with ORAM, we can prevent the server from learning this information. This is a stretch goal
+of the project and will be pursued if we have time after tackling the first two goals of this project. As it is not directly
+related to David Cash's scheme.
 
 
-The email user interface will be able to:
-\begin{itemize}	
-\item Launch a daemon which automatically downloads emails every 2 minutes.
-\item Email will communicate with remote email servers via POP3.
-\end{itemize}
-\begin{itemize}
-\item Storage-only server. Will modify the DSSE scheme so that all computation is performed on the client and not the server.
-\end{itemize}
+\section{Metrics}
+%Performance metrics: Tell how you will know when you have completed the project. Metrics help you and your client agree on what successful completion (e.g., faster, cheaper, easier to use, "a working prototype," a complete white paper with research results) of the project looks like.
 
+There are two metrics, equally important: correctness and performance.
 
-\subsubsection{Primary Requirements}
-Below are listed the main goals of this project. With time allowing we will also work on Streach Goals.
+    % Correctness
 
-\begin{enumerate}
-\item Implement the basic Cash-DSSE scheme
-\item Implement the two-level pointer optimization scheme described by David Cash
-\item Implement client/server programs which use DSSE
-\item Benchmarking Comparison between our code, IM-DSSE\cite{im-dsse}, and Clusion\cite{clusion}.
-\end{enumerate}
+The first metric is correctness.
+The software should return the correct set of documents when searching for a keyword.
+It should be able to dynamically add and delete files from the search index and return correct search results using the modified index.
 
+    % Reasonable performance
 
-
-\subsection{ Changelog }
-
-\paragraph*{Version 1.1} Clarified which requirements are stretch goals and which are hard requirements. Moved references subsection to the end of the document.
-\paragraph*{Version 1.0} Initial version
+The second metric is performance.
+For the secure cloud, we want to aim for under a hundred milliseconds to search for a file. % more? less?
+Attila has measured the previous implementation to be able to perform a search in around 10 milliseconds or less, even with an index containing millions of files, so this should be doable.
+% other operations?
+Performance for the email database is TBD.
+% discussed with attila; he doesn't have specific requirements in mind,
+% but expects to get a better idea after we've implemented some stuff
+% and know what is possible
+The password manager (if we get to it) will be less performant due to the overheads of ORAM, but we want to aim for 100 milliseconds.

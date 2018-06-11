@@ -1,84 +1,6 @@
+% This document will analyze various pieces of the Privacy Preserving Cloud, Email, and Password Systems project that will be needed to complete the project. Within these pieces we will look at multiple options and decide on the best fit option to meet the goals and requirements.
 
-
-% 1. Fill in these details
-\def \CapstoneTeamName{		The Secret Bunny Team}
-\def \CapstoneTeamNumber{		38}
-\def \GroupMemberOne{			Andrew Ekstedt}
-\def \GroupMemberTwo{			Scott Merrill}
-\def \GroupMemberThree{			Scott Russell}
-\def \CapstoneProjectName{		Privacy Preserving Cloud, Email, and Password Systems}
-\def \CapstoneSponsorCompany{	OSU}
-\def \CapstoneSponsorPerson{		Attila Yavuz}
-
-% 2. Uncomment the appropriate line below so that the document type works
-\def \DocType{	%	Problem Statement
-				Technology Review
-				%Design Document
-				%Progress Report
-				}
-% 3. If the document is not to be signed, uncomment the RENEWcommand below
-\renewcommand{\NameSigPair}[1]{#1}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{titlepage}
-    \pagenumbering{gobble}
-    \begin{singlespace}
-        %\includegraphics[height=4cm]{coe_v_spot1}
-        \hfill 
-        % 4. If you have a logo, use this includegraphics command to put it on the coversheet.
-        %\includegraphics[height=4cm]{CompanyLogo}   
-        \par\vspace{.2in}
-        \centering
-        \scshape{
-            \huge CS Capstone \DocType \par
-            {\large\today}\par
-            \vspace{.5in}
-            \textbf{\Huge\CapstoneProjectName}\par
-            \vfill
-            {\large Prepared for}\par
-            \Huge \CapstoneSponsorCompany\par
-            \vspace{5pt}
-            {\Large\NameSigPair{\CapstoneSponsorPerson}\par}
-            {\large Prepared by }\par
-            Group\CapstoneTeamNumber\par
-            % 5. comment out the line below this one if you do not wish to name your team
-            \CapstoneTeamName\par 
-            \vspace{5pt}
-            {\Large
-                \NameSigPair{\GroupMemberTwo}\par           
-            }
-            \vspace{20pt}
-        }
-        \begin{abstract}
-        % 6. Fill in your abstract       	
-            This document will analyze various pieces of the Privacy Preserving Cloud, Email, and Password Systems project that will be needed to complete the project. Within these pieces we will look at multiple options and decide on the best fit option to meet the goals and requirements.                   
-        \end{abstract}     
-    \end{singlespace}
-\end{titlepage}
-\newpage
-\pagenumbering{arabic}
-%\tableofcontents
-% 7. uncomment this (if applicable). Consider adding a page break.
-%\listoffigures
-%\listoftables
-%\clearpage
-
-
-% Feedback from winters:
-% - add Gantt chart
-% - add abstract
-% - reduce the amount of prose, tighten
-        
-% IEEE Std 830-1998, section 4.1:
-% The basic issues that the SRS writer(s) shall address are the following:
-%  a)Functionality. What is the software supposed to do?
-%  b)External interfaces. How does the software interact with people, the system’s hardware, other hard-ware, and other software?
-%  c)Performance. What is the speed, availability, response time, recovery time of various software functions, etc.?
-%  d)Attributes. What are the portability, correctness, maintainability, security, etc. considerations?
-%  e) Design constraints imposed on an implementation. Are there any required standards in effect, implementation language, policies for database integrity, resource limits, operating environment(s) etc.?
-      
-% Section headings from IEEE Std 830-1998, figure 1
+\chapter{Technology Review - Scott Merrill}
 
 %Section One
 \section{ Programming Language }
@@ -165,7 +87,7 @@ PMAC, or for Paralleliz-able MAC, is a message authentication code algorithm cre
 \subsection{Discussion}     
 For this option all three meet the speed and security that we are looking for in our criteria. There are implementations of all three that are available in the Tomcrypt library. PMAC seems to be a straight upgrade to CMAC if we are looking for scalability. HMAC is by far the simplest one to choose. 
 \subsection{Conclusion}
-we chose HMAC because our project does not call for any measure of scalability since it is just a proof-of-concept. HMAC has the simplest of implementations and does everything we are looking for and therefore make it the best chioce allowing us to concern ourselves with more complicated matters. 
+we chose HMAC because our project does not call for any measure of scalability since it is just a proof-of-concept. HMAC has the simplest of implementations and does everything we are looking for and therefore make it the best choice allowing us to concern ourselves with more complicated matters.
 
     % This terrible hack modifies the thebibliography environment to use \subsection instead of \section* for the references heading
     % https://tex.stackexchange.com/questions/22645/hiding-the-title-of-the-bibliography#22654

@@ -7,9 +7,13 @@
 \usepackage[english]{babel}
 \usepackage{pgfgantt}
 \usepackage{etoolbox}
+\usepackage{bibentry}
 
 \usepackage{geometry}
 \geometry{textheight=9.5in, textwidth=7in}
+\setcounter{secnumdepth}{3}
+
+\input{chapters.tex}
 
 % 1. Fill in these details
 \def \CapstoneTeamName{		The Secret Bunny Team}
@@ -28,7 +32,7 @@
 				%Design Document
 				%Progress Report
 				}
-			
+
 \newcommand{\NameSigPair}[1]{\par
 \makebox[2.75in][r]{#1} \hfil 	\makebox[3.25in]{\makebox[2.25in]{\hrulefill} \hfill		\makebox[.75in]{\hrulefill}}
 \par\vspace{-12pt} \textit{\tiny\noindent
@@ -71,7 +75,7 @@
         \begin{abstract}
         % 6. Fill in your abstract    
         	
-            This document contains all content of the process of our capstone project. This includes all documents, reports, benchmarks, weekly progress, and 
+            This document contains all content of the process of our capstone project. This includes all documents, reports, benchmarks, weekly progress, and results.
             
             
         \end{abstract}
@@ -79,42 +83,44 @@
 \end{titlepage}
 \newpage
 \pagenumbering{arabic}
-\setcounter{tocdepth}{1}
+\setcounter{tocdepth}{3}
+\bibliographystyle{IEEEtran}
+%\nobibliography* % this line is needed for \bibentry to work
 
 \tableofcontents
 % 7. uncomment this (if applicable). Consider adding a page break.
 \listoffigures
 %\listoftables
 \clearpage
-\setcounter{tocdepth}{3}
 % problem statement
-\section{Problem Statement}
 	\input{problem-statement.tex}
+
+% Requirements
+	\input{requirements.tex}
+    % TODO: add final gantt chart
+
 % design document
-\section{Design Document}
 	\input{design-document.tex}
+
 % technology review
-\section{Technology Review} 
 	\input{SMTech.tex}
-    \input{AETech.tex}
-    \input{SRTech.tex}
+	\input{AETech.tex}
+	\input{SRTech.tex}
+
 % weekly blog posts
-\section{Weekly Blog Posts}
 	\input{BlogPosts.tex}
-% final poster
 
 % documentation / user guide
-\section{Project Documentation}
 	\input{user-guide.tex}
-% result and benchmarks section
-\section{Resources}
 	\input{Resources.tex}
-\section{Results}
+% result and benchmarks section
 	\input{benchmarks.tex}
 	\input{results.tex}
+
 % conclusions (per team member)
-\section{Conclusions and Reflections}
+%\section{Conclusions and Reflections}
 	\input{Reflections.tex}
+
 % Expo poster!
 
 %\begin{figure}
@@ -126,6 +132,8 @@
 
 % appendix 1: essential code listings
 
+% References
+\bibliography{main}{}
+
 
 \end{document}
-

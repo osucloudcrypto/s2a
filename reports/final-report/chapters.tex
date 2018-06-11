@@ -1,0 +1,120 @@
+% define \chapter
+% https://tex.stackexchange.com/questions/249700/how-to-write-a-book-using-ieeetran-template
+
+\makeatletter
+
+\newif\if@mainmatter \@twocolumnfalse
+\newif\if@twocolumn \@mainmattertrue
+
+\newcounter{chapter}
+
+\def\thechapter{\arabic{chapter}}
+\def\thechapterdis{\thechapter.}
+
+\def\tableofcontents{\chapter*{\contentsname}\@starttoc{toc}}
+\def\listoffigures{\chapter*{\listfigurename}\@starttoc{lof}}
+\def\listoftables{\chapter*{\listtablename}\@starttoc{lot}}
+
+\def\thebibliography#1{\chapter*{\refname}%
+    \addcontentsline{toc}{chapter}{\refname}%
+    % V1.6 add some rubber space here and provide a command trigger
+    \footnotesize\vskip 0.3\baselineskip plus 0.1\baselineskip minus 0.1\baselineskip%
+    \list{\@biblabel{\@arabic\c@enumiv}}%
+    {\settowidth\labelwidth{\@biblabel{#1}}%
+    \leftmargin\labelwidth
+    \advance\leftmargin\labelsep\relax
+    \itemsep \IEEEbibitemsep\relax
+    \usecounter{enumiv}%
+    \let\p@enumiv\@empty
+    \renewcommand\theenumiv{\@arabic\c@enumiv}}%
+    \let\@IEEElatexbibitem\bibitem%
+    \def\bibitem{\@IEEEbibitemprefix\@IEEElatexbibitem}%
+\def\newblock{\hskip .11em plus .33em minus .07em}%
+% originally:
+%   \sloppy\clubpenalty4000\widowpenalty4000%
+% by adding the \interlinepenalty here, we make it more
+% difficult, but not impossible, for LaTeX to break within a reference.
+% IEEE almost never breaks a reference (but they do it more often with
+% technotes). You may get an underfull vbox warning around the bibliography,
+% but the final result will be much more like what IEEE will publish.
+% MDS 11/2000
+\sloppy\clubpenalty4000\widowpenalty4000\interlinepenalty500%
+    \sfcode`\.=1000\relax}
+\let\endthebibliography=\endlist
+
+\newcommand\chapter{\clearpage
+                    \thispagestyle{plain}%
+                    \global\@topnum\z@
+                    \@afterindentfalse
+                    \secdef\@chapter\@schapter}
+\def\@chapter[#1]#2{\ifnum \c@secnumdepth >\m@ne
+                       \if@mainmatter
+                         \refstepcounter{chapter}%
+                         \setcounter{section}{0}%
+                         \typeout{\chaptername\space\thechapter.}%
+                         \addcontentsline{toc}{chapter}%
+                                   {\protect\numberline{\thechapter}#1}%
+                       \else
+                         \addcontentsline{toc}{chapter}{#1}%
+                       \fi
+                    \else
+                      \addcontentsline{toc}{chapter}{#1}%
+                    \fi
+                    \chaptermark{#1}%
+                    \addtocontents{lof}{\protect\addvspace{10\p@}}%
+                    \addtocontents{lot}{\protect\addvspace{10\p@}}%
+                    \if@twocolumn
+                      \@topnewpage[\@makechapterhead{#2}]%
+                    \else
+                      \@makechapterhead{#2}%
+                      \@afterheading
+                    \fi}
+\def\@makechapterhead#1{%
+  \vspace*{50\p@}%
+  {\parindent \z@ \raggedright \normalfont
+    \ifnum \c@secnumdepth >\m@ne
+      \if@mainmatter
+        \huge\bfseries \chaptername\space \thechapter
+        \par\nobreak
+        \vskip 20\p@
+      \fi
+    \fi
+    \interlinepenalty\@M
+    \Huge \bfseries #1\par\nobreak
+    \vskip 40\p@
+  }}
+\def\@schapter#1{\if@twocolumn
+                   \@topnewpage[\@makeschapterhead{#1}]%
+                 \else
+                   \@makeschapterhead{#1}%
+                   \@afterheading
+                 \fi}
+\def\@makeschapterhead#1{%
+  \vspace*{50\p@}%
+  {\parindent \z@ \raggedright
+    \normalfont
+    \interlinepenalty\@M
+    \Huge \bfseries  #1\par\nobreak
+    \vskip 40\p@
+  }}
+
+\newcommand*\l@chapter[2]{%
+  \ifnum \c@tocdepth >\m@ne
+    \addpenalty{-\@highpenalty}%
+    \vskip 1.0em \@plus\p@
+    \setlength\@tempdima{1.5em}%
+    \begingroup
+      \parindent \z@ \rightskip \@pnumwidth
+      \parfillskip -\@pnumwidth
+      \leavevmode \bfseries
+      \advance\leftskip\@tempdima
+      \hskip -\leftskip
+      #1\nobreak\hfil \nobreak\hb@xt@\@pnumwidth{\hss #2}\par
+      \penalty\@highpenalty
+    \endgroup
+  \fi}
+
+\newcommand*\chaptermark[1]{}
+\renewcommand\thesection{\thechapter.\arabic{section}}
+
+\makeatother

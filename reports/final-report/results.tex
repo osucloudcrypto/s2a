@@ -1,4 +1,4 @@
-\subsection{Results}
+\section{Results}
 
 % What did we learn?
 % DSSE is very complex
@@ -12,7 +12,7 @@ Interestingly, our benchmarks for $\Pi_\mathrm{pack}$ did not show much of a per
 
 We built a small demo web app for expo. This was a simple web frontend for the DSSE client which allowed people to search files in the database, and even to edit files. This was not strictly part of our project requirements, but it helped people see our project in action, and it aligned well with the spirit of our project, which was to show how privacy-preserving searchable encryption could be applied to the real world.
 
-\subsubsection{Future work}
+\subsection{Future work}
 
 This section highlights some further areas of research. 
 Searchable encryption is a relatively young field and so there is still a lot to discover.
@@ -26,10 +26,12 @@ Searchable encryption is a relatively young field and so there is still a lot to
 
 \item \textbf{Storage-only server.} In the Cash-DSSE algorithm as described in the paper, the server performs the final decryption step, decrypting the file ids before handing them off to the client. This leaks a little information to the server over time. It would be better if the client performed all the decryption operations;  however, the Cash-DSSE scheme requires that the server to know the file ids it is returning in order to check the revocation set. To move decryption to the client would require an extra round-trip request. This needs further investigation.
 
+% multi-keyword search
+% regexp search using trigrams
 
 \end{itemize}
 
-\subsubsection{Conclusion}
+\subsection{Conclusion}
 
 We created an open-source implementation of the DSSE scheme described in \cite{cash14}
 and were able to partially replicate the results.

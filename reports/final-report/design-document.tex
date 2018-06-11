@@ -1,69 +1,6 @@
-\def \CapstoneTeamName{		The Secret Bunny Team}
-\def \CapstoneTeamNumber{		38}
-\def \GroupMemberOne{			Andrew Ekstedt}
-\def \GroupMemberTwo{			Scott Merrill}
-\def \GroupMemberThree{			Scott Russell}
-\def \CapstoneProjectName{		Privacy Preserving Cloud, Email, and Password Systems}
-\def \CapstoneSponsorCompany{	OSU}
-\def \CapstoneSponsorPerson{		Attila Yavuz}
+% This document explores our implementation with a focus on looking at the exact timeline of implementation by flushing out the Gantt chart's timeline into more clear and concise week by week evaluations. The points of design for this document includes the searchable encryption algorithm, Research of parallelization, and Benchmarking comparisons between other similar algorithm implementations. Each of these major sections contain sub parts that pertain to specific problems we may run into during implementation and how we plan to overcome said problems.
 
-% 2. Uncomment the appropriate line below so that the document type works
-\def \DocType{	%Problem Statement
-				%Requirements Document
-				%Technology Review
-				Design Document
-				%Progress Report
-				}
-			
-
-% 3. If the document is not to be signed, uncomment the RENEWcommand below
-%\renewcommand{\NameSigPair}[1]{#1}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{titlepage}
-    \pagenumbering{gobble}
-    \begin{singlespace}
-        %\includegraphics[height=4cm]{coe_v_spot1}
-        \hfill 
-        % 4. If you have a logo, use this includegraphics command to put it on the coversheet.
-        %\includegraphics[height=4cm]{CompanyLogo}   
-        \par\vspace{.2in}
-        \centering
-        \scshape{
-            \huge CS Capstone \DocType \par
-            {\large\today}\par
-            \vspace{.5in}
-            \textbf{\Huge\CapstoneProjectName}\par
-            \vfill
-            {\large Prepared for}\par
-            \Huge \CapstoneSponsorCompany\par
-            \vspace{5pt}
-            {\Large\NameSigPair{\CapstoneSponsorPerson}\par}
-            {\large Prepared by }\par
-            Group\CapstoneTeamNumber\par
-            % 5. comment out the line below this one if you do not wish to name your team
-            \CapstoneTeamName\par 
-            \vspace{5pt}
-            {\Large
-                \NameSigPair{\GroupMemberOne}\par
-                \NameSigPair{\GroupMemberTwo}\par
-                \NameSigPair{\GroupMemberThree}\par
-            }
-            \vspace{20pt}
-        }
-        \begin{abstract}
-        % 6. Scott Russell 
-        	 This document explores our implementation with a focus on looking at the exact timeline of implementation by flushing out the Gantt chart's timeline into more clear and concise week by week evaluations. The points of design for this document includes the searchable encryption algorithm, Research of parallelization, and Benchmarking comparisons between other similar algorithm implementations. Each of these major sections contain sub parts that pertain to specific problems we may run into during implementation and how we plan to overcome said problems.
-        \end{abstract}     
-    \end{singlespace}
-\end{titlepage}
-\newpage
-\pagenumbering{arabic}
-%\tableofcontents
-% 7. uncomment this (if applicable). Consider adding a page break.
-%\listoffigures
-%\listoftables
-%\clearpage
+\chapter{Design Document}
 
 % Research paper structure
 % 1. Introduction / overview
@@ -73,14 +10,14 @@
 %   c. Case study 2
 % 3. Conclusion
 
-\subsection{Introduction}
+\section{Introduction}
 
-\subsubsection{ Purpose }
+\subsection{ Purpose }
 
 The purpose of this document is to specify the system design for the Privacy Preserving Cloud project, and to give an estimated schedule.
 
 
-\subsubsection{ Summary }
+\subsection{ Summary }
 
 
 % The goal of this project is 
@@ -112,7 +49,7 @@ We expect to have be flexible and to adapt our plan to where the research leads 
 % aspirational, not ...
 
 
-\subsection{ Definitions }
+\section{ Definitions }
 
 \paragraph*{\textbf{searchable encryption scheme}} An algorithm which allows a client to efficiently search encrypted documents on a remote server.
 
@@ -124,7 +61,7 @@ We expect to have be flexible and to adapt our plan to where the research leads 
 % etc
 
 
-\subsection{ Project components }
+\section{ Project components }
 
 % Design concerns / constrains
 
@@ -138,7 +75,7 @@ Andrew Ekstedt will be primarily responsible for \ref{subsec:sse} and \ref{subse
 Scott Merrill will be primarily responsible for \ref{subsec:parallel} and \ref{subsec:size}.
 Scott Russell will be primarily responsible for \ref{subsec:email} and \ref{subsec:benchmark}.
 
-\subsubsection{ Searchable encryption algorithm }
+\subsection{ Searchable encryption algorithm }
 \label{subsec:sse}
 
 % Andrew Ekstedt
@@ -162,7 +99,7 @@ See subsection \ref{subsec:benchmark}.
 
 There are 3 subcomponents.
 
-\subsubsection{ Search algorithm }
+\subsection{ Search algorithm }
 
 The core subcomponent is C++ library which implements the SSE algorithm. 
 
@@ -188,7 +125,7 @@ Implementations of both algorithms will be supplied by the tomcrypt \cite{tomcry
 
 The client and server will be written in C++ and exchange messages with the ZeroMQ library.
 
-\subsubsection{ Server program }
+\subsection{ Server program }
 
 The server program is a daemon which responds to client requests.
 The server is responsible for maintaining the encrypted files and encrypted search index.
@@ -205,14 +142,14 @@ We can store these different data structures in separate files. %why?
 
 Since these ancillary data structures tend to grow over time, we will want the server to be able to periodically reconstruct the index. % how?
 
-\subsubsection{ Client program }
+\subsection{ Client program }
 
 The client program will be a basic command-line program which talks to the server.
 It will allow the user to create a search index, add and delete files, and search for a keyword.
 
 It will be written in C++ and use the SSE library to interact with the server.
 
-\subsubsection{ Case Study: Email Daemon }
+\subsection{ Case Study: Email Daemon }
 \label{subsec:email}
 
 % Goal: demonstrate usability of SSE by showing how it can be used to automatically index emails.
@@ -233,7 +170,7 @@ If you set this interval too small it will take away processing from server acce
 We believe that once every minute will be an effective middle ground that provides convenience with minimal impact to the server.
 % XXX maybe the update interval should be phrased as a research question? we don't have any data to back up the one minute interval we assert here
 
-\subsubsection {Case Study: Search Index Size Optimization}
+\subsection {Case Study: Search Index Size Optimization}
 \label{subsec:size}
 
 % Research question: can we decrease the index size?
@@ -280,7 +217,7 @@ Pointers are used to locate the different blocks of identifiers used for retriev
 
 
 
-\subsubsection {Case Study: Parallelization}
+\subsection {Case Study: Parallelization}
 \label{subsec:parallel}
 
 % Research question: can we parallelize Cash-DSSE to speed it up?
@@ -303,7 +240,7 @@ What we hope/expect to find:
 
 This research will be largely focused on internal testing with tests cases to determine the best practice. Parameters may include: Size of dictionary, Number of clients, and Speed of the network. subsection 3.6 will outline the specific tests cases and benchmarks we will use to evaluate our experiments and to determine the effectiveness of our results. 
 
-\subsubsection {Case Study: Storage-only Server}
+\subsection {Case Study: Storage-only Server}
 \label{subsec:dumbserver}
 
 %does not compute
@@ -332,7 +269,7 @@ We can probably eliminate the server's role entirely and have the client just fe
 
 If successful, we will compare the time to search a storage-only server versus baseline. We expect that there will not be much of a difference in performance.
 
-\subsubsection {Benchmarking}
+\subsection {Benchmarking}
 \label{subsec:benchmark}
 
 % Scott Russell
@@ -345,7 +282,7 @@ There are two primary axes which we want to test against: our implementation ver
 Our initial SSE implementation (subsection \ref{subsec:sse}) will be our baseline implementation;
 we can then graph and track how well specific optimizations increase performance and be able to see in retrospect what processes improved performance the most.
 
-\subsubsection {Metrics}
+\subsection {Metrics}
 
 \paragraph {Round-trip delay}
 
@@ -363,7 +300,7 @@ We will perform each test on a slow network, such as a public Wi-Fi network, as 
 By measuring both round-trip delay and index size we can see how variations of the SSE algorithm trade off speed and size.
 
 
-\subsubsection {Other implementations}
+\subsection {Other implementations}
 
 To have a point of reference we will test our implementation against IM-DSSE and Clusion.
 
@@ -373,7 +310,7 @@ IM-DSSE \cite{im-dsse} is a C++ implementation of \cite{yavuz15}, which uses a i
 \paragraph{Clusion}
 Clusion \cite{clusion} is a collection of Java implementations of several SSE algorithms --- in particular, the same algorithm we are using. Because Clusion implements the same SSE algorithm as our project, but in different slower programming language, this should give us a low anchor for our other benchmarking results.
 
-\subsubsection {Discussion}
+\subsection {Discussion}
 
 Benchmarking is an important aspect of project implementation.
 Although implementation of the algorithm may be correct, faulty testing can create results that fail to simulate real world situations where these algorithms would be implemented.
@@ -392,7 +329,7 @@ The primary purpose of this stage of the project is to be able to calculate and 
 
 
 
-\subsection {Schedule}
+\section {Schedule}
 
 We plan to have a working implementation of the basic SSE algorithm by the second week of winter term, after which each project member will work on separate projects as outlined above.
 We hope to wrap those up at the end of Winter term, and to do comprehensive testing and benchmarking starting at the end of Winter term and going into Spring.
@@ -419,8 +356,5 @@ See Figure \ref{figure:gantt} for a detailed chart.
 
 % it's probably okay if some of the research ends up getting pushed to spring, as long as we have a basic working implementation and some interesting benchmark results
 
-\subsection{ Conclusion }
-After complition of this document we now have a better grasp on the timeframe of our implemenetation. From integration of the core SSE to benchmarking. A clear week to week plan will greatly improve accountability as well as keep our team on track to complete all project requirements by the end of the year. 
-% References
-\bibliographystyle{IEEEtran}
-\bibliography{main}{}
+\section{ Conclusion }
+After completion of this document we now have a better grasp on the timeframe of our implemenetation. From integration of the core SSE to benchmarking. A clear week to week plan will greatly improve accountability as well as keep our team on track to complete all project requirements by the end of the year.
