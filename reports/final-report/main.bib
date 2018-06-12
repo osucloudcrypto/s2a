@@ -1,31 +1,9 @@
-@Comment{  Searchable Encryption   }
+@Comment{Searchable Encryption}
 
 @MISC{Song00,
     author = {Dawn Xiaodong Song and David Wagner and Song David and Adrian Perrig},
     title = {Practical Techniques for Searches on Encrypted Data},
     year = {2000},
-    annote = {
-	The original searchable encryption paper.
-        The authors introduce the concept of searchable encryption and define the essential properties of a searchable encryption scheme:
-        that the server should not be able to learn anything about the plaintext;
-        that the server should not be able to learn which keywords the user is searching for;
-        and that the server cannot perform a search without the user's permission.
-
-        They do not rigorously define what operations a searchable encryption scheme supports. They mention dynamic schemes only in passing.
-
-        They also present a basic scheme and prove its security. Remarkably, the scheme they present does not use a search index(!); rather, it performs a linear scan over the encrypted documents.
-        They briefly discuss a scheme which uses an index at the end, but do not go into detail.
-
-        Basically, the scheme works by encrypting the list of tokens and xoring each encrypted token with a pair of values (L,R) such that L and R are related, but in a way that can only be detected if the server knows the keyword.
-
-       To search, the client provides the server with the encrypted keyword and the server performs a linear search over the encrypted document, xoring each block with the encrypted keyword and checking if the property holds.
-
-       Notably, this search method is probabilistic(!) because it can have false positives.
-
-        The scheme leaks information about where tokens appear in files.
-
-        Search runs in $\mathcal{O}(n)$ time, where $n$ is the \textit{size of all the documents to be searched}. The paper claims that this is efficient.
-    },
 }
 
 @misc{cash14,
@@ -42,7 +20,7 @@
     howpublished = {Selected Areas in Cryptography (SAC) 2015, Sackville, New Brunswick, Canada},
     year = {2015},
     month = {August},
-    note = {\url{http://web.engr.oregonstate.edu/~yavuza/Yavuz_DSSE_SAC2015.pdf}},
+    url = {http://web.engr.oregonstate.edu/~yavuza/Yavuz_DSSE_SAC2015.pdf},
 }
 
 
@@ -183,4 +161,17 @@ https://www.dropbox.com/plans},
   	title="Privacy-Preserving Cloud, Email and Password Systems.",
     publisher="CS Senior Capstone",
     url={http://eecs.oregonstate.edu/capstone/cs/capstone.cgi?project=334},
+}
+
+@misc{sqlite3,
+    title="SQLite Home Page",
+    url={https://sqlite.org/index.html},
+}
+
+@misc{Github,
+    title="osucloudcrypto/s2a",
+    author="Andrew Ekstedt and Scott Merrill and Scott Russell",
+    year=2018,
+    publisher="Github",
+    url={https://github.com/osucloudcrypto/s2a},
 }
