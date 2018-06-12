@@ -154,3 +154,69 @@ To use the delete command, you need to know the id of the file you want to modif
 For example,
 
     ./client delete 1 hello
+
+Hacking
+-----
+
+The top level of the repository is layed out as follows.
+
+    Benchmarks/           benchmark results
+    Meeting_Notes/        meeting notes throughout the term
+    Poster/               our expo poster
+    Term_PowerPoints/     powerpoint slides from our progress reports
+    demo/                 (demo_app branch only) this is where the demo app lives
+    reports/              capstone reports and other documents
+    src/                  the main source code
+    third_party/          copies of third-party libraries that we depend on
+
+The most interesting directory is `src`, which contains all the main code for the DSSE.
+
+    DSSE.h                        central header file
+    DSSE.cpp                      core DSSE class (all cryptographic code)
+    DSSEClient.cpp                DSSE client class  (all client networking logic)
+    DSSEServer.cpp                DSSE server class  (all server networking logic)
+    DSSETokenize.cpp              tokenization code
+    storage.cpp                   storage serialization code
+    
+    dsse-prototype.py             a prototype written in Python
+    dsse.proto                    protobuf definitions
+    
+    bench.cpp                     some benchmarking code
+    client.cpp                    client program - uses DSSE::Client
+    server.cpp                    server program - uses DSSE::Server
+
+
+The DSSE is organized around three central classes ---
+`DSSE::Core`, `DSSE::Client`, and `DSSE::Server`.
+There is one central header file, `DSSE.h`,
+which contains declarations for all these classes and their associated methods.
+
+`DSSE.cpp` defines the `DSSE::Core` class, and
+contains all the low-level cryptographic code.
+All the algorithms described in the paper are implemented in this file.
+It contains both the client and server halves of the Setup, Search, Add, and Delete methods.
+It does not contain any networking code.
+The Core class is also where all the state required by the algorithms are stored.
+`storage.cpp` contains functions which are able to serialize the this state into files.
+
+`DSSEClient.cpp` and `DSSEServer.cpp` define the
+`DSSE::Client` and `DSSE::Server` classes,
+which implement the client and server halves of the network communication, respectively.
+All the networking is performed in these files.
+These classes interact with the `DSSE::Core` class;
+they deserialized messages from the wire, pass them to the core, and serialize the results back out.
+Messages are serialized using protobuf; messages definitions can be found in `dsse.proto`.
+
+`dsse-prototype.py` contains a prototype implementation of the core DSSE protocol (basic variant).
+If you just want to understand the algorithm, this may be a good place to look.
+
+Finally, `client.cpp` and `server.cpp` are the
+actual client and server programs. This is where the `main` function is
+defined.
+For the most part, these are just simple wrappers around the
+`DSSE::Client` and `DSSE::Server` classes;
+they parse command line arguments, construct an object of the appropriate class,
+call one or more methods, and print the results.
+`bench.cpp` is the program we used for some of the benchmarks.
+
+Further details and documentation of the classes can be found in `DSSE.h`.
