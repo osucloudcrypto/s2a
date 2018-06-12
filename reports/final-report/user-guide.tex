@@ -222,6 +222,7 @@ DB_PATH = os.path.expanduser("~/maildir")
 
 The top level of the repository is layed out as follows.
 
+\begin{center}
 \begin{tabular}{ll}
     Benchmarks/         & benchmark results \\
     Meeting\_Notes/      & meeting notes throughout the term \\
@@ -232,12 +233,14 @@ The top level of the repository is layed out as follows.
     src/                & the main source code \\
     third\_party/        & copies of third-party libraries that we depend on \\
 \end{tabular}
+\end{center}
 
 The most interesting directory is \texttt{src}, which contains all the main code for the DSSE.
 
 
 Within src,
 
+\begin{center}
 \begin{tabular}{ll}
     DSSE.h                      & central header file \\
     DSSE.cpp                    & core DSSE class (all cryptographic code) \\
@@ -253,6 +256,7 @@ Within src,
     client.cpp                  & client program - uses DSSE::Client \\
     server.cpp                  & server program - uses DSSE::Server \\
 \end{tabular}
+\end{center}
 
 
 The DSSE is organized around three central classes ---

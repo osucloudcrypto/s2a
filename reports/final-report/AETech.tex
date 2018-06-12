@@ -17,7 +17,14 @@ Our goal is to implement the scheme described by David Cash et al. in \cite{cash
 
 \subsection{Song et al., 2000}
 
-\cite{song00} \bibentry{song00}
+\begin{flushleft}
+\footnotesize
+\hangindent=2em
+\hangafter=1
+\cite{song00} %\bibentry{song00}
+D.~X. Song, D.~Wagner, S.~David, and A.~Perrig, ``Practical techniques for
+  searches on encrypted data,'' 2000.
+\end{flushleft}
 
 The original searchable encryption paper.
 The authors introduce the concept of searchable encryption and define the essential properties of a searchable encryption scheme:
@@ -42,7 +49,16 @@ Search runs in $\mathcal{O}(n)$ time, where $n$ is the \textit{size of all the d
 
 \subsection{Cash et al., 2014}
 
-\cite{cash14} \bibentry{cash14}
+\begin{flushleft}
+\footnotesize
+\hangindent=2em
+\hangafter=1
+\cite{cash14}
+D.~Cash, J.~Jaeger, S.~Jarecki, C.~Jutla, H.~Krawczyk, M.-C. Roşu, and
+  M.~Steiner, ``Dynamic searchable encryption in very-large databases: Data
+  structures and implementation,'' Cryptology ePrint Archive, Report 2014/853,
+  2014. [Online]. Available: \url{https://eprint.iacr.org/2014/853}
+\end{flushleft}
 
 The authors describe a dynamic symmetric searchable encryption scheme in which the encrypted index is stored as a hash table. The keys derived from the search token, and the values are the encrypted file index.
 Collisions are avoided by running a per-token counter through a MAC
@@ -56,7 +72,17 @@ The algorithm is parallelizable.
 
 \subsection{Yavuz et al., 2015}
 
-\cite{yavuz15} \bibentry{yavuz15}
+\begin{flushleft}
+\footnotesize
+\hangindent=2em
+\hangafter=1
+\cite{yavuz15}
+A.~A. Yavuz and J.~Guajardo, ``Dynamic searchable symmetric encryption with
+  minimal leakage and efficient updates on commodity hardware,'' Selected Areas
+  in Cryptography (SAC) 2015, Sackville, New Brunswick, Canada, August 2015.
+  [Online]. Available:
+  \url{http://web.engr.oregonstate.edu/~yavuza/Yavuz_DSSE_SAC2015.pdf}
+\end{flushleft}
 
 The authors describe a dynamic searchable encryption scheme in which the search index is stored as an adjacency matrix where the rows correspond to keywords. Each row is encrypted with a stream cipher using a per-row key.
 Updates are performed by replacing the relevant column.
