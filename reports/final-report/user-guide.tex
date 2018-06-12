@@ -184,8 +184,39 @@ For example,
 
 The demo app lives in the \texttt{demo\_app} branch.
 It is not part of the main code base.
+The app shells out to the \texttt{client} program for all database operations;
+you should compile the main programs and get the server running before continuing.
+You will also need to initialize the database with \texttt{client setup} as described above.
 
-% TODO
+The app is written in Python using Flask.
+We recommend using a virtualenv to install Flask and other dependencies.
+
+\begin{lstlisting}
+git checkout demo_app
+cd demo
+virtualenv .
+./bin/pip install -r requirements.txt
+\end{lstlisting}
+
+To run the app, just run the script,
+
+\begin{lstlisting}
+./run
+\end{lstlisting}
+
+or manually launch python from the virtualenv.
+
+\begin{lstlisting}
+./bin/python app.py
+\end{lstlisting}
+
+You will probably have to set the \texttt{DB\_PATH} variable in \texttt{app.py}
+to point to the directory containing the files in the database.
+These are expected to be local to the computer running the demo app.
+
+\begin{lstlisting}
+DB_PATH = os.path.expanduser("~/maildir")
+\end{lstlisting}
 
 \section{Hacking}
 
@@ -202,5 +233,60 @@ The top level of the repository is layed out as follows.
     third\_party/        & copies of third-party libraries that we depend on \\
 \end{tabular}
 
+The most interesting directory is \texttt{src}, which contains all the main code for the DSSE.
 
-% TOGO
+
+Within src,
+
+\begin{tabular}{ll}
+    DSSE.h                      & central header file \\
+    DSSE.cpp                    & core DSSE class (all cryptographic code) \\
+    DSSEClient.cpp              & DSSE client class  (all client networking logic) \\
+    DSSEServer.cpp              & DSSE server class  (all server networking logic) \\
+    DSSETokenize.cpp            & tokenization code \\
+    storage.cpp                 & storage serialization code \\
+    \hline
+    dsse-prototype.py           & a prototype written in Python \\
+    dsse.proto                  & protobuf definitions \\
+    \hline
+    bench.cpp                   & some benchmarking code \\
+    client.cpp                  & client program - uses DSSE::Client \\
+    server.cpp                  & server program - uses DSSE::Server \\
+\end{tabular}
+
+
+The DSSE is organized around three central classes ---
+\texttt{DSSE::Core}, \texttt{DSSE::Client}, and \texttt{DSSE::Server}.
+There is one central header file, \texttt{DSSE.h},
+which contains declarations for all these classes and their associated methods.
+
+
+\texttt{DSSE.cpp} defines the \texttt{DSSE::Core} class, and
+contains all the low-level cryptographic code.
+All the algorithms described in the paper are implemented in this file.
+It contains both the client and server halves of the Setup, Search, Add, and Delete methods.
+It does not contain any networking code.
+The Core class is also where all the state required by the algorithms are stored.
+\texttt{storage.cpp} contains functions which are able to serialize the this state into files.
+
+\texttt{DSSEClient.cpp} and \texttt{DSSEServer.cpp} define the
+\texttt{DSSE::Client} and \texttt{DSSE::Server} classes,
+which implement the client and server halves of the network communication, respectively.
+All the networking is performed in these files.
+These classes interact with the \texttt{DSSE::Core} class;
+they deserialized messages from the wire, pass them to the core, and serialize the results back out.
+Messages are serialized using protobuf; messages definitions can be found in \texttt{dsse.proto}.
+
+\texttt{dsse-prototype.py} contains a prototype implementation of the core DSSE protocol (basic variant).
+If you just want to understand the algorithm, this may be a good place to look.
+
+Finally, \texttt{client.cpp} and \texttt{server.cpp} are the
+actual client and server programs. This is where the \texttt{main} function is
+defined.
+For the most part, these are just simple wrappers around the
+\texttt{DSSE::Client} and \texttt{DSSE::Server} classes;
+they parse command line arguments, construct an object of the appropriate class,
+call one or more methods, and print the results.
+\texttt{bench.cpp} is the program we used for some of the benchmarks.
+
+Further details and documentation of the classes can be found in \texttt{DSSE.h}.
