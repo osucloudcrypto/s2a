@@ -78,11 +78,11 @@ Include Potential choices
 \subsubsection{ HMAC } 
 HMAC, or hash-based message authentication code, was created in 1997 and was one of the first MAC schemes to be used. This makes it one of the simpler or primitive types of MAC and has many possible implementations available. HMAC  also has been tested and proven to be a secure option as a MAC. 
 \subsubsection{ CMAC }
-CMAC or Cipher-based Authentication code, is made using a block cipher along with a secret key. CMAC can be used similarly to HMAC in creating a authentication code to pass along with a message. According to a study [4]
+CMAC or Cipher-based Authentication code, is made using a block cipher along with a secret key. CMAC can be used similarly to HMAC in creating a authentication code to pass along with a message. According to a study \cite{smtech:IPSEC}
 CMAC performs at an average speed of 27.75 (picoseconds) per packet compared to HMAC at 28.03 (picoseconds) per packet. 
 
 \subsubsection{ PMAC }
-PMAC, or for Paralleliz-able MAC, is a message authentication code algorithm created by Phillip Rogaway. PMAC is a method of taking a block cipher and creating an efficient message authentication code that is reducible in security to the underlying block cipher. PMAC is similar in functionality to the CMAC algorithm. PMAC solves one thing that CMAC struggles with and that is you can't compute C[i] until you've finished computing C[i-1]. This "bottleneck" can be a problem if you want to MAC at very high speeds. [5]
+PMAC, or for Paralleliz-able MAC, is a message authentication code algorithm created by Phillip Rogaway. PMAC is a method of taking a block cipher and creating an efficient message authentication code that is reducible in security to the underlying block cipher. PMAC is similar in functionality to the CMAC algorithm. PMAC solves one thing that CMAC struggles with and that is you can't compute C[i] until you've finished computing C[i-1]. This "bottleneck" can be a problem if you want to MAC at very high speeds. \cite{smtech:PMAC}
     
 \subsection{Discussion}     
 For this option all three meet the speed and security that we are looking for in our criteria. There are implementations of all three that are available in the Tomcrypt library. PMAC seems to be a straight upgrade to CMAC if we are looking for scalability. HMAC is by far the simplest one to choose. 
@@ -91,50 +91,50 @@ we chose HMAC because our project does not call for any measure of scalability s
 
     % This terrible hack modifies the thebibliography environment to use \subsection instead of \section* for the references heading
     % https://tex.stackexchange.com/questions/22645/hiding-the-title-of-the-bibliography#22654
-    
+
 \patchcmd{\thebibliography}
 {\addcontentsline{toc}{section}{\refname}}{}{}{}
-    
+
 \begin{thebibliography}{10} 		
-    \bibitem{capstone}
+    \bibitem{smtech:capstone}
     	Attila Yavuz.
     	"Privacy-Preserving Cloud, Email and Password Systems."
         \textit{CS Senior Capstone}
         http://eecs.oregonstate.edu/capstone/cs/capstone.cgi?project=334
         
-    \bibitem{yavuz}
+    \bibitem{smtech:yavuz}
     	Attila Yavuz and Jorge Guajardo.
         "Dynamic Searchable Symmetric Encryption with Minimal Leakage and Efficient Updates on
 Commodity Hardware"
 		\textit{ACM SAC 2015}
         http://web.engr.oregonstate.edu/~yavuza/Yavuz\_DSSE\_SAC2015.pdf
         
-    \bibitem{cash}
+    \bibitem{smtech:cash}
     	David Cash et al.
         "Dynamic Searchable Encryption in Very-Large Databases: Data Structures and Implementation"
         \textit{Cryptology ePrint Archive, Report 2014/853}
         https://eprint.iacr.org/2014/853
         
-   \bibitem{IPSEC}
+   \bibitem{smtech:IPSEC}
      Performance Comparison of Message Authentication Code (MAC) Algorithms for the
 Internet Protocol Security (IPSEC). 
 	\textit{Janaka Deepakumara, Howard M. Heys and R. Venkatesan }
     http://citeseerx.ist.psu.edu/viewdoc/
 
-	\bibitem{PMAC}
+	\bibitem{smtech:PMAC}
     PMAC: Background
     	\textit{http://web.cs.ucdavis.edu/~rogaway/ocb/pmac-bak.htm}
 	
-    \bibitem{msdn}
+    \bibitem{smtech:msdn}
     Choosing a Programming Language
     	\textit{Cris Britton}
     	https://msdn.microsoft.com/en-us/library/cc168615.aspx    
 
-	\bibitem{Quora}
+	\bibitem{smtech:Quora}
     What are the pros and cons vs. C++, Python and Java?
     	\textit{Cody Jackson}
     	https://www.quora.com/What-are-the-pros-and-cons-vs-C++-Python-and-Java
-    \bibitem{libtom}
+    \bibitem{smtech:libtom}
     LibTom
     	\textit{ 2017 Team libtom}
         http://www.libtom.net/LibTomCrypt/
