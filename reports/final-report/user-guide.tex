@@ -62,7 +62,7 @@ It has a number of subcommands;
 to see the full list, give it the \texttt{-h} option (or any other invalid option
 
 \begin{lstlisting}
-\% ./client -h
+% ./client -h
 ./client: invalid option -- 'h'
 Usage: client [-p port] <command> [args]
 Commands:
@@ -75,6 +75,14 @@ Commands:
 
 For any of these commands to work, the server must already be running.
 If the server is not running, the client will hang until the server is started.
+
+By default, the client tries to connect to port 24992.
+To tell the client to connect to a different port, use the lowercase \texttt{-p} option.
+
+\begin{lstlisting}
+./client -p 8000 search test
+\end{lstlisting}
+
 
 \noindent\textbf{Setup}
 
@@ -105,6 +113,14 @@ ls *.cpp >filelist
 This does the same thing as the previous setup command, but can be used even if
 the number of files is too large to fit on the command line.
 
+The uppercase \texttt{-P} option  controls which variant of the algorithm is used.
+Pass it once to use the packed variant. Pass it twice to use the pointer variant.
+
+\begin{lstlisting}
+./client setup -P *.cpp         # packed
+./client setup -PP *.cpp        # pointer
+\end{lstlisting}
+
 \noindent\textbf{Search}
 
 The search command searches for a keyword in the encrypted index.
@@ -117,7 +133,7 @@ client search [keyword]
 For example,
 
 \begin{lstlisting}
-\% ./client search int
+% ./client search int
 info: loaded client state
 got response
 int: bench.cpp
@@ -151,7 +167,7 @@ For example,
 Now searching for `hello' will return the file with id number 1.
 
 \begin{lstlisting}
-\% ./client search hello
+% ./client search hello
 info: loaded client state
 got response
 hello: bench.cpp
@@ -161,7 +177,7 @@ There is also a variant of the add command called addfile.
 The addfile command adds an entire new file to the search index.
 
 \begin{lstlisting}
-\% ./client addfile DSSE.h
+% ./client addfile DSSE.h
 \end{lstlisting}
 
 \noindent\textbf{Delete}

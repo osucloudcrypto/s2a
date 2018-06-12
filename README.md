@@ -62,6 +62,11 @@ to see the full list, give it the `-h` option (or any other invalid option
 For any of these commands to work, the server must already be running.
 If the server is not running, the client will hang until the server is started.
 
+By default, the client tries to connect to port 24992.
+To tell the client to connect to a different port, use the lowercase `-p` option.
+
+    ./client -p 8000 search test
+
 #### Setup
 
 The setup command creates an encrypted search index
@@ -84,6 +89,12 @@ For example,
 
 This does the same thing as the previous setup command, but can be used even if
 the number of files is too large to fit on the command line.
+
+The uppercase `-P` option  controls which variant of the algorithm is used.
+Pass it once to use the packed variant. Pass it twice to use the pointer variant.
+
+    ./client setup -P *.cpp         # packed
+    ./client setup -PP *.cpp        # pointer
 
 #### Search
 
